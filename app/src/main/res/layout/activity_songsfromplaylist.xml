@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".songsfromplaylist"
+    android:weightSum="10"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/loading"
+        android:background="@drawable/normal_gradient"
+        android:visibility="gone"
+        >
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animation_view"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            app:lottie_fileName="select_playlist.json"
+            android:layout_alignParentStart="true"
+            app:lottie_loop="true"
+            app:lottie_autoPlay="true"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/animation_view"
+            android:fontFamily="@font/bonbon"
+            android:gravity="center"
+            android:text="Getting Songs ..."
+            android:textColor="#311B92"
+            android:textSize="40sp" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/main">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:id="@+id/toplinearheader"
+            android:fadingEdge="vertical"
+            android:background="@drawable/normal_gradient"
+            >
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:src="@drawable/profile"
+                android:id="@+id/playlistimagesinsongslist"
+                android:scaleType="fitXY"
+                />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:id="@+id/fav_playlist"
+                    android:src="@drawable/favourate"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="playlist name"
+                    android:textSize="30sp"
+                    android:layout_centerInParent="true"
+                    android:id="@+id/playlistnameinsonglist"
+                    android:padding="5dp"
+                    android:gravity="center"/>
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/profile"
+        android:backgroundTint="@color/background_profile_image"
+        android:backgroundTintMode="multiply"
+        android:id="@+id/setbackround"
+        android:layout_below="@id/toplinearheader">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="10"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="9.1"
+        android:id="@+id/settheheight"
+        android:orientation="vertical">
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fadingEdge="vertical"
+            tools:listitem="@layout/custom_playlist"
+            android:id="@+id/listvieforsongs">
+        </ListView>
+    </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            android:layout_weight="0.9"
+            android:background="@drawable/forbottombar"
+
+            android:id="@+id/bottomsongshowing"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            >
+            <ProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:outlineAmbientShadowColor="#536DFE"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:id="@+id/songprogresses"
+                android:progressDrawable="@drawable/progress_bar_design"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="10"
+                android:padding="5dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="8"
+                android:layout_height="match_parent"
+                style="@style/TextAppearance.AppCompat.Large"
+                android:textColor="#354EFA"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:scrollHorizontally="true"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:focusable="true"
+                android:gravity="center"
+                android:paddingStart="15dp"
+                android:focusableInTouchMode="true"
+                android:id="@+id/songnameatbottom"
+                android:freezesText="true"
+                android:text="this is a song name ad i am extending this text to see the effect of the marquee" />
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/normal_play"
+                android:id="@+id/playpausinbottom"/>
+        </LinearLayout>
+        </LinearLayout>
+</LinearLayout>
+
+    </RelativeLayout>
+
+
+    </RelativeLayout>
+
+
+</LinearLayout>

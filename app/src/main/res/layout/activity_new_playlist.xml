@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".new_playlist">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/normal_gradient"
+        android:orientation="vertical"
+        android:layout_gravity="center_horizontal"
+        android:padding="10dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/new_playlist_img"
+                android:src="@drawable/nav_color" />
+        </RelativeLayout>
+
+        <EditText
+            android:layout_width="210dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:id="@+id/new_playlist_name"
+            android:hint="Playlist Name"
+            android:inputType="textPersonName"
+            android:textColor="#0091EA"
+            android:maxLength="20"
+            style="@style/TextAppearance.AppCompat.Large"
+            android:gravity="center"
+            android:textColorHint="#0091EA" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/radio_grp"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:weightSum="10">
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Public"
+                android:textColor="#0091EA"
+                android:id="@+id/radio_public"
+                android:gravity="start"
+                android:layout_weight="2"
+                style="@style/TextAppearance.AppCompat.Large"/>
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Private"
+                android:textColor="#0091EA"
+                android:id="@+id/radio_private"
+                android:layout_weight="2"
+                style="@style/TextAppearance.AppCompat.Large"
+                />
+
+
+        </RadioGroup>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Songs"
+            android:background="@drawable/buttonborder"
+            android:textColor="#fff"
+            android:backgroundTint="#2962FF"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:id="@+id/upload_img"/>
+
+    </LinearLayout>
+
+</RelativeLayout>
