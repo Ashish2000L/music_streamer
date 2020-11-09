@@ -1,6 +1,7 @@
 package com.example.musicstreaming;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -15,6 +16,7 @@ import com.android.volley.toolbox.Volley;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
+import static com.example.musicstreaming.login.SHARED_PREF;
 import static com.example.musicstreaming.login.USERNAME;
 import static com.example.musicstreaming.service.onclearfrompercentservice.TAG;
 import static com.example.musicstreaming.splash.SPLASH_ACTIVITY;
@@ -42,7 +44,7 @@ public class checkserveravailability extends AsyncTask<Void,Void,Void> {
 
     @Override
     protected Void doInBackground(Void... voids) {
-
+        final SharedPreferences sharedPreferences = SPLASH_ACTIVITY.getSharedPreferences(SHARED_PREF,Context.MODE_PRIVATE);
         StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -57,7 +59,8 @@ public class checkserveravailability extends AsyncTask<Void,Void,Void> {
                 strings=error.getMessage();
 
                 String err="Error in checkserveravailability class"+error.getMessage();
-                new internal_error_report(context,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
+                Log.e(TAG, "onErrorResponse: USERNAME is "+USERNAME);
+                new internal_error_report(context,err,sharedPreferences.getString(USERNAME,"Unknown")).execute();
 
             }
         });

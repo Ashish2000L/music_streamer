@@ -114,7 +114,7 @@ public class splash extends AppCompatActivity {
     final Handler handler = new Handler();
     int num=0;
     public static Activity SPLASH_ACTIVITY;
-    public SharedPreferences sharedPreferences;
+    public static SharedPreferences sharedPreferences;
     BroadcastReceiver downloads;
     Button btn_refresh;
     LinearLayout top_layout,bottom_layout;
