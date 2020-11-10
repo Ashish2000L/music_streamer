@@ -60,6 +60,7 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
     Button btn;
     RadioGroup group;
     RadioButton type;
+    Boolean IS_IMG_SElECTED=false;
 
 
     @Override
@@ -117,6 +118,7 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
                     InputStream inputStream = getContentResolver().openInputStream(resultUri);
                     bitmap = BitmapFactory.decodeStream(inputStream);
                     playlist_img.setImageBitmap(bitmap);
+                    IS_IMG_SElECTED=true;
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -137,7 +139,11 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if(v.getId()==R.id.upload_img) {
 
-            new compressimage().execute(bitmap);
+            if(IS_IMG_SElECTED) {
+                new compressimage().execute(bitmap);
+            }else{
+                Toast.makeText(this,"Select your playlist image!",Toast.LENGTH_LONG).show();
+            }
 
         }else if(v.getId()==R.id.new_playlist_img){
 
@@ -222,7 +228,7 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPreExecute() {
             progressDialog = new ProgressDialog(new_playlist.this);
-            progressDialog.setMessage("U Image...");
+            progressDialog.setMessage("Setting your playlist...");
             progressDialog.setCancelable(false);
             progressDialog.show();
             Log.d("hello", "onPreExecute: "+encodedimage);
