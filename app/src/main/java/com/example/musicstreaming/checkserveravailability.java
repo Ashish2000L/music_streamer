@@ -33,7 +33,7 @@ public class checkserveravailability extends AsyncTask<Void,Void,Void> {
     Context context;
     Handler handler;
     public static boolean connection=false;
-    public static String strings;
+    public static String strings="";
 
     public checkserveravailability(Context context) {
         this.context = context;
@@ -56,10 +56,10 @@ public class checkserveravailability extends AsyncTask<Void,Void,Void> {
             @Override
             public void onErrorResponse(VolleyError error) {
                 iscomplete=true;
-                strings=error.getMessage();
+                strings="Connection Failed!!";
 
                 String err="Error in checkserveravailability class"+error.getMessage();
-                Log.e(TAG, "onErrorResponse: USERNAME is "+USERNAME);
+                //Log.e(TAG, "onErrorResponse: USERNAME is "+USERNAME);
                 new internal_error_report(context,err,sharedPreferences.getString(USERNAME,"Unknown")).execute();
 
             }
