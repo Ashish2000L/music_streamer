@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".make_custom_playlist">
+
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/new_playlist_toolbar"
+        app:title="New Playlist Name"
+        app:titleTextColor="#fff"
+        android:background="@android:color/black"
+        />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/make_custom_playlist_listview"
+        android:layout_below="@id/new_playlist_toolbar"
+        tools:listitem="@layout/custom_make_custom_playlist"/>
+
+</RelativeLayout>
