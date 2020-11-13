@@ -27,7 +27,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".new_playlist"></activity>
+        <activity android:name=".make_custom_playlist"></activity>
+        <activity android:name=".new_playlist" />
         <activity
             android:name=".profile_img"
             android:screenOrientation="portrait" />
@@ -58,7 +59,7 @@
             android:theme="@style/Base.Theme.AppCompat" />
 
         <receiver android:name=".service.NotificationActionService" />
-        <receiver android:name=".service.Download_complete"></receiver>
+        <receiver android:name=".service.Download_complete" />
 
         <service android:name=".service.onclearfrompercentservice" />
 
@@ -75,6 +76,12 @@
         <activity
             android:name=".login"
             android:screenOrientation="portrait" />
+
+        <receiver android:name="androidx.media.session.MediaButtonReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

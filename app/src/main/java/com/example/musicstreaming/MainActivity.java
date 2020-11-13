@@ -213,11 +213,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void make_playlst(){
-        getSupportFragmentManager().beginTransaction().replace(R.id.framelayout,new new_playlist_details()).commit();
-        Log.e(TAG, "make_playlst: ");
-    }
-
     @Override
     public void onBackPressed() {
         //Fragment check=new homefragment();

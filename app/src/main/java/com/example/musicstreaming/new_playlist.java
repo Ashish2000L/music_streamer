@@ -141,8 +141,9 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
 
             if(IS_IMG_SElECTED) {
                 new compressimage().execute(bitmap);
-            }else{
-                Toast.makeText(this,"Select your playlist image!",Toast.LENGTH_LONG).show();
+            }else {
+                //Toast.makeText(this,"Select your playlist image!",Toast.LENGTH_LONG).show();
+                startActivity(new Intent(this,make_custom_playlist.class));
             }
 
         }else if(v.getId()==R.id.new_playlist_img){
@@ -191,7 +192,7 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
 
             Bitmap bitmap = bitmaps[0];
             Log.d("hello", "doInBackground: "+bitmap);
-            int quality=100,lengths;
+            int quality=80,lengths;
             String encodedfiles;
 
             do {
