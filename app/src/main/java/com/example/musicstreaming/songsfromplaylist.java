@@ -376,7 +376,7 @@ public class songsfromplaylist extends AppCompatActivity {
                                String like = object.getString("like");
                                String singer = object.getString("singer");
 
-                                listofsongs = new listofsongs(name,songurl,image,like,singer);
+                                listofsongs = new listofsongs(name,songurl,image,like,singer,"0");
                                 listofsongsArrayLisr.add(listofsongs);
                                 songadapter.notifyDataSetChanged();
 
@@ -545,7 +545,7 @@ public class songsfromplaylist extends AppCompatActivity {
                                 Log.d(TAG, "onResponse: likes is "+like);
                                 Log.d(TAG, "onResponse: singer is "+singer);
                                 //Toast.makeText(ListOfRentersForAdmin.this, usernames, Toast.LENGTH_LONG).show();
-                                listofsongs = new listofsongs(name,songurl,image,like,singer);
+                                listofsongs = new listofsongs(name,songurl,image,like,singer,"0");
                                 listofsongsArrayLisr.add(listofsongs);
                                 songadapter.notifyDataSetChanged();
 
@@ -791,7 +791,7 @@ public class songsfromplaylist extends AppCompatActivity {
                                 String like = object.getString("like");
                                 String singer = object.getString("singer");
 
-                                listofsongs = new listofsongs(name,songurl,image,like,singer);
+                                listofsongs = new listofsongs(name,songurl,image,like,singer,"0");
                                 listofsongsArrayLisr.add(listofsongs);
                                 songadapter.notifyDataSetChanged();
 
