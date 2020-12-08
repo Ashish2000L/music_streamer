@@ -7,22 +7,14 @@ public class listofsongs {
      * Engineering ,2ndyear Student</p>
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
-    String name,url,image,likes,singer,colr;
-    public listofsongs(String name,String url,String image,String likes,String singer,String colr) {
+    String name,url,image,likes,singer;
+    public listofsongs(String name,String url,String image,String likes,String singer) {
         this.name=name;
         this.url=url;
         this.image=image;
         this.likes=likes;
         this.singer = singer;
-        this.colr=colr;
-    }
 
-    public String getColr() {
-        return colr;
-    }
-
-    public void setColr(String colr) {
-        this.colr = colr;
     }
 
     public String getSinger() {

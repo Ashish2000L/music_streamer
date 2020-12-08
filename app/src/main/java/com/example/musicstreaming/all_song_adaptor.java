@@ -25,16 +25,16 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import java.util.List;
 
-public class all_song_adaptor extends ArrayAdapter<listofsongs> {
+public class all_song_adaptor extends ArrayAdapter<list_of_all_songs> {
 
     Context context;
-    List<listofsongs> arraylistofsongs;
+    List<list_of_all_songs> arraylistofsongs;
     ImageView img_view;
     TextView name,singer;
     String TAG="all_songs";
 
 
-    public all_song_adaptor(@NonNull Context context, List<listofsongs> arraylistofsongs) {
+    public all_song_adaptor(@NonNull Context context, List<list_of_all_songs> arraylistofsongs) {
         super(context,R.layout.custom_make_custom_playlist,arraylistofsongs);
         this.arraylistofsongs=arraylistofsongs;
         this.context=context;
@@ -44,7 +44,7 @@ public class all_song_adaptor extends ArrayAdapter<listofsongs> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.custom_songs,null,true);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.custom_make_custom_playlist,null,true);
 
         img_view=view.findViewById(R.id.song_img);
         name=view.findViewById(R.id.song_name);

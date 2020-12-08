@@ -14,12 +14,12 @@
         app:titleTextColor="#fff"
         android:background="@android:color/black"
         />
-
-    <ListView
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/make_custom_playlist_listview"
         android:layout_below="@id/new_playlist_toolbar"
-        tools:listitem="@layout/custom_make_custom_playlist"/>
+        android:id="@+id/custom_frame_layout"/>
+
+
 
 </RelativeLayout>
