@@ -77,7 +77,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         MAIN_ACTIVITY=this;
+
+        //error handler
         Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(this));
+
+        //initilizations
         navigationView = findViewById(R.id.navmenu);
         drawerLayout = findViewById(R.id.drawair);
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -89,8 +93,10 @@ public class MainActivity extends AppCompatActivity {
         songname.setSelected(true);
         setSupportActionBar(toolbar);
 
-         sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
+        sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
         String names = "",emails,urls;
+
+        //handling profile detail in the drawable section
         try {
             View navview = navigationView.inflateHeaderView(R.layout.navheader);
             profileimage = navview.findViewById(R.id.profile);
@@ -113,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        //click listner on T.V for opening 'now playing'
         songname.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,9 +128,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //defination in the bottom
         showdetail(isprepared);
         changeplaypauseimgs(isplaying);
 
+        //click listener for the play/pause img
         playpause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,9 +146,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //setting initial fragment
         getSupportFragmentManager().beginTransaction().replace(R.id.framelayout,new homefragment()).commit();
         navigationView.setCheckedItem(R.id.home);
 
+        //switch between fragments
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
 
@@ -213,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //backpress handler
     @Override
     public void onBackPressed() {
         //Fragment check=new homefragment();
@@ -226,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //changing song details i.e song_name & artist
     public static void showdetail(boolean isplaying){
         LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) showdetailses.getLayoutParams();
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) thisisit.getLayoutParams();
@@ -251,6 +264,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //change play/pause in the home screen bottom bar
     public static void changeplaypauseimgs(boolean playing){
         if(playing){
             playpause.setImageResource(R.drawable.normal_pause);
@@ -259,6 +273,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //loading users profile image
     public void loadimage(String url){
         final CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(this);
         circularProgressDrawable.setStrokeWidth(5f);

@@ -234,13 +234,13 @@ public class songsfromplaylist extends AppCompatActivity {
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.centerCrop();
         requestOptions.override(600,600);
-        //requestOptions.fitCenter();
 
         Log.d(TAG, "onCreate: your imahe is "+imageurl);
 
         Glide.with(songsfromplaylist.this)
                 .load(imageurl)
                 .apply(requestOptions)
+                .placeholder(R.drawable.playlist_1)
                 .addListener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
@@ -313,6 +313,7 @@ public class songsfromplaylist extends AppCompatActivity {
                 .load(urles)
                 .apply(requestOptions)
                 .transform(new RoundedCorners(10))
+                .placeholder(R.drawable.playlist_1)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .listener(new RequestListener<Drawable>() {
                     @Override

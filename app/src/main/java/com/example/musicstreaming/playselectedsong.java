@@ -544,6 +544,7 @@ public class playselectedsong extends AppCompatActivity{
                 .apply(requestOptions)
                 .transform( new RoundedCorners(20))
                 .transition(DrawableTransitionOptions.withCrossFade())
+                .placeholder(R.drawable.music_2)
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {

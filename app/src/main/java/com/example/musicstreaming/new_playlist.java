@@ -52,6 +52,12 @@ import static com.example.musicstreaming.login.USERNAME;
 
 public class new_playlist extends AppCompatActivity implements View.OnClickListener {
 
+    /**
+     * <h1>Ownership</h1>
+     * <p>This Application is Owned by Ashish Kumar, Delhi Technology univerity, Btech ,Mechanical
+     * Engineering ,2ndyear Student</p>
+     */
+
     public String encodedimage,types="";
     public Bitmap bitmap;
     SharedPreferences sharedPreferences;

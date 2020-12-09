@@ -525,6 +525,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             Glide.with(context)
                     .asBitmap()
                     .load(track.getImurl())
+                    .placeholder(R.drawable.music3)
                     .into(new SimpleTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -600,13 +601,10 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                 drw_next=R.drawable.exo_controls_next;
             }
 
-
-            Log.d(TAG, "createnotification: your iamge bitmap is "+track.getBitmap());
-
-            //BitmapFactory.decodeResource(context.getResources(),track.getImage());
             Glide.with(context)
                     .asBitmap()
                     .load(track.getImurl())
+                    .placeholder(R.drawable.music3)
                     .into(new SimpleTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -667,8 +665,6 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.placeholder(circularProgressDrawable);
         requestOptions.skipMemoryCache(true);
-        //requestOptions.circleCrop();
-
         requestOptions.priority(Priority.HIGH);
 
 
@@ -677,6 +673,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                 .apply(requestOptions)
                 .transform(new RoundedCorners(20))
                 .transition(DrawableTransitionOptions.withCrossFade())
+                .placeholder(R.drawable.music_2)
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {

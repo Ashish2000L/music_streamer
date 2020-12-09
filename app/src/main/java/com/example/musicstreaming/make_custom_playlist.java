@@ -19,6 +19,12 @@ import static com.example.musicstreaming.MainActivity.MAIN_ACTIVITY;
 
 public class make_custom_playlist extends AppCompatActivity {
 
+    /**
+     * <h1>Ownership</h1>
+     * <p>This Application is Owned by Ashish Kumar, Delhi Technology univerity, Btech ,Mechanical
+     * Engineering ,2ndyear Student</p>
+     */
+
     public static Activity MAKE_NEW_PLAYLIST;
     Fragment fragment;
     @Override

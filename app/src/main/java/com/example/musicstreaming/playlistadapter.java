@@ -76,7 +76,6 @@ public class playlistadapter extends ArrayAdapter<listofplaylist> {
         requestOptions.placeholder(circularProgressDrawable);
         requestOptions.skipMemoryCache(true);
         requestOptions.onlyRetrieveFromCache(false);
-        //requestOptions.circleCrop();
         requestOptions.priority(Priority.HIGH);
         requestOptions.fitCenter();
 
@@ -84,6 +83,7 @@ public class playlistadapter extends ArrayAdapter<listofplaylist> {
                 .load(url)
                 .apply(requestOptions)
                 .transform(new RoundedCorners(20))
+                .placeholder(R.drawable.playlist_1)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .listener(new RequestListener<Drawable>() {
                     @Override
