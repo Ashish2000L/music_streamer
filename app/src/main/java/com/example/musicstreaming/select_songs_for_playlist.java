@@ -1,6 +1,8 @@
 package com.example.musicstreaming;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -51,8 +53,10 @@ public class select_songs_for_playlist extends Fragment {
     SearchView searchView;
     boolean IS_IN_SEARCHVIEW=false;
     ArrayList<list_of_all_songs> arrayList = new ArrayList<>();
+    ArrayList<list_of_all_songs> playlist_songs = new ArrayList<>();
     String urls="https://rentdetails.000webhostapp.com/musicplayer_files/get_all_songs.php";
     String[] names_playlist;
+    MenuItem mitem;
 
     public select_songs_for_playlist() {
         // Required empty public constructor
@@ -78,10 +82,13 @@ public class select_songs_for_playlist extends Fragment {
 
     public void make_new_playlist()
     {
-
-        songsadaptor=new all_song_adaptor(context, listofallsongsArrayList);
+        songsadaptor=new all_song_adaptor(context, playlist_songs);
         custom_listview.setAdapter(songsadaptor);
 
+        if(!playlist_songs.isEmpty())
+        {
+            playlist_songs.clear();
+        }
         new getdata().execute(urls);
 
         custom_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -91,31 +98,88 @@ public class select_songs_for_playlist extends Fragment {
                 if(!IS_IN_SEARCHVIEW) {
                     POSITION_FAV_PLAYLIST=position;
 
-                    Toast.makeText(context,"Song name and pos is "+ listofallsongsArrayList.get(position).getName()+"__"+position,Toast.LENGTH_LONG).show();
+                    if(urls.equals("/././.")) {
+                        Toast.makeText(context, "Check Mate", Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(context, "Song name and pos is " + playlist_songs.get(position).getName() + "__" + position, Toast.LENGTH_LONG).show();
+                    }
 
                 }else{
-                    String SEARCH_VIEW_NAME=names_playlist[position];
-                    position=find_pos(SEARCH_VIEW_NAME);
-                    POSITION_FAV_PLAYLIST=position;
+                    try {
+                        if (urls.equals("/././.")){
 
-                    if(position==1000){
-                        Toast.makeText(context,"Could not find the position ",Toast.LENGTH_LONG).show();
-                    }else {
-                        Toast.makeText(context, "Song name and pos is " + listofallsongsArrayList.get(position).getName() + "__" + position, Toast.LENGTH_LONG).show();
+                            playlist_songs.add(new list_of_all_songs(listofallsongsArrayList.get(position).getId(), listofallsongsArrayList.get(position).getName(), listofallsongsArrayList.get(position).getImage(),
+                                    listofallsongsArrayList.get(position).getUrl(), listofallsongsArrayList.get(position).getSinger(), listofallsongsArrayList.get(position).getBkcolor()));
+
+                            listofallsongsArrayList.remove(position);
+
+                        }else {
+                            String SEARCH_VIEW_NAME = names_playlist[position];
+                            position = find_pos(SEARCH_VIEW_NAME);
+                            POSITION_FAV_PLAYLIST = position;
+
+                            if (position != 1000) {
+
+                                playlist_songs.add(new list_of_all_songs(listofallsongsArrayList.get(position).getId(), listofallsongsArrayList.get(position).getName(), listofallsongsArrayList.get(position).getImage(),
+                                        listofallsongsArrayList.get(position).getUrl(), listofallsongsArrayList.get(position).getSinger(), listofallsongsArrayList.get(position).getBkcolor()));
+
+                                listofallsongsArrayList.remove(position);
+
+                            }
+                        }
+                    }catch (Exception e){
+
+                        Toast.makeText(context, "Fail to make your request!", Toast.LENGTH_SHORT).show();
                     }
+
+                    mitem.collapseActionView();
 
                 }
 
             }
         });
 
+
+        custom_listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+
+                String[] st={"Remove"};
+
+                AlertDialog.Builder alert = new AlertDialog.Builder(context)
+                        .setCancelable(true)
+                        .setItems(st, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                if(which==0){
+
+                                    listofallsongsArrayList.add(new list_of_all_songs(playlist_songs.get(position).getId(),playlist_songs.get(position).getName(),playlist_songs.get(position).getImage()
+                                    ,playlist_songs.get(position).getUrl(),playlist_songs.get(position).getSinger(),playlist_songs.get(position).getBkcolor()));
+                                    playlist_songs.remove(position);
+                                    songsadaptor.notifyDataSetChanged();
+
+                                }
+
+                            }
+                        });
+                alert.show();
+
+                return false;
+            }
+        });
+
     }
 
     public int find_pos(String name){
-        for(int i=0;i<listofallsongsArrayList.size();i++){
-            if(name.equals(listofallsongsArrayList.get(i).getName())){
-                return i;
+        try {
+            for (int i = 0; i < listofallsongsArrayList.size(); i++) {
+                if (name.equals(listofallsongsArrayList.get(i).getName())) {
+                    return i;
+                }
             }
+        }catch (Exception e){
+            Toast.makeText(context,"Unable to locate selection, try making another selection!",Toast.LENGTH_LONG).show();
         }
         return 1000;
     }
@@ -130,6 +194,9 @@ public class select_songs_for_playlist extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        mitem=item;
+
         searchView=(SearchView)item.getActionView();
         searchView.setQueryHint("Search Your Songs");
         searchView.setIconifiedByDefault(false);
@@ -156,7 +223,6 @@ public class select_songs_for_playlist extends Fragment {
                     arrayList.addAll(listofallsongsArrayList);
                 }
 
-                //playlistadapter1.clear();
                 custom_listview.setAdapter(songadapter1);
 
                 searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -169,11 +235,10 @@ public class select_songs_for_playlist extends Fragment {
                     public boolean onQueryTextChange(String newText) {
 
                         if(TextUtils.isEmpty(newText)){
-                            filter("/./.");
+                            filter("/././.");
                         }else {
                             filter(newText);
                         }
-                        Log.d("ellos", "onQueryTextChange: called +"+newText);
 
                         return true;
                     }
@@ -196,27 +261,27 @@ public class select_songs_for_playlist extends Fragment {
     }
 
     public void filter(String text){
-        IS_IN_SEARCHVIEW=true;
         names_playlist=new String[arrayList.size()];
         text=text.toLowerCase(Locale.getDefault());
-        Log.d("ellos", "onQueryTextChange: called text "+text);
+
+        urls=text;
 
         songadapter1.clear();
         arrayList= listofallsongsArrayList;
-        //playlistadapter1=playlistadapter;
+
         if(text.length()==0){
+
             for (int i=0;i<arrayList.size();i++){
                 names_playlist[i]=arrayList.get(i).getName();
             }
 
         }else {
 
-            Log.d("ellos", "onQueryTextChange: called cool "+arrayList.size());
             int k=0;
             for ( int i=0;i<arrayList.size();i++){
-                Log.d("ellos", "filter: "+arrayList.get(i).getName().toLowerCase(Locale.getDefault()));
+
                 if(arrayList.get(i).getName().toLowerCase(Locale.getDefault()).contains(text)){
-                    Log.d("ellos", "filter: "+arrayList.get(i).getName());
+
                     songadapter1.add(arrayList.get(i));
                     names_playlist[k]=arrayList.get(i).getName();
                     k++;
