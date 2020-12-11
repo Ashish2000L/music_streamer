@@ -148,8 +148,8 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
             if(IS_IMG_SElECTED) {
                 new compressimage().execute(bitmap);
             }else {
-                //Toast.makeText(this,"Select your playlist image!",Toast.LENGTH_LONG).show();
-                startActivity(new Intent(this,make_custom_playlist.class));
+                Toast.makeText(this,"Select your playlist image!",Toast.LENGTH_LONG).show();
+//                startActivity(new Intent(this,make_custom_playlist.class));
             }
 
         }else if(v.getId()==R.id.new_playlist_img){
@@ -249,14 +249,22 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onResponse(String response) {
 
-                    Toast.makeText(new_playlist.this, response, Toast.LENGTH_SHORT).show();
+                    if(response!=null) {
+                        if(!error_handler(response).equals("error")){
+                            String check=error_handler(response);
+                            startActivity(new Intent(new_playlist.this,make_custom_playlist.class).putExtra("PLAYLIST_ID",check));
+                            Toast.makeText(new_playlist.this,check, Toast.LENGTH_SHORT).show();
+                        }
+                    }else{
+                        Toast.makeText(new_playlist.this, "error: UNKNOWN_ERROR", Toast.LENGTH_SHORT).show();
+                    }
                     progressDialog.dismiss();
 
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(new_playlist.this, "Failed!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(new_playlist.this, "Failed! Try again", Toast.LENGTH_LONG).show();
                     new internal_error_report(new_playlist.this, error.getMessage(),sharedPreferences.getString(USERNAME,"") );
                     progressDialog.dismiss();
                 }
@@ -280,5 +288,44 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
 
             return null;
         }
+
+        public String error_handler(String error){
+            String err="";
+
+            switch (error){
+                case "failed_10":
+                    err="error";
+                    Toast.makeText(new_playlist.this, "error: IMG_NPJ", Toast.LENGTH_SHORT).show();
+                    break;
+                case  "failed_20":
+                    err="error";
+                    Toast.makeText(new_playlist.this, "error: TYPE_NPJ", Toast.LENGTH_SHORT).show();
+                    break;
+                case "failed_30":
+                    err="error";
+                    Toast.makeText(new_playlist.this, "error: PLAYLIST_NPJ", Toast.LENGTH_SHORT).show();
+                    break;
+                case "failed_40":
+                    err="error";
+                    Toast.makeText(new_playlist.this, "error: USER_NPJ", Toast.LENGTH_SHORT).show();
+                    break;
+                case "failed_50":
+                    err="error";
+                    Toast.makeText(new_playlist.this, "error: FAILED_NPJ", Toast.LENGTH_SHORT).show();
+                    break;
+                case "failed_60":
+                    err="error";
+                    Toast.makeText(new_playlist.this, "error: VERIFICATION_NPJ", Toast.LENGTH_SHORT).show();
+                    break;
+                case "failed_70":
+                    err="error";
+                    Toast.makeText(new_playlist.this, "PLAYLIST ALREADY EXIST!", Toast.LENGTH_SHORT).show();
+                    break;
+                default: err=error;
+
+            }
+            return err;
+        }
+
     }
 }
