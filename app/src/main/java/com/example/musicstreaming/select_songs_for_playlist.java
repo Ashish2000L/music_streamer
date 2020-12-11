@@ -3,6 +3,7 @@ package com.example.musicstreaming;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -57,6 +58,7 @@ public class select_songs_for_playlist extends Fragment {
     String urls="https://rentdetails.000webhostapp.com/musicplayer_files/get_all_songs.php";
     String[] names_playlist;
     MenuItem mitem;
+    String PLAYLIST_IDS;
 
     public select_songs_for_playlist() {
         // Required empty public constructor
@@ -71,6 +73,9 @@ public class select_songs_for_playlist extends Fragment {
 
         context=view.getContext();
 
+        Intent intent = getActivity().getIntent();
+        PLAYLIST_IDS=intent.getExtras().getString("PLAYLIST_ID","");
+
         custom_listview=view.findViewById(R.id.make_custom_playlist_listview);
         setHasOptionsMenu(true);
         custom_listview.setTextFilterEnabled(true);
@@ -80,6 +85,7 @@ public class select_songs_for_playlist extends Fragment {
         return view;
     }
 
+    // function for making new playlist
     public void make_new_playlist()
     {
         songsadaptor=new all_song_adaptor(context, playlist_songs);
@@ -91,6 +97,7 @@ public class select_songs_for_playlist extends Fragment {
         }
         new getdata().execute(urls);
 
+        //select the song from the filtered & unfiltered listview
         custom_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -98,20 +105,26 @@ public class select_songs_for_playlist extends Fragment {
                 if(!IS_IN_SEARCHVIEW) {
                     POSITION_FAV_PLAYLIST=position;
 
-                    if(urls.equals("/././.")) {
-                        Toast.makeText(context, "Check Mate", Toast.LENGTH_SHORT).show();
-                    }else {
-                        Toast.makeText(context, "Song name and pos is " + playlist_songs.get(position).getName() + "__" + position, Toast.LENGTH_LONG).show();
+                    if(position<playlist_songs.size()){
+                        Toast.makeText(context, "Selected " + playlist_songs.get(position).getName(), Toast.LENGTH_LONG).show();
                     }
 
                 }else{
                     try {
                         if (urls.equals("/././.")){
 
-                            playlist_songs.add(new list_of_all_songs(listofallsongsArrayList.get(position).getId(), listofallsongsArrayList.get(position).getName(), listofallsongsArrayList.get(position).getImage(),
-                                    listofallsongsArrayList.get(position).getUrl(), listofallsongsArrayList.get(position).getSinger(), listofallsongsArrayList.get(position).getBkcolor()));
+                            if(playlist_songs.size()<=30) {
 
-                            listofallsongsArrayList.remove(position);
+                                playlist_songs.add(new list_of_all_songs(listofallsongsArrayList.get(position).getId(), listofallsongsArrayList.get(position).getName(), listofallsongsArrayList.get(position).getImage(),
+                                        listofallsongsArrayList.get(position).getUrl(), listofallsongsArrayList.get(position).getSinger(), listofallsongsArrayList.get(position).getBkcolor()));
+
+                                listofallsongsArrayList.remove(position);
+
+                            }else{
+
+                                Toast.makeText(context, "Maximum limit reached! Try removing songs", Toast.LENGTH_SHORT).show();
+
+                            }
 
                         }else {
                             String SEARCH_VIEW_NAME = names_playlist[position];
@@ -120,10 +133,16 @@ public class select_songs_for_playlist extends Fragment {
 
                             if (position != 1000) {
 
-                                playlist_songs.add(new list_of_all_songs(listofallsongsArrayList.get(position).getId(), listofallsongsArrayList.get(position).getName(), listofallsongsArrayList.get(position).getImage(),
-                                        listofallsongsArrayList.get(position).getUrl(), listofallsongsArrayList.get(position).getSinger(), listofallsongsArrayList.get(position).getBkcolor()));
+                                if(playlist_songs.size()<=30) {
+                                    playlist_songs.add(new list_of_all_songs(listofallsongsArrayList.get(position).getId(), listofallsongsArrayList.get(position).getName(), listofallsongsArrayList.get(position).getImage(),
+                                            listofallsongsArrayList.get(position).getUrl(), listofallsongsArrayList.get(position).getSinger(), listofallsongsArrayList.get(position).getBkcolor()));
 
-                                listofallsongsArrayList.remove(position);
+                                    listofallsongsArrayList.remove(position);
+                                }else{
+
+                                    Toast.makeText(context, "Maximum limit reached! Try removing songs", Toast.LENGTH_SHORT).show();
+
+                                }
 
                             }
                         }
@@ -140,6 +159,7 @@ public class select_songs_for_playlist extends Fragment {
         });
 
 
+        // to remove the selected songs from the playlist
         custom_listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
@@ -171,6 +191,7 @@ public class select_songs_for_playlist extends Fragment {
 
     }
 
+    //getting value of the selected item after having filetred listview
     public int find_pos(String name){
         try {
             for (int i = 0; i < listofallsongsArrayList.size(); i++) {
@@ -184,82 +205,121 @@ public class select_songs_for_playlist extends Fragment {
         return 1000;
     }
 
+    //inflating menu
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 
-        inflater.inflate(R.menu.home_frag_menu,menu);
+        inflater.inflate(R.menu.select_songs_from_playlist_menu,menu);
 
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+    //handeler for the menu
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
         mitem=item;
 
-        searchView=(SearchView)item.getActionView();
-        searchView.setQueryHint("Search Your Songs");
-        searchView.setIconifiedByDefault(false);
-        searchView.setIconified(false);
-        searchView.scheduleLayoutAnimation();
+        if(item.getItemId()==R.id.search_playlist) {
+            searchView = (SearchView) item.getActionView();
+            searchView.setQueryHint("Search Your Songs");
+            searchView.setIconifiedByDefault(false);
+            searchView.setIconified(false);
+            searchView.scheduleLayoutAnimation();
 
-        item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                IS_IN_SEARCHVIEW=true;
+            item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                @Override
+                public boolean onMenuItemActionExpand(MenuItem item) {
+                    IS_IN_SEARCHVIEW = true;
 
-                if(songadapter1==null){
-                    songadapter1=new all_song_adaptor(context,arrayList);
-                }else {
-                    songadapter1=null;
-                    arrayList= new ArrayList<>();
-                    songadapter1=new all_song_adaptor(context,arrayList);
-                }
-
-                if(arrayList.isEmpty()){
-                    arrayList.addAll(listofallsongsArrayList);
-                }else {
-                    arrayList= new ArrayList<>();
-                    arrayList.addAll(listofallsongsArrayList);
-                }
-
-                custom_listview.setAdapter(songadapter1);
-
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        return false;
+                    if (songadapter1 == null) {
+                        songadapter1 = new all_song_adaptor(context, arrayList);
+                    } else {
+                        songadapter1 = null;
+                        arrayList = new ArrayList<>();
+                        songadapter1 = new all_song_adaptor(context, arrayList);
                     }
 
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
+                    if (arrayList.isEmpty()) {
+                        arrayList.addAll(listofallsongsArrayList);
+                    } else {
+                        arrayList = new ArrayList<>();
+                        arrayList.addAll(listofallsongsArrayList);
+                    }
 
-                        if(TextUtils.isEmpty(newText)){
-                            filter("/././.");
-                        }else {
-                            filter(newText);
+                    custom_listview.setAdapter(songadapter1);
+
+                    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                        @Override
+                        public boolean onQueryTextSubmit(String query) {
+                            return false;
                         }
 
-                        return true;
-                    }
-                });
+                        @Override
+                        public boolean onQueryTextChange(String newText) {
 
-                return true;
+                            if (TextUtils.isEmpty(newText)) {
+                                filter("/././.");
+                            } else {
+                                filter(newText);
+                            }
+
+                            return true;
+                        }
+                    });
+
+                    return true;
+                }
+
+                @Override
+                public boolean onMenuItemActionCollapse(MenuItem item) {
+                    IS_IN_SEARCHVIEW = false;
+                    custom_listview.setAdapter(songsadaptor);
+                    songsadaptor.notifyDataSetChanged();
+                    return true;
+                }
+            });
+        }else
+            if(item.getItemId()==R.id.done_selecting_song){
+
+            if(playlist_songs.size()<3){
+
+                Toast.makeText(context, "Select minimum 3 songs", Toast.LENGTH_SHORT).show();
+
+            }else{
+
+                String str=make_array_for_the_song_id();
+//                Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
+                if(!PLAYLIST_IDS.equals("")) {
+                    new send_playlist("https://rentdetails.000webhostapp.com/musicplayer_files/set_custom_playlist.php", PLAYLIST_IDS, str).execute();
+                }else{
+                    Toast.makeText(context, "error: NOT_FOUND_PLAYLIST_SSFPJ", Toast.LENGTH_SHORT).show();
+                }
             }
 
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                IS_IN_SEARCHVIEW=false;
-                custom_listview.setAdapter(songsadaptor);
-                songsadaptor.notifyDataSetChanged();
-                return true;
-            }
-        });
-
-
+        }
         return true;
     }
 
+    //making array of the selected songs id
+    public String make_array_for_the_song_id(){
+
+    String str="[";
+    int i=0;
+
+    for( list_of_all_songs val :playlist_songs){
+        i++;
+        str+=val.getId();
+        if(i<playlist_songs.size()){
+            str+=",";
+        }else{
+            str+="]";
+        }
+    }
+        return str;
+    }
+
+    //filtering the text with each change in the char
     public void filter(String text){
         names_playlist=new String[arrayList.size()];
         text=text.toLowerCase(Locale.getDefault());
@@ -291,7 +351,7 @@ public class select_songs_for_playlist extends Fragment {
         songadapter1.notifyDataSetChanged();
     }
 
-
+    //getting all songs listed on the server
     public class getdata extends AsyncTask<String ,Void,Void> {
         String message="";
         int number=0;
@@ -346,10 +406,10 @@ public class select_songs_for_playlist extends Fragment {
                 public void onErrorResponse(VolleyError error) {
                     message="error in fetching playlist";
                     if(error.getMessage()!=null){
-                        Log.d(TAG, "onErrorResponse: error in connection is "+error.getMessage());
+
                         Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
                     }else{
-                        Log.d(TAG, "onErrorResponse: null error found ");
+
                         Toast.makeText(context, "Error occured!!", Toast.LENGTH_SHORT).show();
                     }
 
@@ -358,6 +418,71 @@ public class select_songs_for_playlist extends Fragment {
 
                 }
             });
+            RequestQueue queue = Volley.newRequestQueue(context);
+            queue.add(request);
+
+            return null;
+        }
+    }
+
+    //sending playlist data to the server
+    public class send_playlist extends AsyncTask<String,Void,Void>{
+
+        String url,playlist_id,playlist;
+        public send_playlist(String url, String playlist_id,String playlist) {
+
+            this.url=url;
+            this.playlist_id=playlist_id;
+            this.playlist=playlist;
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+//            Toast.makeText(context, playlist_id, Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+
+            StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+
+                    Toast.makeText(context, response, Toast.LENGTH_LONG).show();
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                    if(error.getMessage()!=null){
+
+                        Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }else{
+
+                        Toast.makeText(context, "Error occured!!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    String err="Error in getdata in homefragment "+error.getMessage();
+                    new internal_error_report(context,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
+
+                }
+            }){
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String,String> params = new HashMap<String ,String>();
+
+                    params.put("playlist_id",playlist_id);
+                    if(!MainActivity.sharedPreferences.getString(USERNAME,"").equals("")) {
+                        params.put("username", MainActivity.sharedPreferences.getString(USERNAME, ""));
+                    }
+                    params.put("playlist",playlist);
+
+                    return params;
+                }
+            };;
             RequestQueue queue = Volley.newRequestQueue(context);
             queue.add(request);
 
