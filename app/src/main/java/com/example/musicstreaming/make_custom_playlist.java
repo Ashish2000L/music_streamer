@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,7 +27,7 @@ public class make_custom_playlist extends AppCompatActivity {
      */
 
     public static Activity MAKE_NEW_PLAYLIST;
-    Fragment fragment;
+    public static String PLAYLIST_ID=""; //playlist id-> which we get after we make new playlist
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +36,7 @@ public class make_custom_playlist extends AppCompatActivity {
         MAKE_NEW_PLAYLIST=this;
         Toolbar toolbar = findViewById(R.id.new_playlist_toolbar);
         setSupportActionBar(toolbar);
+
         getSupportFragmentManager().beginTransaction().replace(R.id.custom_frame_layout,new select_songs_for_playlist()).commit();
     }
 
