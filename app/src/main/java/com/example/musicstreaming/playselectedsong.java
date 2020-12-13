@@ -19,6 +19,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -108,7 +109,6 @@ public class playselectedsong extends AppCompatActivity{
     public static Handler updateseek=new Handler();
     public static Runnable updaterunnable;
     public static Context context1;
-    public static Bitmap icon;
     public static boolean isplaylistcomplete=false;
     public static String playlistname,playlistid,playlistimg;
     public static int dontusethis;
@@ -367,7 +367,7 @@ public class playselectedsong extends AppCompatActivity{
             });
         }
 
-        makebackground(randomvalue);
+        makebackground(tracks.get(onclearfrompercentservice.position).getBkcolor());
         songname.setText(tracks.get(onclearfrompercentservice.position).getTitle());
         singername.setText(tracks.get(onclearfrompercentservice.position).getAlbum());
 
@@ -476,7 +476,7 @@ public class playselectedsong extends AppCompatActivity{
         private void coplyelements(){
             for(int i=0;i<tracks.size();i++){
                 trackArrayList.add(new track(tracks.get(i).getTitle(),tracks.get(i).getAlbum(),tracks.get(i).getUrl(),
-                        tracks.get(i).getImurl(),tracks.get(i).getBitmap(),tracks.get(i).getLike()));
+                        tracks.get(i).getImurl(),tracks.get(i).getBkcolor(),tracks.get(i).getLike()));
             }
             Log.d(TAG, "coplyelements: elements copied ");
         }
@@ -484,10 +484,10 @@ public class playselectedsong extends AppCompatActivity{
             for(int i=0;i<trackArrayList.size();i++){
                 if(i!=onclearfrompercentservice.position) {
                     tracks.add(new track(trackArrayList.get(i).getTitle(), trackArrayList.get(i).getAlbum(), trackArrayList.get(i).getUrl(),
-                            trackArrayList.get(i).getImurl(), trackArrayList.get(i).getBitmap(), trackArrayList.get(i).getLike()));
+                            trackArrayList.get(i).getImurl(), trackArrayList.get(i).getBkcolor(), trackArrayList.get(i).getLike()));
                 }else if(i==onclearfrompercentservice.position){
                     tracks.add(new track(trackArrayList.get(i).getTitle(), trackArrayList.get(i).getAlbum(), trackArrayList.get(i).getUrl(),
-                            trackArrayList.get(i).getImurl(), trackArrayList.get(i).getBitmap(),likes));
+                            trackArrayList.get(i).getImurl(), trackArrayList.get(i).getBkcolor(),likes));
                 }
             }
             trackArrayList.clear();
@@ -515,8 +515,9 @@ public class playselectedsong extends AppCompatActivity{
             final String image=songsfromplaylist.listofsongsArrayLisr.get(i).getImage();
             final String url = songsfromplaylist.listofsongsArrayLisr.get(i).getUrl();
             final String like = songsfromplaylist.listofsongsArrayLisr.get(i).getLikes();
+            final String bkcolor=listofsongsArrayLisr.get(i).bkcolor;
 
-            tracks.add(new track(name,singer,url,image,icon,like));
+            tracks.add(new track(name,singer,url,image,bkcolor,like));
         }
 
         Log.d(onclearfrompercentservice.TAG, "preparelist: completed the loading to track ");
@@ -530,12 +531,9 @@ public class playselectedsong extends AppCompatActivity{
         circularProgressDrawable.setCenterRadius(40f);
         circularProgressDrawable.start();
 
-        Log.d(TAG, "loadimage: got url is "+urles);
-
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.placeholder(circularProgressDrawable);
         requestOptions.skipMemoryCache(true);
-        //requestOptions.circleCrop();
         requestOptions.priority(Priority.HIGH);
         requestOptions.fitCenter();
 
@@ -549,8 +547,7 @@ public class playselectedsong extends AppCompatActivity{
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                         assert e != null;
-                        //Toast.makeText(contexts, e.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "onLoadFailed: "+e.getMessage());
+
                         String err="Error in loadimage in playselected song "+e.getMessage();
                         new internal_error_report(context1,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
                         circularProgressDrawable.stop();
@@ -559,7 +556,7 @@ public class playselectedsong extends AppCompatActivity{
 
                     @Override
                     public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        //Toast.makeText(contexts, "Image Loaded", Toast.LENGTH_SHORT).show();
+
                         circularProgressDrawable.stop();
                         Log.d(TAG, "onResourceReady: loaded image");
                         return false;
@@ -578,41 +575,17 @@ public class playselectedsong extends AppCompatActivity{
         return false;
     }
 
-    public static void makebackground(int rand){
+    public static void makebackground(String color){
 
-        switch (rand){
-            case 0:
-                backgroung_for_music.setBackgroundResource(R.drawable.song_gradle_1);
-                break;
-            case 1:
-                backgroung_for_music.setBackgroundResource(R.drawable.song_gradient_2);
-                break;
-            case 2:
-                backgroung_for_music.setBackgroundResource(R.drawable.song_gradient_3);
-                break;
-            case 3:
-                backgroung_for_music.setBackgroundResource(R.drawable.song_gradient_4);
-                break;
-            case 4:
-                backgroung_for_music.setBackgroundResource(R.drawable.song_gradient_5);
-                break;
-            case 5:
-                backgroung_for_music.setBackgroundResource(R.drawable.song_gradient6);
-                break;
-            case 6:
-                backgroung_for_music.setBackgroundResource(R.drawable.song_gradient_7);
-                break;
-            case 7:
-                backgroung_for_music.setBackgroundResource(R.drawable.son_gradient_8);
-                break;
-            case 8:
-                backgroung_for_music.setBackgroundResource(R.drawable.song_gradient_9);
-                break;
-            case 9:
-                backgroung_for_music.setBackgroundResource(R.drawable.song_gradient_10);
-                break;
+        int[] colors = new int[2];
+        colors[0] = Color.parseColor(color);
+        colors[1] = Color.parseColor("#000000");
 
-        }
+        GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, colors);
+        gd.setGradientType(GradientDrawable.LINEAR_GRADIENT);
+        gd.setGradientRadius(300f);
+        gd.setCornerRadius(0f);
+        backgroung_for_music.setBackground(gd);
 
     }
 

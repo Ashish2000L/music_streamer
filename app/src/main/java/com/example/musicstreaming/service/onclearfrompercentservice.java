@@ -145,9 +145,8 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         IS_RUNNING_SERVICE=true;
         SERVICE_CONTEXT=this;
 
-        Log.d(TAG, "onStartCommand: your music url is "+playselectedsong.tracks.get(position).getUrl());
         registerReceiver(broadcastReceiver,new IntentFilter("TRACKS_TRACKS"));
-        Log.d(TAG, "onStartCommand: position from the activity is "+position);
+
         createnotification(context,playselectedsong.tracks.get(position),R.drawable.exo_controls_pause,position,playselectedsong.tracks.size()-1);
         audioManager= (AudioManager) getSystemService(AUDIO_SERVICE);
         audioManager.requestAudioFocus(this,AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN);
@@ -210,6 +209,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
             notificationManager.cancelAll();
         }
+        tracks.clear();
         unregisterReceiver(broadcastReceiver);
         unregisterReceiver(unpluged_headset);
         Log.d(TAG, "onDestroy: ondestroy called");
@@ -231,8 +231,9 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
     public static void preparesong(final int positions){
 
         position=positions;
-        randomvalue=random.nextInt(10);
-        makebackground(randomvalue);
+
+        makebackground(tracks.get(positions).getBkcolor());
+        Log.d("colour", "preparesong: colouris "+tracks.get(positions).getBkcolor());
         ispreparing=true;
         check();
         if(positions==0){
@@ -259,7 +260,6 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         if(isplaying || isprepared){
             mediaPlayer.reset();
 
-            Log.d(TAG, "preparesong: is playing set to false and reset the mediaplayer ");
             isplaying=false;
             isprepared=false;
             
@@ -274,9 +274,9 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             String url=playselectedsong.tracks.get(positions).getUrl();
             
             mediaPlayer.setDataSource(url);
-            Log.d(TAG, "preparesong: url set in mediaplayer ");
+
             mediaPlayer.prepareAsync();
-            Log.d(TAG, "preparesong: prepareasync is called ");
+
         } catch (IOException e) {
             e.printStackTrace();
             Log.d(TAG, "preparesong: ioexception is "+e.getMessage());
@@ -518,10 +518,6 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                 drw_next=R.drawable.exo_controls_next;
             }
 
-
-            Log.d(TAG, "createnotification: your iamge bitmap is "+track.getBitmap());
-
-            //BitmapFactory.decodeResource(context.getResources(),track.getImage());
             Glide.with(context)
                     .asBitmap()
                     .load(track.getImurl())
@@ -530,7 +526,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                             icon=resource;
-                            Log.d(TAG, "onResourceReady: hey we called this after loading your image of the notificaion, its cool ha!!");
+
                             notification = new NotificationCompat.Builder(context,CHHANEL_ID)
                                     .setSmallIcon(R.drawable.music)
                                     .setContentTitle(track.getTitle())
@@ -547,7 +543,6 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                                     .setPriority(NotificationCompat.PRIORITY_LOW)
                                     .build();
 
-                            Log.d(TAG, "onResourceReady: resourse is "+icon);
                             notificationManagerCompat.notify(1,notification);
 
                         }
@@ -660,8 +655,6 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         circularProgressDrawable.setCenterRadius(40f);
         circularProgressDrawable.start();
 
-        Log.d(TAG, "loadimage: got url is "+urles);
-
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.placeholder(circularProgressDrawable);
         requestOptions.skipMemoryCache(true);
@@ -678,8 +671,6 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                         assert e != null;
-                        //Toast.makeText(contexts, e.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "onLoadFailed: "+e.getMessage());
 
                         String err="Error in loadimage in service "+e.getMessage();
                         new internal_error_report(context,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
