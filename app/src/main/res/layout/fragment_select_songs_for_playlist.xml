@@ -6,11 +6,16 @@
     tools:context=".select_songs_for_playlist">
 
 
-
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/normal_gradient"
+    android:orientation="vertical">
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/make_custom_playlist_listview"
         tools:listitem="@layout/custom_make_custom_playlist"/>
+</LinearLayout>
 
 </FrameLayout>

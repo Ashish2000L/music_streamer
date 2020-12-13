@@ -23,18 +23,21 @@
             >
 
             <TextView
+                android:id="@+id/song_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Song name"
-                android:textSize="20sp"
-                android:id="@+id/song_name"
+                android:fontFamily="@font/cambo"
                 android:textAlignment="center"
-                />
+                android:textSize="20sp"
+                android:textColor="#6E6C6C"
+                tools:text="Song name" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:text="Singer name"
                 android:textSize="15sp"
+                android:fontFamily="@font/cambo"
+                android:textColor="#6E6C6C"
                 android:id="@+id/singer_name"
                 android:textAlignment="center"
                 />
