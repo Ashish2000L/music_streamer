@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -45,6 +48,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import static com.example.musicstreaming.MainActivity.MAIN_ACTIVITY;
 import static com.example.musicstreaming.login.SHARED_PREF;
@@ -67,6 +71,7 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
     RadioGroup group;
     RadioButton type;
     Boolean IS_IMG_SElECTED=false;
+    String name;
 
 
     @Override
@@ -95,7 +100,6 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
         });
 
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
@@ -146,9 +150,18 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
         if(v.getId()==R.id.upload_img) {
 
             if(IS_IMG_SElECTED) {
-                new compressimage().execute(bitmap);
+                name=playlist_name.getText().toString();
+                if(!name.isEmpty()) {
+                    if(!types.isEmpty()||!types.equals("")) {
+                        new compressimage().execute(bitmap);
+                    }else {
+                        Toast.makeText(this, "Playlist Type Required!", Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+                    Toast.makeText(this, "Playlist Name Required!", Toast.LENGTH_SHORT).show();
+                }
             }else {
-                Toast.makeText(this,"Select your playlist image!",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Playlist Image Required!",Toast.LENGTH_LONG).show();
 //                startActivity(new Intent(this,make_custom_playlist.class));
             }
 
@@ -206,15 +219,13 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
                 bitmap.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream);
                 byte[] imagebytes = byteArrayOutputStream.toByteArray();
                 lengths=imagebytes.length;
-                Log.d("hello", "storeimage: size for quality "+quality+" is " + lengths);
+
                 quality-=5;
                 encodedfiles=android.util.Base64.encodeToString(imagebytes, Base64.DEFAULT);
 
             }while (quality>10 && lengths>300000);
 
             encodedimage = encodedfiles;
-            Log.d("hello",encodedimage);
-
 
             return null;
         }
@@ -223,9 +234,9 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
         protected void onPostExecute(Void aVoid) {
 
             progressDialog.dismiss();
-            final String url = "https://rentdetails.000webhostapp.com/musicplayer_files/custom_playlist.php",
-                    name=playlist_name.getText().toString();
-            new Upload_imag().execute(name,url);
+            final String url = "https://rentdetails.000webhostapp.com/musicplayer_files/custom_playlist.php";
+            name=playlist_name.getText().toString();
+            new Upload_imag().execute(name, url);
 
         }
     }
@@ -238,7 +249,6 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
             progressDialog.setMessage("Setting your playlist...");
             progressDialog.setCancelable(false);
             progressDialog.show();
-            Log.d("hello", "onPreExecute: "+encodedimage);
         }
 
         @Override
@@ -253,7 +263,6 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
                         if(!error_handler(response).equals("error")){
                             String check=error_handler(response);
                             startActivity(new Intent(new_playlist.this,make_custom_playlist.class).putExtra("PLAYLIST_ID",check));
-                            Toast.makeText(new_playlist.this,check, Toast.LENGTH_SHORT).show();
                         }
                     }else{
                         Toast.makeText(new_playlist.this, "error: UNKNOWN_ERROR", Toast.LENGTH_SHORT).show();
@@ -265,6 +274,7 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Toast.makeText(new_playlist.this, "Failed! Try again", Toast.LENGTH_LONG).show();
+                    Log.d("new_playlist", error.getMessage());
                     new internal_error_report(new_playlist.this, error.getMessage(),sharedPreferences.getString(USERNAME,"") );
                     progressDialog.dismiss();
                 }
