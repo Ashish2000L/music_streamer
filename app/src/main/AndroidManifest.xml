@@ -27,7 +27,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".make_custom_playlist"></activity>
+        <activity android:name=".make_custom_playlist"/>
         <activity android:name=".new_playlist" />
         <activity
             android:name=".profile_img"
