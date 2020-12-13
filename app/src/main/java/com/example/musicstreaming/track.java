@@ -10,24 +10,22 @@ public class track {
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
 
-    private String title,album,url,imurl,like;
-    Bitmap bitmap;
-
-    public track(String title, String album,String url,String imgurl,Bitmap bitmap,String like) {
+    private String title,album,url,imurl,like,bkcolor;
+    public track(String title, String album,String url,String imgurl,String bkcolor,String like) {
         this.title = title;
         this.album = album;
         this.url = url;
         this.imurl=imgurl;
-        this.bitmap=bitmap;
+        this.bkcolor=bkcolor;
         this.like=like;
     }
 
-    public Bitmap getBitmap() {
-        return bitmap;
+    public String getBkcolor() {
+        return bkcolor;
     }
 
-    public void setBitmap(Bitmap bitmap) {
-        this.bitmap = bitmap;
+    public void setBkcolor(String bkcolor) {
+        this.bkcolor = bkcolor;
     }
 
     public String getImurl() {

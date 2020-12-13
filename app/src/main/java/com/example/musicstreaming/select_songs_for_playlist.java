@@ -1,6 +1,7 @@
 package com.example.musicstreaming;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,9 +36,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 
 import static com.example.musicstreaming.homefragment.listofplaylistArrayList;
 import static com.example.musicstreaming.login.USERNAME;
@@ -304,7 +307,7 @@ public class select_songs_for_playlist extends Fragment {
     //making array of the selected songs id
     public String make_array_for_the_song_id(){
 
-    String str="[";
+    String str="";
     int i=0;
 
     for( list_of_all_songs val :playlist_songs){
@@ -312,8 +315,6 @@ public class select_songs_for_playlist extends Fragment {
         str+=val.getId();
         if(i<playlist_songs.size()){
             str+=",";
-        }else{
-            str+="]";
         }
     }
         return str;
@@ -354,7 +355,17 @@ public class select_songs_for_playlist extends Fragment {
     //getting all songs listed on the server
     public class getdata extends AsyncTask<String ,Void,Void> {
         String message="";
-        int number=0;
+        ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setMessage("Please wait ...");
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+            super.onPreExecute();
+        }
 
         @Override
         protected Void doInBackground(String... strings) {
@@ -367,7 +378,7 @@ public class select_songs_for_playlist extends Fragment {
                 public void onResponse(String response) {
                     listofallsongsArrayList.clear();
                     message="progress done";
-
+                    progressDialog.dismiss();
                     try {
 
                         JSONObject jsonObject = new JSONObject(response);
@@ -388,6 +399,7 @@ public class select_songs_for_playlist extends Fragment {
 
                                 songlist= new list_of_all_songs(id,name,image,url,singer,bkcolor);
                                 listofallsongsArrayList.add(songlist);
+                                Collections.shuffle(listofallsongsArrayList,new Random());
                                 songsadaptor.notifyDataSetChanged();
                             }
                         }
@@ -405,6 +417,7 @@ public class select_songs_for_playlist extends Fragment {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     message="error in fetching playlist";
+                    progressDialog.dismiss();
                     if(error.getMessage()!=null){
 
                         Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
@@ -429,6 +442,7 @@ public class select_songs_for_playlist extends Fragment {
     public class send_playlist extends AsyncTask<String,Void,Void>{
 
         String url,playlist_id,playlist;
+        ProgressDialog progressDialog;
         public send_playlist(String url, String playlist_id,String playlist) {
 
             this.url=url;
@@ -440,23 +454,33 @@ public class select_songs_for_playlist extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-//            Toast.makeText(context, playlist_id, Toast.LENGTH_SHORT).show();
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setMessage("Making your playlist ...");
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.show();
         }
 
         @Override
         protected Void doInBackground(String... strings) {
 
-            StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            final StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
 
-                    Toast.makeText(context, response, Toast.LENGTH_LONG).show();
+                    progressDialog.dismiss();
+                    if(response.equals("")) {
+                        startActivity(new Intent(context, MainActivity.class));
+                    }else{
+                        Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+                    }
 
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
 
+                    progressDialog.dismiss();
                     if(error.getMessage()!=null){
 
                         Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();

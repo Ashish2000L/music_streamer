@@ -299,13 +299,10 @@ public class songsfromplaylist extends AppCompatActivity {
         circularProgressDrawable.setCenterRadius(40f);
         circularProgressDrawable.start();
 
-        Log.d(TAG, "loadimage: got url is "+urles);
-
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.placeholder(circularProgressDrawable);
         requestOptions.skipMemoryCache(true);
         requestOptions.onlyRetrieveFromCache(false);
-        //requestOptions.circleCrop();
         requestOptions.priority(Priority.HIGH);
         requestOptions.fitCenter();
 
@@ -319,8 +316,7 @@ public class songsfromplaylist extends AppCompatActivity {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                         assert e != null;
-                        //Toast.makeText(contexts, e.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "onLoadFailed: "+e.getMessage());
+
                         String err="Error in loadimage in songfromplaylist "+e.getMessage();
                         new internal_error_report(getApplicationContext(),err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
                         circularProgressDrawable.stop();
@@ -329,7 +325,7 @@ public class songsfromplaylist extends AppCompatActivity {
 
                     @Override
                     public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        //Toast.makeText(contexts, "Image Loaded", Toast.LENGTH_SHORT).show();
+
                         circularProgressDrawable.stop();
                         Log.d(TAG, "onResourceReady: loaded image");
                         return false;
@@ -376,8 +372,9 @@ public class songsfromplaylist extends AppCompatActivity {
                                String image = object.getString("image");
                                String like = object.getString("like");
                                String singer = object.getString("singer");
+                               String bkcolor=object.getString("bkcolor");
 
-                                listofsongs = new listofsongs(name,songurl,image,like,singer);
+                                listofsongs = new listofsongs(name,songurl,image,like,singer,bkcolor);
                                 listofsongsArrayLisr.add(listofsongs);
                                 songadapter.notifyDataSetChanged();
 
@@ -389,7 +386,6 @@ public class songsfromplaylist extends AppCompatActivity {
                         e.printStackTrace();
                         message="failed ";
 
-                        Log.d(TAG, "onResponse: error in json is "+e.getMessage());
                     }
 
                 }
@@ -401,7 +397,6 @@ public class songsfromplaylist extends AppCompatActivity {
                     }else{
                         Toast.makeText(songsfromplaylist.this, "unknown error occured ", Toast.LENGTH_SHORT).show();
                     }
-                    Log.d(TAG, "onErrorResponse: error is : "+error.getMessage());
 
                     String err="Error in getsongs in songfromplaylist "+error.getMessage();
                     new internal_error_report(getApplicationContext(),err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
@@ -443,8 +438,12 @@ public class songsfromplaylist extends AppCompatActivity {
                         listViewforsongs.setVisibility(View.VISIBLE);
                         listViewforsongs.startAnimation(frombottom);
                         topheader.startAnimation(fromtop);
-                        if(!message.equalsIgnoreCase("Done progress"))
+                        if(!message.equalsIgnoreCase("Done progress")) {
                             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                            listofsongsArrayLisr.clear();
+                            startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                        }
+
                     }else{
                         Log.d(TAG, "run: running for : "+number++);
                         handler.postDelayed(this,1000);
@@ -538,15 +537,9 @@ public class songsfromplaylist extends AppCompatActivity {
                                 String image = object.getString("image");
                                 String like = object.getString("like");
                                 String singer = object.getString("singer");
+                                String bkcolor=object.getString("bkcolor");
 
-                                //String customurl = "https://rentdetails.000webhostapp.com/musicplayer_files/musicimages/"+image;
-
-                                Log.d(TAG, "onResponse: song url is "+songurl);
-                                //Log.d(TAG, "onResponse: image url is "+customurl);
-                                Log.d(TAG, "onResponse: likes is "+like);
-                                Log.d(TAG, "onResponse: singer is "+singer);
-                                //Toast.makeText(ListOfRentersForAdmin.this, usernames, Toast.LENGTH_LONG).show();
-                                listofsongs = new listofsongs(name,songurl,image,like,singer);
+                                listofsongs = new listofsongs(name,songurl,image,like,singer,bkcolor);
                                 listofsongsArrayLisr.add(listofsongs);
                                 songadapter.notifyDataSetChanged();
 
@@ -608,8 +601,11 @@ public class songsfromplaylist extends AppCompatActivity {
                         listViewforsongs.setVisibility(View.VISIBLE);
                         listViewforsongs.startAnimation(frombottom);
                         topheader.startAnimation(fromtop);
-                        if(!message.equalsIgnoreCase("Done progress"))
+                        if(!message.equalsIgnoreCase("Done progress")) {
                             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                            listofsongsArrayLisr.clear();
+                            startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                        }
                     }else{
                         Log.d(TAG, "run: running for : "+number++);
                         handler.postDelayed(this,1000);
@@ -791,8 +787,9 @@ public class songsfromplaylist extends AppCompatActivity {
                                 String image = object.getString("image");
                                 String like = object.getString("like");
                                 String singer = object.getString("singer");
+                                String bkcolor=object.getString("bkcolor");
 
-                                listofsongs = new listofsongs(name,songurl,image,like,singer);
+                                listofsongs = new listofsongs(name,songurl,image,like,singer,bkcolor);
                                 listofsongsArrayLisr.add(listofsongs);
                                 songadapter.notifyDataSetChanged();
 
@@ -857,8 +854,11 @@ public class songsfromplaylist extends AppCompatActivity {
                         listViewforsongs.setVisibility(View.VISIBLE);
                         listViewforsongs.startAnimation(frombottom);
                         topheader.startAnimation(fromtop);
-                        if(!message.equalsIgnoreCase("Done progress"))
+                        if(!message.equalsIgnoreCase("Done progress")) {
                             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                            listofsongsArrayLisr.clear();
+                            startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                        }
                     }else{
                         Log.d(TAG, "run: running for : "+number++);
                         handler.postDelayed(this,1000);

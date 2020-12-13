@@ -8,13 +8,17 @@ import androidx.fragment.app.FragmentActivity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import static com.example.musicstreaming.MainActivity.MAIN_ACTIVITY;
 
@@ -35,10 +39,15 @@ public class make_custom_playlist extends AppCompatActivity {
 
         MAKE_NEW_PLAYLIST=this;
         Toolbar toolbar = findViewById(R.id.new_playlist_toolbar);
+
         setSupportActionBar(toolbar);
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.custom_frame_layout,new select_songs_for_playlist()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.custom_frame_layout, new select_songs_for_playlist()).commit();
+
+
     }
+
+
 
 
 }

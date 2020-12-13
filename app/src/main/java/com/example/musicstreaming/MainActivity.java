@@ -195,14 +195,10 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                     case R.id.mylibrary:
-                        if(BuildConfig.DEBUG){
-                            //fragment=new make_own_playlist_fragment();
-                            //navigationView.setCheckedItem(R.id.mylibrary);
-                            //toolbar.setTitle("My Library");
-                            startActivity(new Intent(MainActivity.this,new_playlist.class));
-                        }else{
-                            Toast.makeText(MainActivity.this, "We are working on it please wait till next Update!", Toast.LENGTH_SHORT).show();
-                        }
+                            fragment=new show_custom_playlists();
+                            navigationView.setCheckedItem(R.id.mylibrary);
+                            toolbar.setTitle("My Library");
+
                         break;
 
                 }

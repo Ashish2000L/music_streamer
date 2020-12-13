@@ -95,7 +95,7 @@ public class splash extends AppCompatActivity {
      * Engineering ,2ndyear Student</p>
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
-    String TAG="this_is_a_splash";
+    String TAG="this_is_a_splash",USERNAME="username",PASSWORD="password",NAME="name",IMAGE="image",EMAIL="email";
     FirebaseRemoteConfig firebaseRemoteConfig;
     private static final String VersionCode = "versioncodes";
     private static final String force_update = "force_update";
@@ -130,6 +130,7 @@ public class splash extends AppCompatActivity {
 
         new checkserveravailability(this).execute();
 
+        sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
         firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
         FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
                 .setDeveloperModeEnabled(true).build(); //.setDeveloperModeEnabled(BuildConfig.DEBUG)

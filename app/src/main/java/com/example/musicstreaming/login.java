@@ -187,7 +187,7 @@ public class login extends AppCompatActivity {
                     Log.d(TAG, "onErrorResponse: error response "+error.getMessage());
                     Toast.makeText(login.this, "Unable to connect, Try again later...", Toast.LENGTH_SHORT).show();
                     String err="Error in login "+error.getMessage();
-                    new internal_error_report(LOGIN,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
+                    new internal_error_report(LOGIN,err,sharedPreferences.getString(USERNAME,"")).execute();
                 }
             }){
                 @Override
@@ -275,7 +275,7 @@ public class login extends AppCompatActivity {
 
                     Log.d(TAG, "onErrorResponse: error is " + error.getMessage());
                     String err="Error in new pass in login "+error.getMessage();
-                    new internal_error_report(LOGIN,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
+                    new internal_error_report(LOGIN,err,sharedPreferences.getString(USERNAME,"")).execute();
                     progressDialog.dismiss();
                 }
             }) {
@@ -353,8 +353,6 @@ public class login extends AppCompatActivity {
 
                     } catch (Exception e) {
                         e.printStackTrace();
-                        //new erroinfetch().execute(e.getMessage());
-                        Log.d(TAG, "onResponse: error in json is "+e.getMessage());
                     }
 
 
@@ -366,10 +364,9 @@ public class login extends AppCompatActivity {
                 @Override
                 public void onErrorResponse(VolleyError error) {
 
-                    Log.d(TAG, "onErrorResponse: error response "+error.getMessage());
                     Toast.makeText(login.this, "Unable to connect, Try again later...", Toast.LENGTH_SHORT).show();
                     String err="Error in getting user detail in login "+error.getMessage();
-                    new internal_error_report(LOGIN,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
+                    new internal_error_report(LOGIN,err,sharedPreferences.getString(USERNAME,"")).execute();
                 }
             }){
                 @Override

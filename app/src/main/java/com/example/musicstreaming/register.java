@@ -186,7 +186,7 @@ public class register extends AppCompatActivity {
                         Toast.makeText(register.this, "Unknown error occured!", Toast.LENGTH_SHORT).show();
                     }
                     String err="Error in signupprocess in register "+error.getMessage();
-                    new internal_error_report(REGISTER,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
+                    new internal_error_report(REGISTER,err,sharedPreferences.getString(USERNAME,"")).execute();
                 }
             }) {
                 @Override
@@ -231,7 +231,7 @@ public class register extends AppCompatActivity {
                     } else {
                         Toast.makeText(register.this, response, Toast.LENGTH_SHORT).show();
                         String err="Error in attemp to enter wrong otp:  "+otp;
-                        new internal_error_report(REGISTER,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
+                        new internal_error_report(REGISTER,err,sharedPreferences.getString(USERNAME,"")).execute();
                     }
 
                     Log.d(TAG, "onResponse: otp response is "+response);
