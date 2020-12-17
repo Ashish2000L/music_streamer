@@ -29,6 +29,7 @@
                 android:layout_height="wrap_content"
                 android:padding="2dp"
                 android:text="song name"
+                android:fontFamily="@font/cambo"
                 android:singleLine="true"
                 android:textColor="@android:color/white" />
 
@@ -39,6 +40,7 @@
                 android:padding="2dp"
                 android:singleLine="true"
                 android:text="singer name "
+                android:fontFamily="@font/cambo"
                 android:textColor="@android:color/white"
                 android:textSize="15sp" />
         </LinearLayout>
