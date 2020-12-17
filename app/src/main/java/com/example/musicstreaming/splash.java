@@ -165,23 +165,25 @@ public class splash extends AppCompatActivity {
                 new checkserveravailability(splash.this).execute();
                 iscomplete=false;
                 btn_refresh.setVisibility(View.GONE);
+                stat.run();
                 runnable.run();
                 Log.d(TAG, "onClick: clicked");
             }
         });
 
     }
+    int count=0;
     final Runnable runnable = new Runnable() {
         @Override
         public void run() {
+//            seekBar.setVisibility(View.VISIBLE);
             message="Checking Internet Connection ";
             seekBar.setProgress(10);
-            Log.d(TAG, "run: h");
+
             if(checkConnections()){
                 message="Connecting to Server ";
                 seekBar.setProgress(30);
                 handler.removeCallbacks(this);
-                Log.d(TAG, "run: m");
 
                 Runnable runnable1 = new Runnable() {
                     @Override
@@ -195,11 +197,18 @@ public class splash extends AppCompatActivity {
                                 getdetails();
                                 Log.d(TAG, "run: connection successful ");
                             }else{
-                                message="Fail to connect!! ";
+                                stathandler.removeCallbacks(stat);
+//                                seekBar.setVisibility(View.INVISIBLE);
+                                if(count<2) {
+                                    message = "Fail to connect!! ";
+                                    status.setText(message);
+                                    count++;
+                                }else {
+                                    status.setText(strings);
+                                }
                                 handler.removeCallbacks(this);
-                                Log.d(TAG, "run: v");
                                 btn_refresh.setVisibility(View.VISIBLE);
-                                //runnables.run();
+
                             }
 
                         }else{
@@ -214,36 +223,6 @@ public class splash extends AppCompatActivity {
             }
         }
     };
-//    Runnable runnables = new Runnable() {
-//        @Override
-//        public void run() {
-//            if(iscomplete){
-//                seekBar.setProgress(40);
-//                if(strings.equals("you are connected")||connection){
-//                    message="Connection Established ";
-//                    seekBar.setProgress(50);
-//                    getdetails();
-//                    Log.d(TAG, "run: connection successful ");
-//                }else{
-//                    message="error";
-//                    try{
-//                        //stathandler.removeCallbacks(stat);
-//                        handler.removeCallbacks(this);
-//
-//                        Log.d("calbk", "run: callback removed");
-//
-//                    }catch (Exception e){
-//                        e.printStackTrace();
-//                        Log.d("calbk", "run: "+e.getMessage());
-//                    }
-//                }
-//
-//            }else{
-//                handler.postDelayed(this,1000);
-//            }
-//        }
-//    };
-
 
     public boolean checkConnections()
     {
