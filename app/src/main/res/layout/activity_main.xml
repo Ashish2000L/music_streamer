@@ -99,7 +99,6 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:id="@+id/navmenu"
-        app:menu="@menu/iconmenu"
         android:layout_gravity="start"
         app:itemTextColor="@android:color/white"
         android:background="@drawable/nav_color"
@@ -119,4 +118,5 @@
         
     </com.google.android.material.navigation.NavigationView>
     <!--        android:layout_marginTop="55dp"-->
+    <!--        app:menu="@menu/iconmenu"-->
 </androidx.drawerlayout.widget.DrawerLayout>

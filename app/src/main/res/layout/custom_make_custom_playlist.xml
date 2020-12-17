@@ -26,9 +26,9 @@
                 android:id="@+id/song_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/cambo"
                 android:textAlignment="center"
                 android:textSize="20sp"
+                android:fontFamily="@font/cambo"
                 android:textColor="#6E6C6C"
                 tools:text="Song name" />
             <TextView

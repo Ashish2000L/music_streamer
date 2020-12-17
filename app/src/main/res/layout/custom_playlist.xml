@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="5dp">
@@ -29,23 +30,26 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Playlist name"
+                tools:text="Playlist name"
                 android:gravity="center"
                 android:textSize="20sp"
                 android:id="@+id/playlist_name"
                 android:paddingTop="5dp"
-                android:textColor="#000"
+                android:fontFamily="@font/cambo"
+                android:textColor="#6E6C6C"
                 android:singleLine="true"
                 android:paddingBottom="5dp"
                 />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="note"
+                tools:text="singer"
                 android:textSize="15sp"
                 android:id="@+id/note_playlist"
                 android:gravity="center"
                 android:singleLine="true"
+                android:fontFamily="@font/cambo"
+                android:textColor="#6E6C6C"
                 android:fadingEdge="horizontal"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
