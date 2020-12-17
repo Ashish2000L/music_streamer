@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         //handling profile detail in the drawable section
         try {
             View navview = navigationView.inflateHeaderView(R.layout.navheader);
+            navigationView.inflateMenu(R.menu.iconmenu);
             profileimage = navview.findViewById(R.id.profile);
             name = navview.findViewById(R.id.username);
             version = findViewById(R.id.version);

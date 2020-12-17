@@ -225,8 +225,7 @@ public class profile_img extends AppCompatActivity {
                 }
                 imageView.setImageURI(resultUri);
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Exception error = result.getError();
-                Log.d(TAG, "onActivityResult: "+ error.getMessage());
+
                 Toast.makeText(this, "failed!", Toast.LENGTH_SHORT).show();
             }
         }
@@ -268,8 +267,6 @@ public class profile_img extends AppCompatActivity {
             }while (quality>20 && lengths>500000);
 
             encodedimage = encodedfiles;
-            Log.d("encoded",encodedimage);
-
 
             return null;
         }
@@ -297,7 +294,6 @@ public class profile_img extends AppCompatActivity {
             progressDialog.setCancelable(false);
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.show();
-            //storeimage(bitmap);
         }
 
         @Override
@@ -309,7 +305,6 @@ public class profile_img extends AppCompatActivity {
                 @Override
                 public void onResponse(String response) {
 
-                        Log.d(TAG, "onResponse: "+response);
                         if(!response.equalsIgnoreCase("failed")) {
                             String iage = "https://rentdetails.000webhostapp.com/musicplayer_files/musicimages/" + response;
                             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -317,11 +312,8 @@ public class profile_img extends AppCompatActivity {
                             editor.apply();
                             message="successful ";
                         }else{
-                            //Toast.makeText(profile_img.this, "failed", Toast.LENGTH_SHORT).show();
                             message=response;
                         }
-
-                        Log.d(TAG, "onResponse: respo is "+response);
 
                     }
 
@@ -329,30 +321,16 @@ public class profile_img extends AppCompatActivity {
                 @Override
                 public void onErrorResponse(VolleyError error) {
 
-                    NetworkResponse networkResponse = error.networkResponse;
-
                     getSupportActionBar().setTitle("Upload Failed...");
 
                     if(error.getMessage()!=null) {
                         message = error.getMessage();
                         Toast.makeText(profile_img.this, " "+error.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "onErrorResponse: networktime "+networkResponse.networkTimeMs);
-                        Log.d(TAG, "onErrorResponse: statuscode "+networkResponse.statusCode);
-                        Log.d(TAG, "onErrorResponse: datalength "+networkResponse.data.length);
-                        Log.d(TAG, "onErrorResponse: allheader "+networkResponse.allHeaders.size());
-                        Log.d(TAG, "onErrorResponse: header "+networkResponse.headers);
-                        Log.d(TAG, "onErrorResponse: notmodified "+networkResponse.notModified);
                     }else{
                         message = "Unknown error occured!";
                         Toast.makeText(profile_img.this, "Failed ", Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "onErrorResponse: networktime if null "+networkResponse.networkTimeMs);
-                        Log.d(TAG, "onErrorResponse: statuscode if null "+networkResponse.statusCode);
-                        Log.d(TAG, "onErrorResponse: datalength if null "+networkResponse.data.length);
-                        Log.d(TAG, "onErrorResponse: allheader if null "+networkResponse.allHeaders.size());
-                        Log.d(TAG, "onErrorResponse: header if null "+networkResponse.headers);
-                        Log.d(TAG, "onErrorResponse: notmodified if null "+networkResponse.notModified);
                     }
-                    Log.d(TAG, "onErrorResponse: error"+message);
+
                     String err="Error in uploadimagetoserver in progile_img "+error.getMessage();
                     new internal_error_report(PROFILE_IMG,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
 
@@ -388,10 +366,9 @@ public class profile_img extends AppCompatActivity {
                     {
                         progressDialog.dismiss();
                         Toast.makeText(profile_img.this, message, Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "onPostExecute: "+message);
                     }else{
                         handler.postDelayed(this,1000);
-                        Log.d(TAG, "run: "+num++);
+
                         if(num>300){
                             progressDialog.dismiss();
                             uploadimagetoserver uploadimagetoserver = new uploadimagetoserver();
