@@ -59,7 +59,6 @@ public class checkserveravailability extends AsyncTask<Void,Void,Void> {
                 strings="Connection Failed!!";
 
                 String err="Error in checkserveravailability class"+error.getMessage();
-                //Log.e(TAG, "onErrorResponse: USERNAME is "+USERNAME);
                 new internal_error_report(context,err,sharedPreferences.getString(USERNAME,"Unknown")).execute();
 
             }

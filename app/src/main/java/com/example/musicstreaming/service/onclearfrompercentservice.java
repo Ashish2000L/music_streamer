@@ -322,10 +322,11 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                 updateseek.removeCallbacks(updaterunnable);
                 if(what==-38) {
                     preparesong(positions);
-                    Log.d(TAG, "onError: worling again on it ");
+                    Toast.makeText(context,"-38 error",Toast.LENGTH_LONG).show();
+//                    Log.d(TAG, "onError: worling again on it ");
                 }else{
                     Toast.makeText(context, "error occured : "+what, Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "onError: error is "+what+":"+extra);
+//                    Log.d(TAG, "onError: error is "+what+":"+extra);
                 }
                 if(new playselectedsong.updateseekdetail().getStatus()==AsyncTask.Status.RUNNING){
                     new playselectedsong.updateseekdetail().cancel(true);
@@ -356,7 +357,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
             @Override
             public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                Log.d(TAG, "onBufferingUpdate: secondary progress is set ");
+//                Log.d(TAG, "onBufferingUpdate: secondary progress is set ");
                 seekBar.setSecondaryProgress(percent);
                 percentupdate=percent;
             }
@@ -372,15 +373,15 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         position++;
         if(isplaying && isprepared){
             mediaPlayer.stop();
-            Log.d(TAG, "ontracknext: mediaplayer stopped and reset");
+//            Log.d(TAG, "ontracknext: mediaplayer stopped and reset");
             mediaPlayer.reset();
             if(new playselectedsong.updateseekdetail().getStatus()==AsyncTask.Status.RUNNING){
                 //new playselectedsong.updateseekdetail().cancel(true);
-                Log.d(TAG, "ontracknext: cancled the async task --------------------");
+//                Log.d(TAG, "ontracknext: cancled the async task --------------------");
             }
             new playselectedsong.updateseekdetail().cancel(true);
             if(new playselectedsong.updateseekdetail().isCancelled()){
-                Log.d(TAG, "ontracknext: canceled the task manually from remote");
+//                Log.d(TAG, "ontracknext: canceled the task manually from remote");
             }
         }else{
             Toast.makeText(context, "Please wait!", Toast.LENGTH_SHORT).show();
@@ -389,16 +390,20 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         isprepared=false;
         songsfromplaylist.showdetail(false);
         MainActivity.showdetail(false);
-        Log.d(TAG, "ontracknext: preparing to play next song");
-        Log.d(TAG, "ontracknext: position is "+position);
-        Log.d(TAG, "ontracknext: size is "+tracks.size());
+//        Log.d(TAG, "ontracknext: preparing to play next song");
+//        Log.d(TAG, "ontracknext: position is "+position);
+//        Log.d(TAG, "ontracknext: size is "+tracks.size());
         if(position<tracks.size()) {
-            Log.d(TAG, "ontracknext: position is "+position);
-            Log.d(TAG, "ontracknext: size is "+tracks.size());
+//            Log.d(TAG, "ontracknext: position is "+position);
+//            Log.d(TAG, "ontracknext: size is "+tracks.size());
             preparesong(position);
-            createnotification(context,playselectedsong.tracks.get(position),R.drawable.exo_controls_pause,position,playselectedsong.tracks.size()-1);
+            try {
+                createnotification(context, playselectedsong.tracks.get(position), R.drawable.exo_controls_pause, position, playselectedsong.tracks.size() - 1);
+            }catch (Exception e){
+                new internal_error_report(context,e.getMessage(),sharedPreferences.getString(USERNAME,""));
+            }
         }else{
-            Log.d(TAG, "ontracknext: playlist is over ");
+//            Log.d(TAG, "ontracknext: playlist is over ");
             mediaPlayer.release();
         }
     }
@@ -427,7 +432,13 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             preparesong(positions);
         }
         changeplaypauseimg(true);
-        createnotification(context,playselectedsong.tracks.get(positions),R.drawable.exo_controls_pause,position,playselectedsong.tracks.size()-1);
+        try {
+            createnotification(context, playselectedsong.tracks.get(positions), R.drawable.exo_controls_pause, position, playselectedsong.tracks.size() - 1);
+        }catch (Exception e){
+
+            new internal_error_report(context,e.getMessage(),sharedPreferences.getString(USERNAME,""));
+
+        }
         if(!isplaying && isprepared){
             mediaPlayer.start();
             Log.d(TAG, "ontrackplay: mediaplayer started again");
@@ -446,7 +457,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         createnotification(context,playselectedsong.tracks.get(position),R.drawable.exo_controls_play,position,playselectedsong.tracks.size()-1);
         ispreparing=false;
         changeplaypauseimg(false);
-        //handler.removeCallbacks(runnable);
+
         updateseek.removeCallbacks(updaterunnable);
         if(isplaying && isprepared){
             mediaPlayer.pause();
