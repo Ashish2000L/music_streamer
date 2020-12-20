@@ -155,10 +155,8 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         
         preparesong(position);
 
-
         startForeground(1, notification);
 
-        
         return START_NOT_STICKY;
     }
 

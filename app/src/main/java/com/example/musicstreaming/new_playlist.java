@@ -274,9 +274,10 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Toast.makeText(new_playlist.this, "Failed! Try again", Toast.LENGTH_LONG).show();
-                    Log.d("new_playlist", error.getMessage());
-                    new internal_error_report(new_playlist.this, error.getMessage(),sharedPreferences.getString(USERNAME,"") );
+//                    Log.d("new_playlist", error.getMessage());
                     progressDialog.dismiss();
+                    new internal_error_report(new_playlist.this, error.getMessage(),sharedPreferences.getString(USERNAME,"") );
+
                 }
             }) {
                 @Override
