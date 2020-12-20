@@ -341,7 +341,7 @@ public class select_songs_for_playlist extends Fragment {
             int k=0;
             for ( int i=0;i<arrayList.size();i++){
 
-                if(arrayList.get(i).getName().toLowerCase(Locale.getDefault()).contains(text)){
+                if(arrayList.get(i).getName().toLowerCase(Locale.getDefault()).contains(text) || arrayList.get(i).getSinger().toLowerCase(Locale.getDefault()).contains(text)){
 
                     songadapter1.add(arrayList.get(i));
                     names_playlist[k]=arrayList.get(i).getName();
