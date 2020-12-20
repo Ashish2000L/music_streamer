@@ -27,11 +27,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".make_custom_playlist"/>
-        <activity android:name=".new_playlist" />
-        <activity
-            android:name=".profile_img"
-            android:screenOrientation="portrait" />
+
         <activity
             android:name=".splash"
             android:screenOrientation="portrait">
@@ -41,6 +37,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".make_custom_playlist"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".new_playlist"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".profile_img"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".playselectedsong"
             android:screenOrientation="portrait" />
