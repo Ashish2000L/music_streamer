@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -18,7 +20,7 @@ import com.example.musicstreaming.R;
 import java.io.File;
 import java.net.FileNameMap;
 
-public class Download_complete extends BroadcastReceiver {
+public class phone_state_broadcast_reciever extends BroadcastReceiver {
 
     /**
      * <h1>Ownership</h1>
@@ -31,6 +33,11 @@ public class Download_complete extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
+
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        telephonyManager.listen(new onclearfrompercentservice.check_for_phone_call(context), PhoneStateListener.LISTEN_CALL_STATE);
+
 
         //context.sendBroadcast(new Intent("DOWNLOAD_COMPLETE"));
         //Log.d(TAG, "onReceive: into the reciver");
