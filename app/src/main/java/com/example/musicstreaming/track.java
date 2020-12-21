@@ -10,14 +10,23 @@ public class track {
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
 
-    private String title,album,url,imurl,like,bkcolor;
-    public track(String title, String album,String url,String imgurl,String bkcolor,String like) {
+    private String title,album,url,imurl,like,bkcolor,id;
+    public track(String id,String title, String album,String url,String imgurl,String bkcolor,String like) {
         this.title = title;
         this.album = album;
         this.url = url;
         this.imurl=imgurl;
         this.bkcolor=bkcolor;
         this.like=like;
+        this.id=id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getBkcolor() {
