@@ -21,6 +21,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.SyncStateContract;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -57,6 +59,7 @@ import java.util.Objects;
 import java.util.Random;
 
 import static com.example.musicstreaming.MainActivity.changeplaypauseimgs;
+import static com.example.musicstreaming.MainActivity.thisisit;
 import static com.example.musicstreaming.login.SHARED_PREF;
 import static com.example.musicstreaming.login.USERNAME;
 import static com.example.musicstreaming.playselectedsong.SONG_ACTIVITY;
@@ -152,7 +155,8 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         audioManager.requestAudioFocus(this,AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN);
 
         registerReceiver(unpluged_headset,new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
-        
+
+        mediaPlayer=new MediaPlayer();
         preparesong(position);
 
         startForeground(1, notification);
@@ -231,7 +235,6 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         position=positions;
 
         makebackground(tracks.get(positions).getBkcolor());
-        Log.d("colour", "preparesong: colouris "+tracks.get(positions).getBkcolor());
         ispreparing=true;
         check();
         if(positions==0){
@@ -255,6 +258,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
 
         }
 
+        mediaPlayer.reset();
         if(isplaying || isprepared){
             mediaPlayer.reset();
 
@@ -262,7 +266,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             isprepared=false;
             
         }
-        mediaPlayer=new MediaPlayer();
+//        mediaPlayer=new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
             String imageurl=playselectedsong.tracks.get(positions).getImurl();
@@ -355,7 +359,6 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         mediaPlayer.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
             @Override
             public void onBufferingUpdate(MediaPlayer mp, int percent) {
-//                Log.d(TAG, "onBufferingUpdate: secondary progress is set ");
                 seekBar.setSecondaryProgress(percent);
                 percentupdate=percent;
             }
@@ -371,7 +374,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         position++;
         if(isplaying && isprepared){
             mediaPlayer.stop();
-//            Log.d(TAG, "ontracknext: mediaplayer stopped and reset");
+
             mediaPlayer.reset();
             if(new playselectedsong.updateseekdetail().getStatus()==AsyncTask.Status.RUNNING){
                 //new playselectedsong.updateseekdetail().cancel(true);
@@ -381,19 +384,15 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             if(new playselectedsong.updateseekdetail().isCancelled()){
 //                Log.d(TAG, "ontracknext: canceled the task manually from remote");
             }
-        }else{
-            Toast.makeText(context, "Please wait!", Toast.LENGTH_SHORT).show();
         }
+
         isplaying=false;
         isprepared=false;
         songsfromplaylist.showdetail(false);
         MainActivity.showdetail(false);
-//        Log.d(TAG, "ontracknext: preparing to play next song");
-//        Log.d(TAG, "ontracknext: position is "+position);
-//        Log.d(TAG, "ontracknext: size is "+tracks.size());
+;
         if(position<tracks.size()) {
-//            Log.d(TAG, "ontracknext: position is "+position);
-//            Log.d(TAG, "ontracknext: size is "+tracks.size());
+
             preparesong(position);
             try {
                 createnotification(context, playselectedsong.tracks.get(position), R.drawable.exo_controls_pause, position, playselectedsong.tracks.size() - 1);
@@ -401,23 +400,21 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                 new internal_error_report(context,e.getMessage(),sharedPreferences.getString(USERNAME,""));
             }
         }else{
-//            Log.d(TAG, "ontracknext: playlist is over ");
+
             mediaPlayer.release();
         }
     }
 
     public static boolean loopmusic(boolean doloop){
-        if(isprepared){
+
             mediaPlayer.setLooping(doloop);
             if(doloop) {
                 loop.setImageResource(R.drawable.looping);
             }else{
                 loop.setImageResource(R.drawable.loop_white);
             }
-            return true;
-        }
-        loop.setImageResource(R.drawable.loop_white);
-        return false;
+
+        return true;
     }
 
     public static void ontrackplay(int positions) {
@@ -425,7 +422,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         if(positions==1000){
             positions=position;
             new playselectedsong.updateseekdetail().updatesek();
-           // new playselectedsong.updateseekdetail().updatesek();
+
         }else{
             preparesong(positions);
         }
@@ -440,12 +437,11 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         if(!isplaying && isprepared){
             mediaPlayer.start();
             Log.d(TAG, "ontrackplay: mediaplayer started again");
-            isplaying=true;
+            isplaying = true;
         }else if(ispreparing){
-            Toast.makeText(context, "Please wait!", Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(context, "making else", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Please Wait", Toast.LENGTH_SHORT).show();
         }
+//        }
         songsfromplaylist.showdetail(true);
 
     }
@@ -457,14 +453,14 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         changeplaypauseimg(false);
 
         updateseek.removeCallbacks(updaterunnable);
-        if(isplaying && isprepared){
-            mediaPlayer.pause();
-            Log.d(TAG, "ontrackpause: mediaplayer paused");
-            isplaying=false;
-            songsfromplaylist.showdetail(true);
-        }else{
-            Toast.makeText(context, "Please wait!", Toast.LENGTH_SHORT).show();
+       if(isplaying && isprepared) {
+           mediaPlayer.pause();
+           isplaying = false;
+           songsfromplaylist.showdetail(true);
+       }else if(ispreparing){
+            Toast.makeText(context, "Please Wait", Toast.LENGTH_SHORT).show();
         }
+//        }
     }
 
     public static void ontrackprevious() {
@@ -473,14 +469,12 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             mediaPlayer.stop();
             mediaPlayer.reset();
 
-        }else{
-            Toast.makeText(context, "Please wait!", Toast.LENGTH_SHORT).show();
-        }
         isplaying=false;
         isprepared=false;
         if(new playselectedsong.updateseekdetail().getStatus()==AsyncTask.Status.RUNNING){
             //new playselectedsong.updateseekdetail().cancel(true);
             Log.d(TAG, "ontrackprevious: cancled the async task --------------------");
+        }
         }
 
         songsfromplaylist.showdetail(false);
@@ -489,10 +483,11 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         if(new playselectedsong.updateseekdetail().isCancelled()){
             Log.d(TAG, "ontrackprevious: canceled the task manually from remote");
         }
-        Log.d(TAG, "ontrackprevious: preparing to play previous song ");
+
         preparesong(position);
         
         createnotification(context,playselectedsong.tracks.get(position),R.drawable.exo_controls_pause,position,playselectedsong.tracks.size()-1);
+
 
     }
 
@@ -721,17 +716,18 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
     @Override
     public void onAudioFocusChange(int focusChange) {
 
-        if(focusChange<=0){
+        if(focusChange<=0) {
             ontrackpause();
             changeplaypauseimg(false);
             changeplaypauseimgs(false);
             playsong.setImageResource(R.drawable.play_white);
-        }else{
-            ontrackplay(1000);
-            changeplaypauseimg(true);
-            changeplaypauseimgs(true);
-            playsong.setImageResource(R.drawable.pause_white);
         }
+//        }else{
+//            ontrackplay(1000);
+//            changeplaypauseimg(true);
+//            changeplaypauseimgs(true);
+//            playsong.setImageResource(R.drawable.pause_white);
+//        }
 
     }
 
@@ -772,5 +768,44 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             }
         }
         TERMINATION_STATUS=true;
+    }
+
+    public static class check_for_phone_call extends PhoneStateListener{
+
+        Context context;
+        public check_for_phone_call(Context contexts) {
+            this.context=contexts;
+        }
+
+        @Override
+        public void onCallStateChanged(int state, String phoneNumber) {
+            super.onCallStateChanged(state, phoneNumber);
+
+            switch (state){
+
+                case TelephonyManager.CALL_STATE_IDLE:
+                    ontrackplay(1000);
+                    changeplaypauseimg(true);
+                    changeplaypauseimgs(true);
+                    playsong.setImageResource(R.drawable.pause_white);
+
+                    break;
+                    case TelephonyManager.CALL_STATE_RINGING:
+                        ontrackpause();
+                        changeplaypauseimg(false);
+                        changeplaypauseimgs(false);
+                        playsong.setImageResource(R.drawable.play_white);
+
+                        break;
+                        case TelephonyManager.CALL_STATE_OFFHOOK:
+                            ontrackpause();
+                            changeplaypauseimg(false);
+                            changeplaypauseimgs(false);
+                            playsong.setImageResource(R.drawable.play_white);
+
+                            break;
+            }
+
+        }
     }
 }
