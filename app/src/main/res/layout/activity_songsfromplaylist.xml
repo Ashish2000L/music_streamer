@@ -98,13 +98,26 @@
         android:layout_weight="9.1"
         android:id="@+id/settheheight"
         android:orientation="vertical">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/adjust_blur">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/gradient_song_listview"/>
         <ListView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fadingEdge="vertical"
+            android:layout_marginTop="3dp"
+            android:requiresFadingEdge="vertical"
+            android:fadingEdgeLength="50dp"
             tools:listitem="@layout/custom_playlist"
             android:id="@+id/listvieforsongs">
         </ListView>
+        </RelativeLayout>
     </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
