@@ -1,6 +1,5 @@
 package com.example.musicstreaming;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
@@ -11,12 +10,9 @@ import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -49,10 +45,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
-import com.example.musicstreaming.service.Download_complete;
 import com.example.musicstreaming.service.onclearfrompercentservice;
 
 import java.util.ArrayList;
@@ -64,10 +57,8 @@ import static com.example.musicstreaming.MainActivity.setsongprogress;
 import static com.example.musicstreaming.login.SHARED_PREF;
 import static com.example.musicstreaming.login.USERNAME;
 import static com.example.musicstreaming.playselectedsong.updateseekdetail.check;
-import static com.example.musicstreaming.service.onclearfrompercentservice.IS_RECEIVER_REGISTERED;
 import static com.example.musicstreaming.service.onclearfrompercentservice.IS_RUNNING_SERVICE;
 import static com.example.musicstreaming.service.onclearfrompercentservice.SERVICE_CONTEXT;
-import static com.example.musicstreaming.service.onclearfrompercentservice.TAG;
 import static com.example.musicstreaming.service.onclearfrompercentservice.broadcastReceiver;
 import static com.example.musicstreaming.service.onclearfrompercentservice.context;
 import static com.example.musicstreaming.service.onclearfrompercentservice.isplaying;
@@ -83,7 +74,6 @@ import static com.example.musicstreaming.service.onclearfrompercentservice.ontra
 import static com.example.musicstreaming.service.onclearfrompercentservice.ontrackplay;
 import static com.example.musicstreaming.service.onclearfrompercentservice.ontrackprevious;
 import static com.example.musicstreaming.service.onclearfrompercentservice.preparesong;
-import static com.example.musicstreaming.service.onclearfrompercentservice.randomvalue;
 import static com.example.musicstreaming.service.onclearfrompercentservice.unpluged_headset;
 import static com.example.musicstreaming.songsfromplaylist.isfav;
 import static com.example.musicstreaming.songsfromplaylist.listofsongsArrayLisr;
@@ -317,7 +307,7 @@ public class playselectedsong extends AppCompatActivity{
             }
             else
             {
-                Log.d(TAG, "onCreate: this is called for song "+position);
+;
                 playsong.setImageResource(R.drawable.pause_white);
             }
 
@@ -347,7 +337,7 @@ public class playselectedsong extends AppCompatActivity{
             }
             else
             {
-                Log.d(TAG, "onCreate: this is called for song "+position);
+
                 playsong.setImageResource(R.drawable.pause_white);
             }
 
@@ -373,6 +363,7 @@ public class playselectedsong extends AppCompatActivity{
 
     }
 
+    //TODO: need to look for the id of song on server side
     public class likeordislike extends AsyncTask<String,Void,Void>{
 
         String likes;
@@ -387,13 +378,7 @@ public class playselectedsong extends AppCompatActivity{
 
             final String username=sharedPreferences.getString(USERNAME,"");
 
-
-            Log.d(TAG, "doInBackground: your selected like is "+likes);
             final String songnames=tracks.get(onclearfrompercentservice.position).getTitle();
-
-            Log.d(TAG, "doInBackground: song name is "+songnames);
-            Log.d(TAG, "doInBackground: username is "+username);
-            Log.d(TAG, "doInBackground: your position in serive is "+onclearfrompercentservice.position);
 
             coplyelements();
 
@@ -409,7 +394,6 @@ public class playselectedsong extends AppCompatActivity{
                         Toast.makeText(playselectedsong.this, "Song "+songnames+" liked", Toast.LENGTH_SHORT).show();
 
                         setelement("1");
-                        Log.d(TAG, "onResponse: called positive ");
 
                     }else if(response.equals("0")){
                         tracks.clear();
@@ -417,7 +401,6 @@ public class playselectedsong extends AppCompatActivity{
                         Toast.makeText(playselectedsong.this, "Song "+songnames+" disliked", Toast.LENGTH_SHORT).show();
 
                         setelement("0");
-                        Log.d(TAG, "onResponse: called negative ");
 
                     }else{
                         trackArrayList.clear();
@@ -426,10 +409,14 @@ public class playselectedsong extends AppCompatActivity{
                         }else{
                             Toast.makeText(playselectedsong.this, "Unknown error occured ", Toast.LENGTH_SHORT).show();
                         }
+                        if(likes.equals("1")){
+                            like.setImageResource(R.drawable.favourate_full);
+                        }else{
+                            like.setImageResource(R.drawable.favourate);
+                        }
                     }
                     trackArrayList.clear();
 
-                    Log.d(TAG, "onResponse: i adapter "+response);
                     //shownewelements();
                 }
             }, new Response.ErrorListener() {
@@ -448,7 +435,6 @@ public class playselectedsong extends AppCompatActivity{
                         like.setImageResource(R.drawable.favourate);
                     }
 
-                    Log.d(TAG, "onErrorResponse: "+error);
                     String err="Error in likeordislike in playselected song "+error.getMessage();
                     new internal_error_report(context1,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
                 }
@@ -462,6 +448,8 @@ public class playselectedsong extends AppCompatActivity{
                     if(!username.equals("")) {
                         params.put("username", username);
                     }
+                    params.put("playlist_id",playlistid);
+                    params.put("song_id",tracks.get(onclearfrompercentservice.position).getId());
 
                     return params;
                 }
@@ -475,18 +463,18 @@ public class playselectedsong extends AppCompatActivity{
 
         private void coplyelements(){
             for(int i=0;i<tracks.size();i++){
-                trackArrayList.add(new track(tracks.get(i).getTitle(),tracks.get(i).getAlbum(),tracks.get(i).getUrl(),
+                trackArrayList.add(new track(tracks.get(i).getId(),tracks.get(i).getTitle(),tracks.get(i).getAlbum(),tracks.get(i).getUrl(),
                         tracks.get(i).getImurl(),tracks.get(i).getBkcolor(),tracks.get(i).getLike()));
             }
-            Log.d(TAG, "coplyelements: elements copied ");
+
         }
         private void setelement(String likes){
             for(int i=0;i<trackArrayList.size();i++){
                 if(i!=onclearfrompercentservice.position) {
-                    tracks.add(new track(trackArrayList.get(i).getTitle(), trackArrayList.get(i).getAlbum(), trackArrayList.get(i).getUrl(),
+                    tracks.add(new track(trackArrayList.get(i).getId(),trackArrayList.get(i).getTitle(), trackArrayList.get(i).getAlbum(), trackArrayList.get(i).getUrl(),
                             trackArrayList.get(i).getImurl(), trackArrayList.get(i).getBkcolor(), trackArrayList.get(i).getLike()));
                 }else if(i==onclearfrompercentservice.position){
-                    tracks.add(new track(trackArrayList.get(i).getTitle(), trackArrayList.get(i).getAlbum(), trackArrayList.get(i).getUrl(),
+                    tracks.add(new track(trackArrayList.get(i).getId(),trackArrayList.get(i).getTitle(), trackArrayList.get(i).getAlbum(), trackArrayList.get(i).getUrl(),
                             trackArrayList.get(i).getImurl(), trackArrayList.get(i).getBkcolor(),likes));
                 }
             }
@@ -510,6 +498,7 @@ public class playselectedsong extends AppCompatActivity{
     public static void preparelist(){
         tracks = new ArrayList<>();
         for(int i=0;i<songsfromplaylist.listofsongsArrayLisr.size();i++){
+            final  String id= listofsongsArrayLisr.get(i).getId();
             final String name=songsfromplaylist.listofsongsArrayLisr.get(i).getName();
             final String singer = songsfromplaylist.listofsongsArrayLisr.get(i).getSinger();
             final String image=songsfromplaylist.listofsongsArrayLisr.get(i).getImage();
@@ -517,7 +506,7 @@ public class playselectedsong extends AppCompatActivity{
             final String like = songsfromplaylist.listofsongsArrayLisr.get(i).getLikes();
             final String bkcolor=listofsongsArrayLisr.get(i).bkcolor;
 
-            tracks.add(new track(name,singer,url,image,bkcolor,like));
+            tracks.add(new track(id,name,singer,url,image,bkcolor,like));
         }
 
         Log.d(onclearfrompercentservice.TAG, "preparelist: completed the loading to track ");
