@@ -367,6 +367,7 @@ public class songsfromplaylist extends AppCompatActivity {
                             for (int i =0 ; i <jsonArray.length(); i++) {
                                 JSONObject object = jsonArray.getJSONObject(i);
 
+                                String id =object.getString("id");
                                String name = object.getString("name");
                                String songurl = object.getString("url");
                                String image = object.getString("image");
@@ -374,7 +375,7 @@ public class songsfromplaylist extends AppCompatActivity {
                                String singer = object.getString("singer");
                                String bkcolor=object.getString("bkcolor");
 
-                                listofsongs = new listofsongs(name,songurl,image,like,singer,bkcolor);
+                                listofsongs = new listofsongs(id,name,songurl,image,like,singer,bkcolor);
                                 listofsongsArrayLisr.add(listofsongs);
                                 songadapter.notifyDataSetChanged();
 
@@ -517,6 +518,9 @@ public class songsfromplaylist extends AppCompatActivity {
 
             final String username=sharedPreferences.getString(USERNAME,"");
 
+            Log.d(TAG, "doInBackground: playlist id is "+playlist_id);
+
+
             StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
@@ -532,6 +536,7 @@ public class songsfromplaylist extends AppCompatActivity {
                             for (int i =jsonArray.length()-1 ; i >=0; i--) {
                                 JSONObject object = jsonArray.getJSONObject(i);
 
+                                String id =object.getString("id");
                                 String name = object.getString("name");
                                 String songurl = object.getString("url");
                                 String image = object.getString("image");
@@ -539,7 +544,7 @@ public class songsfromplaylist extends AppCompatActivity {
                                 String singer = object.getString("singer");
                                 String bkcolor=object.getString("bkcolor");
 
-                                listofsongs = new listofsongs(name,songurl,image,like,singer,bkcolor);
+                                listofsongs = new listofsongs(id,name,songurl,image,like,singer,bkcolor);
                                 listofsongsArrayLisr.add(listofsongs);
                                 songadapter.notifyDataSetChanged();
 
@@ -550,7 +555,8 @@ public class songsfromplaylist extends AppCompatActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                         message="failed ";
-                        //new erroinfetch().execute(e.getMessage());
+                        String error = "ERROR in json extract in songfromplaylist "+e.getMessage();
+                        new internal_error_report(getApplicationContext(),error,sharedPreferences.getString(USERNAME,"")).execute();
                         Log.d(TAG, "onResponse: error in json is "+e.getMessage());
                     }
 
@@ -566,7 +572,7 @@ public class songsfromplaylist extends AppCompatActivity {
                     Log.d(TAG, "onErrorResponse: error is : "+error.getMessage());
 
                     String err="Error in favsong in songfromplaylist "+error.getMessage();
-                    new internal_error_report(getApplicationContext(),err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
+                    new internal_error_report(getApplicationContext(),err,sharedPreferences.getString(USERNAME,"")).execute();
 
                     message="error occured ";
                 }
@@ -667,8 +673,6 @@ public class songsfromplaylist extends AppCompatActivity {
                         }
                     }
 
-
-                    Log.d(TAG, "onResponse: i adapter "+response);
                     shownewelements();
                 }
             }, new Response.ErrorListener() {
@@ -690,7 +694,6 @@ public class songsfromplaylist extends AppCompatActivity {
                     String err="Error in likeordislike in songfromplaylist "+error.getMessage();
                     new internal_error_report(getApplicationContext(),err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
 
-                    Log.d(TAG, "onErrorResponse: "+error);
                 }
             }){
                 @Override
@@ -782,6 +785,7 @@ public class songsfromplaylist extends AppCompatActivity {
                             for (int i =0 ; i <jsonArray.length(); i++) {
                                 JSONObject object = jsonArray.getJSONObject(i);
 
+                                String id =object.getString("id");
                                 String name = object.getString("name");
                                 String songurl = object.getString("url");
                                 String image = object.getString("image");
@@ -789,7 +793,7 @@ public class songsfromplaylist extends AppCompatActivity {
                                 String singer = object.getString("singer");
                                 String bkcolor=object.getString("bkcolor");
 
-                                listofsongs = new listofsongs(name,songurl,image,like,singer,bkcolor);
+                                listofsongs = new listofsongs(id,name,songurl,image,like,singer,bkcolor);
                                 listofsongsArrayLisr.add(listofsongs);
                                 songadapter.notifyDataSetChanged();
 
@@ -813,7 +817,6 @@ public class songsfromplaylist extends AppCompatActivity {
                     }else{
                         Toast.makeText(songsfromplaylist.this, "unknown error occured ", Toast.LENGTH_SHORT).show();
                     }
-                    Log.d(TAG, "onErrorResponse: error is : "+error.getMessage());
 
                     String err="Error in get_fav_song in songsfromplaylist "+error.getMessage();
                     new internal_error_report(getApplicationContext(),err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
