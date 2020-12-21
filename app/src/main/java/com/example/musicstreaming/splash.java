@@ -7,11 +7,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
-import android.animation.Animator;
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DownloadManager;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -25,15 +24,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
@@ -42,7 +38,6 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,7 +49,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.musicstreaming.service.Download_complete;
+import com.example.musicstreaming.service.phone_state_broadcast_reciever;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
@@ -77,15 +72,10 @@ import java.util.Map;
 import java.util.Objects;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-import static com.example.musicstreaming.Exceptionhandler.ERROR_REPORT;
 import static com.example.musicstreaming.checkserveravailability.connection;
 import static com.example.musicstreaming.checkserveravailability.iscomplete;
 import static com.example.musicstreaming.checkserveravailability.strings;
-import static com.example.musicstreaming.login.EMAIL;
-import static com.example.musicstreaming.login.IMAGE;
-import static com.example.musicstreaming.login.PASSWORD;
 import static com.example.musicstreaming.login.SHARED_PREF;
-import static com.example.musicstreaming.login.USERNAME;
 import static java.lang.Thread.sleep;
 
 public class splash extends AppCompatActivity {
@@ -95,7 +85,7 @@ public class splash extends AppCompatActivity {
      * Engineering ,2ndyear Student</p>
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
-    String TAG="this_is_a_splash",USERNAME="username",PASSWORD="password",NAME="name",IMAGE="image",EMAIL="email";
+    String TAG="this_is_a_splash",USERNAME="username",PASSWORD="password",NAME="name",IMAGE="image",EMAIL="email",TELEPHONE_STATE_CHANGE_PERMISSION="tell_state_change";
     FirebaseRemoteConfig firebaseRemoteConfig;
     private static final String VersionCode = "versioncodes";
     private static final String force_update = "force_update";
@@ -148,9 +138,9 @@ public class splash extends AppCompatActivity {
         lottieAnimationView=findViewById(R.id.animation_view);
 
         long total=lottieAnimationView.getDuration();
-        Log.d(TAG, "onCreate: total is "+total);
+
         float finas=(float)(80/143)*100;
-        Log.d(TAG, "onCreate: final value is "+finas);
+
         lottieAnimationView.setMinAndMaxProgress(0.0f,0.513f);
 
         btn_refresh=findViewById(R.id.refresh);
@@ -173,7 +163,7 @@ public class splash extends AppCompatActivity {
 
     }
     int count=0;
-    final Runnable runnable = new Runnable() {
+    Runnable runnable = new Runnable() {
         @Override
         public void run() {
 //            seekBar.setVisibility(View.VISIBLE);
@@ -194,7 +184,9 @@ public class splash extends AppCompatActivity {
                             if(strings.equals("you are connected")||connection){
                                 message="Connection Established ";
                                 seekBar.setProgress(50);
-                                getdetails();
+
+                                get_telephone_state_change_permission();
+
                                 Log.d(TAG, "run: connection successful ");
                             }else{
                                 stathandler.removeCallbacks(stat);
@@ -424,6 +416,44 @@ public class splash extends AppCompatActivity {
                 .setCancelable(false)
                 .create().show();
     }
+    public void get_telephone_state_change_permission()
+    {
+        String DENIED_FIRST_TIME="denied_first_time";
+        if(ContextCompat.checkSelfPermission(splash.this, Manifest.permission.READ_PHONE_STATE)== PackageManager.PERMISSION_GRANTED) {
+
+            SharedPreferences.Editor editor=sharedPreferences.edit();
+            editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION,true);
+            editor.apply();
+            getdetails();
+
+
+        }else{
+            if(ActivityCompat.shouldShowRequestPermissionRationale(splash.this, Manifest.permission.READ_PHONE_STATE)){
+
+                if(sharedPreferences.getBoolean(DENIED_FIRST_TIME,true)) {
+                    SharedPreferences.Editor editor=sharedPreferences.edit();
+                    editor.putBoolean(DENIED_FIRST_TIME,false);
+                    editor.apply();
+                    new AlertDialog.Builder(splash.this)
+                            .setTitle("Permission needed")
+                            .setMessage("Need this permission to give you better performation of our application!")
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ActivityCompat.requestPermissions(splash.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 20);
+                                }
+                            })
+                            .setCancelable(false)
+                            .create().show();
+                }else{
+                    ActivityCompat.requestPermissions(splash.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 20);
+                }
+
+            }else{
+                ActivityCompat.requestPermissions(splash.this,new String[]{Manifest.permission.READ_PHONE_STATE},20);
+            }
+        }
+    }
 
     public void checkforpermission()
     {
@@ -433,12 +463,6 @@ public class splash extends AppCompatActivity {
                 @Override
                 public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
 
-                    //DownloadFile(url,userAgent,contentDisposition,mimetype,contentlength);
-
-                    Log.d(TAG, "url "+url);
-                    Log.d(TAG, "useragent "+userAgent);
-                    Log.d(TAG, "onDownloadStart: mimetype "+mimetype);
-                    Log.d(TAG, "onDownloadStart: size "+contentLength);
                     contentlength=contentLength;
                     downloadupdatedapk downloadupdatedapk = new downloadupdatedapk();
                     downloadupdatedapk.execute(url,userAgent,contentDisposition,mimetype);
@@ -475,9 +499,6 @@ public class splash extends AppCompatActivity {
                 webView.setDownloadListener(new DownloadListener() {
                     @Override
                     public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
-                        //DownloadFile(url,userAgent,contentDisposition,mimetype,contentlength);
-                        Log.d(TAG, "url "+url);
-                        Log.d(TAG, "useragent "+userAgent);
                         contentlength=contentLength;
                         downloadupdatedapk downloadupdatedapk = new downloadupdatedapk();
                         downloadupdatedapk.execute(url,userAgent,contentDisposition,mimetype);
@@ -498,6 +519,19 @@ public class splash extends AppCompatActivity {
                         }
                     }
                 }).start();
+            }
+        }else
+        if(requestCode==20 ){
+            if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                SharedPreferences.Editor editor=sharedPreferences.edit();
+                editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION,true);
+                editor.apply();
+                getdetails();
+            }else{
+                SharedPreferences.Editor editor=sharedPreferences.edit();
+                editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION,false);
+                editor.apply();
+                getdetails();
             }
         }
     }
@@ -613,7 +647,7 @@ public class splash extends AppCompatActivity {
 
                     try {
                         //startActivity(pdfOpenintent);
-                        sendBroadcast(new Intent(getApplicationContext(),Download_complete.class));
+                        sendBroadcast(new Intent(getApplicationContext(), phone_state_broadcast_reciever.class));
                     } catch (Exception e) {
                         Log.d(TAG, "doInBackground: exception is " + e.getMessage());
                     }
@@ -876,7 +910,6 @@ public class splash extends AppCompatActivity {
 
     private void CheckDwnloadStatus(){
 
-        // TODO Auto-generated method stub
         DownloadManager.Query query = new DownloadManager.Query();
         long id = download;
         query.setFilterById(id);
