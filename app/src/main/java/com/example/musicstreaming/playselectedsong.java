@@ -743,6 +743,18 @@ public class playselectedsong extends AppCompatActivity{
 
         }
 
+        public static void back_to_playlist(){
+            try {
+                context1.startActivity(new Intent(context, songsfromplaylist.class)
+                        .putExtra("name", playlistname)
+                        .putExtra("id", playlistid).putExtra("imageurl", playlistimg));
+            }catch (Exception e){
+                Toast.makeText(context1, "Error: "+e.getMessage(), Toast.LENGTH_LONG).show();
+                String err="Error in service: "+e.getMessage();
+                new internal_error_report(context1,err,MainActivity.sharedPreferences.getString(USERNAME,""));
+            }
+        }
+
     }
 
     @Override
