@@ -12,6 +12,7 @@
         android:layout_gravity="center_vertical"
         android:background="@color/background_playlist"
         android:orientation="horizontal"
+        android:id="@+id/main_layout"
         android:weightSum="10">
 
         <LinearLayout
