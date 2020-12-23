@@ -48,6 +48,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.example.musicstreaming.Exceptionhandler;
 import com.example.musicstreaming.MainActivity;
 import com.example.musicstreaming.R;
+import com.example.musicstreaming.get_error_song;
 import com.example.musicstreaming.internal_error_report;
 import com.example.musicstreaming.playselectedsong;
 import com.example.musicstreaming.songsfromplaylist;
@@ -60,6 +61,7 @@ import java.util.Random;
 
 import static com.example.musicstreaming.MainActivity.changeplaypauseimgs;
 import static com.example.musicstreaming.MainActivity.thisisit;
+import static com.example.musicstreaming.get_error_song.RESPONSE_STATUS;
 import static com.example.musicstreaming.login.SHARED_PREF;
 import static com.example.musicstreaming.login.USERNAME;
 import static com.example.musicstreaming.playselectedsong.SONG_ACTIVITY;
@@ -70,6 +72,9 @@ import static com.example.musicstreaming.playselectedsong.makebackground;
 import static com.example.musicstreaming.playselectedsong.notificationManager;
 import static com.example.musicstreaming.playselectedsong.play_next;
 import static com.example.musicstreaming.playselectedsong.play_previous;
+import static com.example.musicstreaming.playselectedsong.playlistid;
+import static com.example.musicstreaming.playselectedsong.playlistimg;
+import static com.example.musicstreaming.playselectedsong.playlistname;
 import static com.example.musicstreaming.playselectedsong.playsong;
 import static com.example.musicstreaming.playselectedsong.seekBar;
 import static com.example.musicstreaming.playselectedsong.singername;
@@ -80,6 +85,7 @@ import static com.example.musicstreaming.playselectedsong.total_duration;
 import static com.example.musicstreaming.playselectedsong.tracks;
 import static com.example.musicstreaming.playselectedsong.updaterunnable;
 import static com.example.musicstreaming.playselectedsong.updateseek;
+import static com.example.musicstreaming.playselectedsong.updateseekdetail.back_to_playlist;
 import static com.example.musicstreaming.playselectedsong.updateseekdetail.check;
 import static com.example.musicstreaming.songsfromplaylist.changeplaypauseimg;
 import static com.example.musicstreaming.songsfromplaylist.showdetail;
@@ -258,13 +264,23 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
 
         }
 
-        mediaPlayer.reset();
-        if(isplaying || isprepared){
+        try {
             mediaPlayer.reset();
+        }catch (Exception e){
+            String err="Error in service: "+e.getMessage();
+            new internal_error_report(context,err,MainActivity.sharedPreferences.getString(USERNAME,""));
+        }
 
-            isplaying=false;
-            isprepared=false;
-            
+        if(isplaying || isprepared){
+            try {
+                mediaPlayer.reset();
+
+                isplaying=false;
+                isprepared=false;
+            }catch (Exception e){
+                String err="Error in service: "+e.getMessage();
+                new internal_error_report(context,err,MainActivity.sharedPreferences.getString(USERNAME,""));
+            }
         }
 //        mediaPlayer=new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -293,7 +309,6 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                Log.d(TAG, "onPrepared: song prepared wow");
                 mp.start();
                 songsfromplaylist.showdetail(true);
                 ispreparing=false;
@@ -317,7 +332,6 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                 isplaying=false;
                 songsfromplaylist.showdetail(false);
                 MainActivity.showdetail(true);
-                //handler.removeCallbacks(runnable);
                 showdetail(false);
                 MainActivity.showdetail(false);
 
@@ -325,10 +339,29 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                 if(what==-38) {
                     preparesong(positions);
                     Toast.makeText(context,"-38 error",Toast.LENGTH_LONG).show();
-//                    Log.d(TAG, "onError: worling again on it ");
+
                 }else{
+                    new get_error_song(context,tracks.get(positions).getId(),playlistid).execute();
                     Toast.makeText(context, "error occured : "+what, Toast.LENGTH_SHORT).show();
-//                    Log.d(TAG, "onError: error is "+what+":"+extra);
+                        mediaPlayer.reset();
+
+                        Runnable runnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                if(RESPONSE_STATUS){
+                                    int po=positions+1;
+                                    if(po<tracks.size()) {
+                                        ontracknext();
+                                    }else{
+                                        back_to_playlist();
+                                    }
+                                }else{
+                                    handler.postDelayed(this,100);
+                                }
+                            }
+                        };
+                        runnable.run();
+
                 }
                 if(new playselectedsong.updateseekdetail().getStatus()==AsyncTask.Status.RUNNING){
                     new playselectedsong.updateseekdetail().cancel(true);
@@ -436,12 +469,10 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         }
         if(!isplaying && isprepared){
             mediaPlayer.start();
-            Log.d(TAG, "ontrackplay: mediaplayer started again");
             isplaying = true;
         }else if(ispreparing){
             Toast.makeText(context, "Please Wait", Toast.LENGTH_SHORT).show();
         }
-//        }
         songsfromplaylist.showdetail(true);
 
     }
