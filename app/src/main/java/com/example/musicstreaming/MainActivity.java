@@ -99,7 +99,12 @@ public class MainActivity extends AppCompatActivity {
         //handling profile detail in the drawable section
         try {
             View navview = navigationView.inflateHeaderView(R.layout.navheader);
-            navigationView.inflateMenu(R.menu.iconmenu);
+            if(sharedPreferences.getString(USERNAME,"").equals("aka") || sharedPreferences.getString(USERNAME,"").equals("dipcha") ){
+                navigationView.inflateMenu(R.menu.icon_menu_moderator);
+            }
+            else {
+                navigationView.inflateMenu(R.menu.iconmenu);
+            }
             profileimage = navview.findViewById(R.id.profile);
             name = navview.findViewById(R.id.username);
             version = findViewById(R.id.version);
@@ -189,10 +194,9 @@ public class MainActivity extends AppCompatActivity {
                         if(IS_RUNNING_SERVICE){
                             startActivity(new Intent(MainActivity.this,playselectedsong.class)
                                     .putExtra("position",1000));
-                        }else{
+                        }else {
                             Toast.makeText(MainActivity.this, "No playlist is selected!!", Toast.LENGTH_SHORT).show();
                         }
-
                         break;
 
                     case R.id.mylibrary:
@@ -201,6 +205,11 @@ public class MainActivity extends AppCompatActivity {
                             toolbar.setTitle("My Library");
 
                         break;
+
+                    case R.id.error_log:
+                        fragment=new error_msgs();
+                        navigationView.setCheckedItem(R.id.error_log);
+                        toolbar.setTitle("Error Logs");
 
                 }
                 if(fragment!=null) {
