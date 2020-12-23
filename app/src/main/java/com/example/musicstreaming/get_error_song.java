@@ -4,12 +4,15 @@ import android.accessibilityservice.GestureDescription;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,15 +20,18 @@ import java.util.Map;
 import static com.example.musicstreaming.login.SHARED_PREF;
 import static com.example.musicstreaming.login.USERNAME;
 
-public class vote_artists extends AsyncTask<String,Void,Void> {
+public class get_error_song extends AsyncTask<String,Void,Void> {
 
     Context context;
     SharedPreferences sharedPreferences;
-    String url="",song_id,playlist_id;
-    public vote_artists(Context context1, String song_id,String playlist_id) {
+    public static boolean RESPONSE_STATUS;
+    String url="https://rentdetails.000webhostapp.com/musicplayer_files/songs_error_manager/get_error_detail_in_song.php",song_id,playlist_id;
+
+    public get_error_song(Context context1, String song_id, String playlist_id) {
         this.context=context1;
         this.playlist_id=playlist_id;
         this.song_id=song_id;
+        RESPONSE_STATUS=false;
     }
 
     @Override
@@ -37,8 +43,8 @@ public class vote_artists extends AsyncTask<String,Void,Void> {
             @Override
             public void onResponse(String response) {
 
-                
-
+//                Toast.makeText(context, "Response is "+response, Toast.LENGTH_SHORT).show();
+                RESPONSE_STATUS=true;
             }
         }, new Response.ErrorListener() {
             @Override
@@ -59,6 +65,9 @@ public class vote_artists extends AsyncTask<String,Void,Void> {
                 return params;
             }
         };
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+        queue.add(stringRequest);
 
         return null;
     }
