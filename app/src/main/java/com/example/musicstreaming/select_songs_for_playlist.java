@@ -62,6 +62,8 @@ public class select_songs_for_playlist extends Fragment {
     String[] names_playlist;
     MenuItem mitem;
     String PLAYLIST_IDS;
+    Boolean IS_MODIFYING=false;
+    int[] song_indx;
 
     public select_songs_for_playlist() {
         // Required empty public constructor
@@ -78,6 +80,7 @@ public class select_songs_for_playlist extends Fragment {
 
         Intent intent = getActivity().getIntent();
         PLAYLIST_IDS=intent.getExtras().getString("PLAYLIST_ID","");
+        IS_MODIFYING=intent.getExtras().getBoolean("IS_MODIFYING",false);
 
         custom_listview=view.findViewById(R.id.make_custom_playlist_listview);
         setHasOptionsMenu(true);
@@ -100,6 +103,10 @@ public class select_songs_for_playlist extends Fragment {
         }
         new getdata().execute(urls);
 
+        if(IS_MODIFYING){
+            new get_songs("https://rentdetails.000webhostapp.com/musicplayer_files/modify_playlist/modify_playlist.php").execute();
+        }
+
         //select the song from the filtered & unfiltered listview
         custom_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -121,6 +128,8 @@ public class select_songs_for_playlist extends Fragment {
                                 playlist_songs.add(new list_of_all_songs(listofallsongsArrayList.get(position).getId(), listofallsongsArrayList.get(position).getName(), listofallsongsArrayList.get(position).getImage(),
                                         listofallsongsArrayList.get(position).getUrl(), listofallsongsArrayList.get(position).getSinger(), listofallsongsArrayList.get(position).getBkcolor()));
 
+                                set_array(Integer.parseInt(listofallsongsArrayList.get(position).getId()));
+
                                 listofallsongsArrayList.remove(position);
 
                             }else{
@@ -139,6 +148,8 @@ public class select_songs_for_playlist extends Fragment {
                                 if(playlist_songs.size()<=30) {
                                     playlist_songs.add(new list_of_all_songs(listofallsongsArrayList.get(position).getId(), listofallsongsArrayList.get(position).getName(), listofallsongsArrayList.get(position).getImage(),
                                             listofallsongsArrayList.get(position).getUrl(), listofallsongsArrayList.get(position).getSinger(), listofallsongsArrayList.get(position).getBkcolor()));
+
+                                    set_array(Integer.parseInt(listofallsongsArrayList.get(position).getId()));
 
                                     listofallsongsArrayList.remove(position);
                                 }else{
@@ -166,32 +177,57 @@ public class select_songs_for_playlist extends Fragment {
         custom_listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-
                 String[] st={"Remove"};
 
-                AlertDialog.Builder alert = new AlertDialog.Builder(context)
-                        .setCancelable(true)
-                        .setItems(st, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                if(!IS_IN_SEARCHVIEW) {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(context)
+                            .setCancelable(true)
+                            .setItems(st, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
 
-                                if(which==0){
+                                    if (which == 0) {
 
-                                    listofallsongsArrayList.add(new list_of_all_songs(playlist_songs.get(position).getId(),playlist_songs.get(position).getName(),playlist_songs.get(position).getImage()
-                                    ,playlist_songs.get(position).getUrl(),playlist_songs.get(position).getSinger(),playlist_songs.get(position).getBkcolor()));
-                                    playlist_songs.remove(position);
-                                    songsadaptor.notifyDataSetChanged();
+                                        listofallsongsArrayList.add(new list_of_all_songs(playlist_songs.get(position).getId(), playlist_songs.get(position).getName(), playlist_songs.get(position).getImage()
+                                                , playlist_songs.get(position).getUrl(), playlist_songs.get(position).getSinger(), playlist_songs.get(position).getBkcolor()));
+
+                                        set_array(Integer.parseInt(playlist_songs.get(position).getId()));
+
+                                        playlist_songs.remove(position);
+                                        songsadaptor.notifyDataSetChanged();
+
+                                    }
 
                                 }
-
-                            }
-                        });
-                alert.show();
+                            });
+                    alert.show();
+                }
 
                 return false;
             }
         });
 
+    }
+
+    public void set_array(int position){
+
+        for(int i=0;i<song_indx.length;i++){
+
+            if(song_indx[i]==position){
+                song_indx[i]*=-1;
+            }else
+                if(song_indx[i]==position*-1){
+
+                    song_indx[i]*=-1;
+
+                }
+
+        }
+        for(int i: song_indx){
+
+            Log.d("removed_songs", ""+i);
+
+        }
     }
 
     //getting value of the selected item after having filetred listview
@@ -251,6 +287,7 @@ public class select_songs_for_playlist extends Fragment {
                     }
 
                     custom_listview.setAdapter(songadapter1);
+                    custom_listview.cancelLongPress();
 
                     searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                         @Override
@@ -292,7 +329,7 @@ public class select_songs_for_playlist extends Fragment {
             }else{
 
                 String str=make_array_for_the_song_id();
-//                Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
+                Log.d("removed_songs", "onOptionsItemSelected: "+str);
                 if(!PLAYLIST_IDS.equals("")) {
                     new send_playlist("https://rentdetails.000webhostapp.com/musicplayer_files/set_custom_playlist.php", PLAYLIST_IDS, str).execute();
                 }else{
@@ -310,11 +347,32 @@ public class select_songs_for_playlist extends Fragment {
     String str="";
     int i=0;
 
-    for( list_of_all_songs val :playlist_songs){
-        i++;
-        str+=val.getId();
-        if(i<playlist_songs.size()){
-            str+=",";
+    if(IS_MODIFYING){
+
+        for( list_of_all_songs val :playlist_songs){
+                str+=val.getId();
+
+                if(i<playlist_songs.size()-1){
+                    str+=",";
+                }
+                i++;
+        }
+
+        for( int j : song_indx){
+            if(j<0) {
+                str += ","+j;
+
+            }
+        }
+
+
+    }else{
+        for( list_of_all_songs val :playlist_songs){
+            i++;
+            str+=val.getId();
+            if(i<playlist_songs.size()){
+                str+=",";
+            }
         }
     }
         return str;
@@ -512,6 +570,148 @@ public class select_songs_for_playlist extends Fragment {
 
             return null;
         }
+    }
+
+    public class get_songs extends AsyncTask<String,Void,Void>{
+
+        String message="",new_url;
+        ProgressDialog progressDialog;
+        public get_songs(String url) {
+            this.new_url=url;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+//            new getdata().execute(urls);
+
+//            songsadaptor=new all_song_adaptor(context, playlist_songs);
+//            custom_listview.setAdapter(songsadaptor);
+
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setMessage("Making your playlist ...");
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+
+            String url=new_url;
+
+            StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response){
+                    message="progress done";
+                    progressDialog.dismiss();
+                    try {
+
+                        JSONObject jsonObject = new JSONObject(response);
+                        String success = jsonObject.getString("success");
+                        JSONArray jsonArray = jsonObject.getJSONArray("data");
+                        if (success.equals("1")) {
+                            for (int i =0 ; i <jsonArray.length(); i++) {
+                                JSONObject object = jsonArray.getJSONObject(i);
+
+                                String id = object.getString("id");
+                                String name = object.getString("name");
+                                String image = object.getString("image");
+                                String url = object.getString("url");
+                                String singer = object.getString("singer");
+                                String bkcolor = object.getString("bkcolor");//background colour when the song is playing;
+
+                                Log.d(TAG, "onResponse: id is "+id);
+
+                                songlist= new list_of_all_songs(id,name,image,url,singer,bkcolor);
+                                playlist_songs.add(songlist);
+                                songsadaptor.notifyDataSetChanged();
+                            }
+
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        message="failed ";
+                        //new erroinfetch().execute(e.getMessage());
+                        Log.d("removed_songs", "onResponse: error in json is "+e.getMessage());
+                    }
+
+                    get_index(playlist_songs);
+                    remove_from_all_songs();
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    message="error in fetching playlist";
+                    progressDialog.dismiss();
+                    if(error.getMessage()!=null){
+
+                        Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }else{
+
+                        Toast.makeText(context, "Error occured!!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    String err="Error in getdata in homefragment "+error.getMessage();
+                    new internal_error_report(context,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
+
+                }
+            }){
+
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+
+                    Map<String,String> params=new HashMap<String, String>();
+
+                    params.put("playlist_id",PLAYLIST_IDS);
+
+                    return params;
+                }
+            };
+            RequestQueue queue = Volley.newRequestQueue(context);
+            queue.add(request);
+
+
+            return null;
+        }
+
+        public void get_index(ArrayList<list_of_all_songs> songs){
+
+            song_indx=new int[songs.size()];
+            int i=0;
+            for( list_of_all_songs list: songs){
+
+                song_indx[i]=Integer.parseInt(list.getId());
+                i++;
+            }
+
+        }
+
+        public void remove_from_all_songs(){
+            Log.d("removed_song", "remove_from_all_songs: running");
+
+
+            for(int i : song_indx){
+                for(int j=0;j<listofallsongsArrayList.size();j++){
+
+                    if(Integer.parseInt(listofallsongsArrayList.get(j).getId())==i){
+
+                        try {
+                            Log.d("removed_song", "remove_from_all_songs: removed song "+listofallsongsArrayList.get(j).getName());
+                            listofallsongsArrayList.remove(j);
+                        }catch (Exception e){
+                            Log.d("removed_song", "remove_from_all_songs: failed removing song ");
+                        }
+                        break;
+                    }
+
+                }
+            }
+        }
+
     }
 
 }
