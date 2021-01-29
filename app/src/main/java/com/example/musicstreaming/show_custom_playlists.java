@@ -169,17 +169,22 @@ public class show_custom_playlists extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
 
-                String[] sample= {"Delete"};
+                String[] sample= {"Delete Playlist","Change Playlist"};
                 if(!IS_IN_SEARCHVIEW) {
 //                    POSITION_FAV_PLAYLIST=position;
                     positions=position;
                     AlertDialog.Builder alert = new AlertDialog.Builder(context)
-                            .setItems(sample, new DialogInterface.OnClickListener() {
+                            .setItems(sample,  new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     if(which==0){
                                         new delete_playlist(listofplaylistArrayList.get(positions).getId(),sharedPreferences.getString(USERNAME,"")).execute();
-                                    }
+                                    }else
+                                        if(which==1){
+
+                                            startActivity(new Intent(context,make_custom_playlist.class).putExtra("PLAYLIST_ID",listofplaylistArrayList.get(positions).getId())
+                                            .putExtra("IS_MODIFYING",true));
+                                        }
                                 }
                             });
                     alert.show();
@@ -196,6 +201,11 @@ public class show_custom_playlists extends Fragment {
                                     public void onClick(DialogInterface dialog, int which) {
                                         if(which==0){
                                             new delete_playlist(listofplaylistArrayList.get(positions).getId(),sharedPreferences.getString(USERNAME,"")).execute();
+                                        }else
+                                        if(which==1){
+
+                                            startActivity(new Intent(context,make_custom_playlist.class).putExtra("PLAYLIST_ID",listofplaylistArrayList.get(positions).getId())
+                                                    .putExtra("IS_MODIFYING",true));
                                         }
                                     }
                                 });
