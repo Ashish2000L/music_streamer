@@ -1,0 +1,122 @@
+package com.example.musicstreaming;
+
+import android.util.Log;
+
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
+public class make_file_in_directory {
+
+    public make_file_in_directory() {
+
+    }
+
+    public void write_credential_file(String username,String password, File file){
+        if(file.exists()) {
+            file.delete();
+
+        }
+        JSONObject credentials = new JSONObject();
+        try {
+
+            credentials.put("username", username);
+            credentials.put("password", password);
+        } catch (Exception e) {
+            Log.d("json_file_writing", "make_credential_file: "+e.getMessage());
+        }
+
+        JSONObject version = new JSONObject();
+        try {
+            version.put("version", BuildConfig.VERSION_CODE);
+        } catch (Exception e) {
+            Log.d("json_file_writing", "make_credential_file: "+e.getMessage());
+        }
+
+        JSONObject final_json = new JSONObject();
+        try {
+            final_json.put("credential", credentials);
+            final_json.put("version", version);
+
+            String json_output = final_json.toString();
+
+
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(json_output.getBytes());
+            fos.close();
+
+            Log.d("json_file_writing", "make_credential_file: " + final_json);
+
+        } catch (Exception e) {
+            Log.d("json_file_writing", "make_credential_file: "+e.getMessage());
+        }
+
+    }
+
+    public String read_credentail_file(File file){
+
+        String content="";
+        int length= (int)file.length();
+        byte[] data = new byte[length];
+        try {
+            FileInputStream fin = new FileInputStream(file);
+            fin.read(data);
+            fin.close();
+
+            content = new String(data);
+            Log.d("json_file_writing", "read_json_file: "+content);
+        }catch (Exception e){
+            Log.d("json_file_writing", "read_json_file: "+e.getMessage());
+        }
+        return content;
+    }
+
+    public void write_version_file(File file){
+
+        if(file.exists()) {
+            file.delete();
+
+        }
+
+        JSONObject final_json = new JSONObject();
+        try {
+            final_json.put("version", BuildConfig.VERSION_CODE);
+
+            String json_output = final_json.toString();
+
+
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(json_output.getBytes());
+            fos.close();
+
+            Log.d("json_file_writing", "make_version_file: " + final_json);
+
+        } catch (Exception e) {
+            Log.d("json_file_writing", "make_version_file: "+e.getMessage());
+        }
+
+    }
+
+    public int read_version_file(File file){
+
+        int version=0;
+        int length= (int)file.length();
+        byte[] data = new byte[length];
+        try {
+            FileInputStream fin = new FileInputStream(file);
+            fin.read(data);
+            fin.close();
+
+            String content = new String(data);
+            JSONObject obj = new JSONObject(content);
+            version=obj.getInt("version");
+            Log.d("json_file_writing", "read_version_file: "+content);
+        }catch (Exception e){
+            Log.d("json_file_writing", "read_version_file: "+e.getMessage());
+        }
+       return version;
+    }
+
+}
