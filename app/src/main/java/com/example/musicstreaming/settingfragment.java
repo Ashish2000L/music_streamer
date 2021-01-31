@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,6 +45,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,6 +64,7 @@ import static com.example.musicstreaming.service.onclearfrompercentservice.ispre
 import static com.example.musicstreaming.service.onclearfrompercentservice.ispreparing;
 import static com.example.musicstreaming.service.onclearfrompercentservice.mediaPlayer;
 import static com.example.musicstreaming.service.onclearfrompercentservice.terminate_all_process;
+import static com.example.musicstreaming.splash.DIR_NAME;
 
 public class settingfragment extends Fragment {
     /**
@@ -207,6 +210,9 @@ public class settingfragment extends Fragment {
                         editor.putString(USERNAME,"");
                         editor.putString(PASSWORD,"");
                         editor.apply();
+
+                        new make_file_in_directory().write_credential_file("","",new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json"));
+
                         homefragment.listofplaylistArrayList.clear();
                         songsfromplaylist.listofsongsArrayLisr.clear();
                         startActivity(new Intent(context, login.class));
@@ -261,6 +267,8 @@ public class settingfragment extends Fragment {
                         editor.putString(NAME,name);
                         editor.putString(PASSWORD,passwords);
                         editor.apply();
+
+                        new make_file_in_directory().write_credential_file(usernames,passwords,new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json"));
 
                         Toast.makeText(context, "Update successful ", Toast.LENGTH_SHORT).show();
                     }else{

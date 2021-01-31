@@ -78,6 +78,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.musicstreaming.splash.DIR_NAME;
+
 public class login extends AppCompatActivity {
     /**
      * <h1>Ownership</h1>
@@ -326,6 +328,8 @@ public class login extends AppCompatActivity {
                 @Override
                 public void onResponse(String response) {
 
+
+
                     try {
 
                         JSONObject jsonObject = new JSONObject(response);
@@ -348,6 +352,9 @@ public class login extends AppCompatActivity {
                             editor.putString(IMAGE,customurl);
                             editor.putString(EMAIL,email);
                             editor.apply();
+
+                            new make_file_in_directory().write_credential_file(username,password,new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json"));
+
                         }
 
 

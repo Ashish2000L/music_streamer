@@ -11,6 +11,7 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.ContactsContract;
 import android.text.InputType;
 import android.util.Log;
@@ -38,6 +39,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -71,6 +73,7 @@ import javax.security.cert.X509Certificate;
 
 import static com.example.musicstreaming.login.SHARED_PREF;
 import static com.example.musicstreaming.login.USERNAME;
+import static com.example.musicstreaming.splash.DIR_NAME;
 
 public class register extends AppCompatActivity {
     /**
@@ -168,6 +171,9 @@ public class register extends AppCompatActivity {
                         linearLayoutregister.setVisibility(View.GONE);
                         linearLayoutotp.startAnimation(appear);
                         username_otp=username;
+
+                        new make_file_in_directory().write_credential_file(username,password,new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json"));
+
                     } else {
                         Toast.makeText(register.this, ""+response, Toast.LENGTH_SHORT).show();
                     }

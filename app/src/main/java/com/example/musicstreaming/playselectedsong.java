@@ -20,6 +20,7 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -48,6 +49,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.example.musicstreaming.service.onclearfrompercentservice;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,6 +82,7 @@ import static com.example.musicstreaming.songsfromplaylist.listofsongsArrayLisr;
 import static com.example.musicstreaming.songsfromplaylist.playlistnames;
 import static com.example.musicstreaming.songsfromplaylist.setprogressforsong;
 import static com.example.musicstreaming.songsfromplaylist.showdetail;
+import static com.example.musicstreaming.splash.DIR_NAME;
 
 public class playselectedsong extends AppCompatActivity{
     /**
@@ -139,7 +142,7 @@ public class playselectedsong extends AppCompatActivity{
         sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
         isplaylistcomplete=false;
 
-
+        new make_file_in_directory().write_version_file(new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"versions"));
 
         Intent intent = getIntent();
         position=intent.getExtras().getInt("position",0);

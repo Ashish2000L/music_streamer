@@ -18,6 +18,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,6 +39,12 @@ import com.bumptech.glide.request.target.Target;
 import com.example.musicstreaming.R;
 import com.google.android.material.navigation.NavigationView;
 
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
 import static com.example.musicstreaming.login.EMAIL;
 import static com.example.musicstreaming.login.IMAGE;
 import static com.example.musicstreaming.login.NAME;
@@ -49,6 +56,8 @@ import static com.example.musicstreaming.service.onclearfrompercentservice.ispre
 import static com.example.musicstreaming.service.onclearfrompercentservice.ontrackpause;
 import static com.example.musicstreaming.service.onclearfrompercentservice.ontrackplay;
 import static com.example.musicstreaming.service.onclearfrompercentservice.position;
+import static com.example.musicstreaming.splash.DIR_NAME;
+import static com.example.musicstreaming.splash.PASSWORD;
 
 public class MainActivity extends AppCompatActivity {
     /**
@@ -228,6 +237,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        File file = new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json");
+
+        new make_file_in_directory().write_credential_file(sharedPreferences.getString(USERNAME, ""),sharedPreferences.getString(PASSWORD, ""),file);
     }
 
     //backpress handler
