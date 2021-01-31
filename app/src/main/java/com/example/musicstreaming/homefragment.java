@@ -1,12 +1,14 @@
 package com.example.musicstreaming;
 
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,7 +17,9 @@ import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.os.Environment;
 import android.os.Handler;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +33,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -43,15 +48,18 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import static com.example.musicstreaming.MainActivity.MAIN_ACTIVITY;
+import static com.example.musicstreaming.MainActivity.thisisit;
 import static com.example.musicstreaming.login.SHARED_PREF;
 import static com.example.musicstreaming.login.USERNAME;
 import static com.example.musicstreaming.service.onclearfrompercentservice.POSITION_FAV_PLAYLIST;
+import static com.example.musicstreaming.splash.DIR_NAME;
 
 
 public class homefragment extends Fragment {
@@ -74,7 +82,7 @@ public class homefragment extends Fragment {
     SearchView searchView;
     boolean IS_IN_SEARCHVIEW=false;
     String SEARCH_VIEW_NAME;
-    String TAG="loadingplaylist",urls="https://rentdetails.000webhostapp.com/musicplayer_files/showplaylist.php";
+    String TAG="loadingplaylist",TOKEN="TOKEN_FOR_IN_APP_MSG", urls="https://rentdetails.000webhostapp.com/musicplayer_files/showplaylist.php";
 
     String[] names_playlist;
     ArrayList<listofplaylist> arrayList=new ArrayList<>();
@@ -105,6 +113,8 @@ public class homefragment extends Fragment {
         playlistadapter = new playlistadapter(view.getContext(),listofplaylistArrayList);
         listviewforplaylist.setAdapter(playlistadapter);
 
+        final String url_for_dialogue="https://rentdetails.000webhostapp.com/musicplayer_files/In%20app%20Dialogue/dialogue_handling.php";
+        new show_dialogue(BuildConfig.VERSION_CODE,sharedPreferences.getString(USERNAME,""),sharedPreferences.getInt(TOKEN,0),url_for_dialogue).execute();
 
         if(listofplaylistArrayList.isEmpty()){
             new getdata().execute(urls);
@@ -150,7 +160,6 @@ public class homefragment extends Fragment {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-
 
         return view;
     }
@@ -343,6 +352,8 @@ public class homefragment extends Fragment {
                     String err="Error in getdata in homefragment "+error.getMessage();
                     new internal_error_report(context,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
 
+                    new getdata().execute(urls);
+
                 }
             }) {
                 @Override
@@ -385,4 +396,132 @@ public class homefragment extends Fragment {
             runnable.run();
         }
     }
+
+
+    // for showing custom dialogue
+    public void custom_dialod(String title, String bodys, int token){
+        TextView close,heading,body;
+        AlertDialog.Builder alert = new AlertDialog.Builder(context);
+        View mview = getLayoutInflater().inflate(R.layout.custom_dialogue_inappmessaging,null);
+
+        close = mview.findViewById(R.id.close_dialogue);
+        heading = mview.findViewById(R.id.title_for_dialogue);
+        body = mview.findViewById(R.id.body_for_dialogue);
+
+        alert.setView(mview);
+
+        heading.setText(Html.fromHtml(title));
+        body.setText(Html.fromHtml(bodys));
+
+        final AlertDialog alertDialog = alert.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(TOKEN,token);
+        editor.apply();
+
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+
+        alertDialog.show();
+
+    }
+
+    public class show_dialogue extends AsyncTask<Void,Void,Void>{
+
+        int version, token;
+        String username,message="",url;
+        public show_dialogue(int version, String username, int token,String url) {
+
+            this.username=username;
+            this.token=token;
+            this.version=version;
+            this.url=url;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    listofplaylistArrayList.clear();
+                    message="progress done";
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject(response);
+                        String success = jsonObject.getString("success");
+                        JSONArray jsonArray = jsonObject.getJSONArray("data");
+                        if (success.equals("1")) {
+                                JSONObject object = jsonArray.getJSONObject(0);
+
+                                String title = object.getString("title");
+                                String body = object.getString("body");
+                                String token = object.getString("token");
+
+                            Log.d(TAG, "onResponse: title & body "+title+body);
+                                if(!title.equals("not")){
+
+                                    if(new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"versions").exists()) {
+                                        custom_dialod(title, body, Integer.parseInt(token));
+                                    }else{
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                        editor.putInt(TOKEN,Integer.parseInt(token));
+                                        editor.apply();
+
+                                    }
+
+                                }
+                        }
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        message="failed ";
+                        Log.d(TAG, "onResponse: error in json is "+e.getMessage());
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    message="error in fetching playlist";
+                    if(error.getMessage()!=null){
+                        Log.d(TAG, "onErrorResponse: error in connection is "+error.getMessage());
+                        Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }else{
+                        Log.d(TAG, "onErrorResponse: null error found ");
+                    }
+
+                    String err="Error in getdata in homefragment "+error.getMessage();
+                    new internal_error_report(context,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
+
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> params = new HashMap<String, String>();
+                    if (!sharedPreferences.getString(USERNAME,"").equals("")) {
+                        params.put("username", sharedPreferences.getString(USERNAME,""));
+                    }
+
+                    params.put("version",version+"");
+                    params.put("token",token+"");
+
+                    return params;
+                }
+            };
+
+            RequestQueue queue = Volley.newRequestQueue(context);
+            queue.add(request);
+
+            return null;
+        }
+    }
+
 }
