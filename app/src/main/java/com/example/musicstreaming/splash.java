@@ -85,7 +85,7 @@ public class splash extends AppCompatActivity {
      * Engineering ,2ndyear Student</p>
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
-    String TAG="this_is_a_splash",USERNAME="username",PASSWORD="password",NAME="name",IMAGE="image",EMAIL="email",TELEPHONE_STATE_CHANGE_PERMISSION="tell_state_change";
+    public static String TAG="this_is_a_splash",USERNAME="username",PASSWORD="password",NAME="name",IMAGE="image",EMAIL="email",TELEPHONE_STATE_CHANGE_PERMISSION="tell_state_change",DIR_NAME="Music_Streaming";
     FirebaseRemoteConfig firebaseRemoteConfig;
     private static final String VersionCode = "versioncodes";
     private static final String force_update = "force_update";
@@ -144,7 +144,6 @@ public class splash extends AppCompatActivity {
         lottieAnimationView.setMinAndMaxProgress(0.0f,0.513f);
 
         btn_refresh=findViewById(R.id.refresh);
-
 
 
         runnable.run();
@@ -216,6 +215,18 @@ public class splash extends AppCompatActivity {
         }
     };
 
+    public void make_dir(){
+
+        File dir=new File(Environment.getExternalStorageDirectory(),DIR_NAME);
+
+        if(!dir.exists()){
+            if(dir.mkdirs()){
+                Log.d(TAG, "make_dir: ");
+            }
+        }
+
+    }
+
     public boolean checkConnections()
     {
         ConnectivityManager connectivityManager = (ConnectivityManager)
@@ -239,6 +250,9 @@ public class splash extends AppCompatActivity {
 
     private void getdetails()
     {   message="Collecting resources ";
+
+        make_dir();
+
         boolean is_using_developerMode = firebaseRemoteConfig.getInfo().getConfigSettings().isDeveloperModeEnabled();
         final int catchExpiration;
         if (is_using_developerMode) {
@@ -326,11 +340,33 @@ public class splash extends AppCompatActivity {
             SharedPreferences sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
             username=sharedPreferences.getString(USERNAME,"");
             password=sharedPreferences.getString(PASSWORD,"");
+            File file = new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json");
             if(username!="" && password!=""){
                 message="Logging in User ";
                 loginifexist(username,password);
                 Log.d(TAG, "check_for_update: logging in user ");
                 seekBar.setProgress(90);
+            }else
+            if(file.exists()){
+
+                String credentail=new make_file_in_directory().read_credentail_file(file);
+                try {
+                    JSONObject obj = new JSONObject(credentail);
+                    JSONObject crednt = obj.getJSONObject("credential");
+                    username=crednt.getString("username");
+                    password=crednt.getString("password");
+
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString(USERNAME,username);
+                    editor.putString(PASSWORD,password);
+                    editor.apply();
+
+                    loginifexist(username,password);
+
+                }catch (Exception e){
+                    Log.d("json_file_writing", "onClick: "+e.getMessage());
+                }
+
             }else{
                 seekBar.setProgress(100);
                 startActivity(new Intent(splash.this,login.class));
@@ -388,12 +424,35 @@ public class splash extends AppCompatActivity {
                 SharedPreferences sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
                 String username=sharedPreferences.getString(USERNAME,"");
                 String password=sharedPreferences.getString(PASSWORD,"");
+                File file = new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json");
                 if(username!="" && password!=""){
                     message="Logging in User ";
                     loginifexist(username,password);
                     Log.d(TAG, "check_for_update: logging in user ");
                     seekBar.setProgress(80);
-                }else{
+                }else
+                if(file.exists()){
+
+                    String credentail=new make_file_in_directory().read_credentail_file(file);
+                    try {
+                        JSONObject obj = new JSONObject(credentail);
+                        JSONObject crednt = obj.getJSONObject("credential");
+                        username=crednt.getString("username");
+                        password=crednt.getString("password");
+
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString(USERNAME,username);
+                        editor.putString(PASSWORD,password);
+                        editor.apply();
+
+                        loginifexist(username,password);
+
+                    }catch (Exception e){
+                        Log.d("json_file_writing", "onClick: "+e.getMessage());
+                    }
+
+                }
+                else{
                     seekBar.setProgress(100);
                     startActivity(new Intent(splash.this,login.class));
                     finish();
@@ -419,7 +478,9 @@ public class splash extends AppCompatActivity {
     public void get_telephone_state_change_permission()
     {
         String DENIED_FIRST_TIME="denied_first_time";
-        if(ContextCompat.checkSelfPermission(splash.this, Manifest.permission.READ_PHONE_STATE)== PackageManager.PERMISSION_GRANTED) {
+        if(ContextCompat.checkSelfPermission(splash.this, Manifest.permission.READ_PHONE_STATE)== PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(splash.this, WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(splash.this, Manifest.permission.READ_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED) {
 
             SharedPreferences.Editor editor=sharedPreferences.edit();
             editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION,true);
@@ -428,7 +489,9 @@ public class splash extends AppCompatActivity {
 
 
         }else{
-            if(ActivityCompat.shouldShowRequestPermissionRationale(splash.this, Manifest.permission.READ_PHONE_STATE)){
+            if(ActivityCompat.shouldShowRequestPermissionRationale(splash.this, Manifest.permission.READ_PHONE_STATE ) &&
+                    ActivityCompat.shouldShowRequestPermissionRationale(splash.this, WRITE_EXTERNAL_STORAGE )&&
+                    ActivityCompat.shouldShowRequestPermissionRationale(splash.this, Manifest.permission.READ_EXTERNAL_STORAGE )){
 
                 if(sharedPreferences.getBoolean(DENIED_FIRST_TIME,true)) {
                     SharedPreferences.Editor editor=sharedPreferences.edit();
@@ -440,17 +503,17 @@ public class splash extends AppCompatActivity {
                             .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    ActivityCompat.requestPermissions(splash.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 20);
+                                    ActivityCompat.requestPermissions(splash.this, new String[]{Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE}, 20);
                                 }
                             })
                             .setCancelable(false)
                             .create().show();
                 }else{
-                    ActivityCompat.requestPermissions(splash.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 20);
+                    ActivityCompat.requestPermissions(splash.this, new String[]{Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE}, 20);
                 }
 
             }else{
-                ActivityCompat.requestPermissions(splash.this,new String[]{Manifest.permission.READ_PHONE_STATE},20);
+                ActivityCompat.requestPermissions(splash.this,new String[]{Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE},20);
             }
         }
     }
@@ -522,12 +585,24 @@ public class splash extends AppCompatActivity {
             }
         }else
         if(requestCode==20 ){
-            if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                SharedPreferences.Editor editor=sharedPreferences.edit();
-                editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION,true);
+            if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1]==PackageManager.PERMISSION_GRANTED && grantResults[2]==PackageManager.PERMISSION_GRANTED) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION, true);
                 editor.apply();
                 getdetails();
-            }else{
+            }else
+                if(grantResults[0] == PackageManager.PERMISSION_DENIED || grantResults[1]==PackageManager.PERMISSION_DENIED || grantResults[2]==PackageManager.PERMISSION_DENIED){
+
+                    if(grantResults[0] == PackageManager.PERMISSION_DENIED)
+                        Toast.makeText(SPLASH_ACTIVITY, "Manage Phone permission Denied, Allow this permission to give you better experience.", Toast.LENGTH_LONG).show();
+                    if(grantResults[1] == PackageManager.PERMISSION_DENIED)
+                        Toast.makeText(SPLASH_ACTIVITY, "Manage Media permission Denied, Allow this permission to give you better experience.", Toast.LENGTH_LONG).show();
+                    if(grantResults[2] == PackageManager.PERMISSION_DENIED)
+                        Toast.makeText(SPLASH_ACTIVITY, "Manage Media permission Denied, Allow this permission to give you better experience.", Toast.LENGTH_LONG).show();
+
+                    getdetails();
+                }
+            else{
                 SharedPreferences.Editor editor=sharedPreferences.edit();
                 editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION,false);
                 editor.apply();
@@ -689,6 +764,8 @@ public class splash extends AppCompatActivity {
     public void loginifexist(final String username,final String password){
         String url="https://rentdetails.000webhostapp.com/musicplayer_files/login.php";
         final String urlforusergetail="https://rentdetails.000webhostapp.com/musicplayer_files/getuserdata.php";
+
+        make_dir();
 
         StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
