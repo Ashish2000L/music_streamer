@@ -122,6 +122,8 @@ public class homefragment extends Fragment {
             listviewforplaylist.startAnimation(frombottom);
         }
 
+        Log.d("arraylistsize", "onCreateView: arraylistsize "+listofplaylistArrayList.size());
+
         listviewforplaylist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -449,7 +451,6 @@ public class homefragment extends Fragment {
             StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    listofplaylistArrayList.clear();
                     message="progress done";
 
                     try {

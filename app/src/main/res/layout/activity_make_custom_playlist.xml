@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/new_playlist_toolbar"
-        app:title="New Playlist Name"
+        app:title="New Playlist"
         app:titleTextColor="#fff"
         android:background="@android:color/black"
         />

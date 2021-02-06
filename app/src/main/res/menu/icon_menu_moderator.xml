@@ -20,6 +20,11 @@
         android:id="@+id/mylibrary"/>
 
     <item
+        android:title="Search"
+        android:icon="@drawable/search"
+        android:id="@+id/search"/>
+
+    <item
         android:id="@+id/now_plyng"
         android:icon="@drawable/now_playing"
         android:title="Now Playing"

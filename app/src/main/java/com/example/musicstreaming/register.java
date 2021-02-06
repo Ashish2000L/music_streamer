@@ -2,6 +2,7 @@ package com.example.musicstreaming;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -90,6 +91,7 @@ public class register extends AppCompatActivity {
     public SharedPreferences sharedPreferences;
     Animation appear;
     public static Context REGISTER;
+    Activity REGISTER_ACTIVITY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +99,10 @@ public class register extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(this));
+
         REGISTER=this;
+        REGISTER_ACTIVITY=this;
+
         sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
 
         et_name=findViewById(R.id.et_name);
@@ -172,7 +177,7 @@ public class register extends AppCompatActivity {
                         linearLayoutotp.startAnimation(appear);
                         username_otp=username;
 
-                        new make_file_in_directory().write_credential_file(username,password,new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json"));
+                        new make_file_in_directory(REGISTER_ACTIVITY,REGISTER,username).write_credential_file(username,password,new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json"));
 
                     } else {
                         Toast.makeText(register.this, ""+response, Toast.LENGTH_SHORT).show();

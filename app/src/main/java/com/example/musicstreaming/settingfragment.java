@@ -211,7 +211,7 @@ public class settingfragment extends Fragment {
                         editor.putString(PASSWORD,"");
                         editor.apply();
 
-                        new make_file_in_directory().write_credential_file("","",new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json"));
+                        new make_file_in_directory(MAIN_ACTIVITY,context,"").write_credential_file("","",new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json"));
 
                         homefragment.listofplaylistArrayList.clear();
                         songsfromplaylist.listofsongsArrayLisr.clear();
@@ -268,7 +268,7 @@ public class settingfragment extends Fragment {
                         editor.putString(PASSWORD,passwords);
                         editor.apply();
 
-                        new make_file_in_directory().write_credential_file(usernames,passwords,new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json"));
+                        new make_file_in_directory(MAIN_ACTIVITY,context,usernames).write_credential_file(usernames,passwords,new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json"));
 
                         Toast.makeText(context, "Update successful ", Toast.LENGTH_SHORT).show();
                     }else{

@@ -349,7 +349,7 @@ public class splash extends AppCompatActivity {
             }else
             if(file.exists()){
 
-                String credentail=new make_file_in_directory().read_credentail_file(file);
+                String credentail=new make_file_in_directory(SPLASH_ACTIVITY,getApplicationContext(),username).read_credentail_file(file);
                 try {
                     JSONObject obj = new JSONObject(credentail);
                     JSONObject crednt = obj.getJSONObject("credential");
@@ -433,7 +433,7 @@ public class splash extends AppCompatActivity {
                 }else
                 if(file.exists()){
 
-                    String credentail=new make_file_in_directory().read_credentail_file(file);
+                    String credentail=new make_file_in_directory(SPLASH_ACTIVITY,getApplicationContext(),username).read_credentail_file(file);
                     try {
                         JSONObject obj = new JSONObject(credentail);
                         JSONObject crednt = obj.getJSONObject("credential");

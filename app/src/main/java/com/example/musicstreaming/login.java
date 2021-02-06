@@ -4,6 +4,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -104,6 +105,7 @@ public class login extends AppCompatActivity {
     public SharedPreferences sharedPreferences;
     Animation appear;
     public static Context LOGIN;
+    Activity LOGIN_ACTIVITY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +115,7 @@ public class login extends AppCompatActivity {
         Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(this));
 
         LOGIN=this;
+        LOGIN_ACTIVITY=this;
 
         et_username = findViewById(R.id.username_login);
         et_password = findViewById(R.id.password_login);
@@ -353,7 +356,7 @@ public class login extends AppCompatActivity {
                             editor.putString(EMAIL,email);
                             editor.apply();
 
-                            new make_file_in_directory().write_credential_file(username,password,new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json"));
+                            new make_file_in_directory(LOGIN_ACTIVITY,LOGIN,username).write_credential_file(username,password,new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json"));
 
                         }
 

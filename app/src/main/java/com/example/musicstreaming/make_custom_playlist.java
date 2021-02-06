@@ -32,6 +32,7 @@ public class make_custom_playlist extends AppCompatActivity {
 
     public static Activity MAKE_NEW_PLAYLIST;
     public static String PLAYLIST_ID=""; //playlist id-> which we get after we make new playlist
+    Intent intent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,10 +45,19 @@ public class make_custom_playlist extends AppCompatActivity {
 
         getSupportFragmentManager().beginTransaction().replace(R.id.custom_frame_layout, new select_songs_for_playlist()).commit();
 
+        if(getIntent().getBooleanExtra("IS_MODIFYING",false)){
+
+            change_title(toolbar);
+
+        }
 
     }
 
+    public static void change_title(Toolbar toolbar){
 
+        toolbar.setTitle("Add New Songs");
+
+    }
 
 
 }
