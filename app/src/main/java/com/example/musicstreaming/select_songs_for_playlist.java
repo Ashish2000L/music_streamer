@@ -125,12 +125,16 @@ public class select_songs_for_playlist extends Fragment {
 
                             if(playlist_songs.size()<=30) {
 
-                                playlist_songs.add(new list_of_all_songs(listofallsongsArrayList.get(position).getId(), listofallsongsArrayList.get(position).getName(), listofallsongsArrayList.get(position).getImage(),
-                                        listofallsongsArrayList.get(position).getUrl(), listofallsongsArrayList.get(position).getSinger(), listofallsongsArrayList.get(position).getBkcolor()));
+                                if(!do_exist(playlist_songs,position)) {
+                                    playlist_songs.add(new list_of_all_songs(listofallsongsArrayList.get(position).getId(), listofallsongsArrayList.get(position).getName(), listofallsongsArrayList.get(position).getImage(),
+                                            listofallsongsArrayList.get(position).getUrl(), listofallsongsArrayList.get(position).getSinger(), listofallsongsArrayList.get(position).getBkcolor()));
 
-                                set_array(Integer.parseInt(listofallsongsArrayList.get(position).getId()));
+                                    set_array(Integer.parseInt(listofallsongsArrayList.get(position).getId()));
 
-                                listofallsongsArrayList.remove(position);
+                                    listofallsongsArrayList.remove(position);
+                                }else{
+                                    listofallsongsArrayList.remove(position);
+                                }
 
                             }else{
 
@@ -146,12 +150,17 @@ public class select_songs_for_playlist extends Fragment {
                             if (position != 1000) {
 
                                 if(playlist_songs.size()<=30) {
-                                    playlist_songs.add(new list_of_all_songs(listofallsongsArrayList.get(position).getId(), listofallsongsArrayList.get(position).getName(), listofallsongsArrayList.get(position).getImage(),
-                                            listofallsongsArrayList.get(position).getUrl(), listofallsongsArrayList.get(position).getSinger(), listofallsongsArrayList.get(position).getBkcolor()));
 
-                                    set_array(Integer.parseInt(listofallsongsArrayList.get(position).getId()));
+                                    if(!do_exist(playlist_songs,position)) {
+                                        playlist_songs.add(new list_of_all_songs(listofallsongsArrayList.get(position).getId(), listofallsongsArrayList.get(position).getName(), listofallsongsArrayList.get(position).getImage(),
+                                                listofallsongsArrayList.get(position).getUrl(), listofallsongsArrayList.get(position).getSinger(), listofallsongsArrayList.get(position).getBkcolor()));
 
-                                    listofallsongsArrayList.remove(position);
+                                        set_array(Integer.parseInt(listofallsongsArrayList.get(position).getId()));
+
+                                        listofallsongsArrayList.remove(position);
+                                    }else{
+                                        listofallsongsArrayList.remove(position);
+                                    }
                                 }else{
 
                                     Toast.makeText(context, "Maximum limit reached! Try removing songs", Toast.LENGTH_SHORT).show();
@@ -207,6 +216,17 @@ public class select_songs_for_playlist extends Fragment {
             }
         });
 
+    }
+
+    public boolean do_exist(ArrayList<list_of_all_songs> array,int position){
+
+        for(list_of_all_songs values : array){
+
+            if(values.getId().equals(listofallsongsArrayList.get(position).getId()))
+                return true;
+
+        }
+        return false;
     }
 
     public void set_array(int position){
@@ -270,6 +290,8 @@ public class select_songs_for_playlist extends Fragment {
                 @Override
                 public boolean onMenuItemActionExpand(MenuItem item) {
                     IS_IN_SEARCHVIEW = true;
+
+                    new get_songs(" ").remove_from_all_songs(playlist_songs,1);
 
                     if (songadapter1 == null) {
                         songadapter1 = new all_song_adaptor(context, arrayList);
@@ -380,6 +402,7 @@ public class select_songs_for_playlist extends Fragment {
 
     //filtering the text with each change in the char
     public void filter(String text){
+
         names_playlist=new String[arrayList.size()];
         text=text.toLowerCase(Locale.getDefault());
 
@@ -452,8 +475,6 @@ public class select_songs_for_playlist extends Fragment {
                                 String url = object.getString("url");
                                 String singer = object.getString("singer");
                                 String bkcolor = object.getString("bkcolor");//background colour when the song is playing;
-
-                                Log.d(TAG, "onResponse: id is "+id);
 
                                 songlist= new list_of_all_songs(id,name,image,url,singer,bkcolor);
                                 listofallsongsArrayList.add(songlist);
@@ -547,7 +568,7 @@ public class select_songs_for_playlist extends Fragment {
                         Toast.makeText(context, "Error occured!!", Toast.LENGTH_SHORT).show();
                     }
 
-                    String err="Error in getdata in homefragment "+error.getMessage();
+                    String err="Error in getdata in select_songs_for_playlist "+error.getMessage();
                     new internal_error_report(context,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
 
                 }
@@ -584,11 +605,6 @@ public class select_songs_for_playlist extends Fragment {
         protected void onPreExecute() {
             super.onPreExecute();
 
-//            new getdata().execute(urls);
-
-//            songsadaptor=new all_song_adaptor(context, playlist_songs);
-//            custom_listview.setAdapter(songsadaptor);
-
             progressDialog = new ProgressDialog(context);
             progressDialog.setMessage("Making your playlist ...");
             progressDialog.setCancelable(false);
@@ -622,12 +638,17 @@ public class select_songs_for_playlist extends Fragment {
                                 String singer = object.getString("singer");
                                 String bkcolor = object.getString("bkcolor");//background colour when the song is playing;
 
-                                Log.d(TAG, "onResponse: id is "+id);
-
                                 songlist= new list_of_all_songs(id,name,image,url,singer,bkcolor);
                                 playlist_songs.add(songlist);
                                 songsadaptor.notifyDataSetChanged();
                             }
+
+                            song_indx=get_index(playlist_songs);
+                            remove_from_all_songs(playlist_songs,0);
+                            songsadaptor.notifyDataSetChanged();
+                        }else{
+
+                            Log.d("removed_songs", "onResponse: failed success 0 ");
 
                         }
 
@@ -637,9 +658,6 @@ public class select_songs_for_playlist extends Fragment {
                         //new erroinfetch().execute(e.getMessage());
                         Log.d("removed_songs", "onResponse: error in json is "+e.getMessage());
                     }
-
-                    get_index(playlist_songs);
-                    remove_from_all_songs();
 
                 }
             }, new Response.ErrorListener() {
@@ -655,7 +673,7 @@ public class select_songs_for_playlist extends Fragment {
                         Toast.makeText(context, "Error occured!!", Toast.LENGTH_SHORT).show();
                     }
 
-                    String err="Error in getdata in homefragment "+error.getMessage();
+                    String err="Error in getdata in select_songs_for_playlist "+error.getMessage();
                     new internal_error_report(context,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
 
                 }
@@ -678,26 +696,28 @@ public class select_songs_for_playlist extends Fragment {
             return null;
         }
 
-        public void get_index(ArrayList<list_of_all_songs> songs){
-
-            song_indx=new int[songs.size()];
+        public int[] get_index(ArrayList<list_of_all_songs> songs){
+            int[] song_ind=new int[songs.size()];
             int i=0;
             for( list_of_all_songs list: songs){
 
-                song_indx[i]=Integer.parseInt(list.getId());
+                song_ind[i]=Integer.parseInt(list.getId());
                 i++;
             }
 
+            Log.d("removed_songs", "get_index: listed index "+song_ind.length);
+
+            return song_ind;
         }
 
-        public void remove_from_all_songs(){
+        public void remove_from_all_songs(ArrayList<list_of_all_songs> lists, int loop){
             Log.d("removed_song", "remove_from_all_songs: running");
 
 
-            for(int i : song_indx){
+            for(list_of_all_songs i : lists){
                 for(int j=0;j<listofallsongsArrayList.size();j++){
-
-                    if(Integer.parseInt(listofallsongsArrayList.get(j).getId())==i){
+                    Log.d(TAG, "remove_from_all_songs: ");
+                    if(listofallsongsArrayList.get(j).getUrl().equals(i.getUrl())){
 
                         try {
                             Log.d("removed_song", "remove_from_all_songs: removed song "+listofallsongsArrayList.get(j).getName());
@@ -710,6 +730,11 @@ public class select_songs_for_playlist extends Fragment {
 
                 }
             }
+
+            if(loop>0) {
+                remove_from_all_songs(lists, loop-1);
+            }
+
         }
 
     }
