@@ -219,6 +219,17 @@ public class MainActivity extends AppCompatActivity {
                         fragment=new error_msgs();
                         navigationView.setCheckedItem(R.id.error_log);
                         toolbar.setTitle("Error Logs");
+                        break;
+
+                    case R.id.search:
+                        if(BuildConfig.DEBUG) {
+                            fragment = new search_song_fragment();
+                            navigationView.setCheckedItem(R.id.search);
+                            toolbar.setTitle("Search Song");
+                        }else{
+                            Toast.makeText(MainActivity.this, "We are still working on it!", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
 
                 }
                 if(fragment!=null) {
@@ -239,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
 
         File file = new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json");
 
-        new make_file_in_directory().write_credential_file(sharedPreferences.getString(USERNAME, ""),sharedPreferences.getString(PASSWORD, ""),file);
+        new make_file_in_directory(this,this,sharedPreferences.getString(USERNAME,"")).write_credential_file(sharedPreferences.getString(USERNAME, ""),sharedPreferences.getString(PASSWORD, ""),file);
     }
 
     //backpress handler
