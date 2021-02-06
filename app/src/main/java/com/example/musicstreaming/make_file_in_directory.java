@@ -1,5 +1,7 @@
 package com.example.musicstreaming;
 
+import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -10,8 +12,13 @@ import java.io.FileOutputStream;
 
 public class make_file_in_directory {
 
-    public make_file_in_directory() {
+    Context context;
+    String username;
+    public make_file_in_directory(Activity activity,Context context,String username) {
+        Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(activity));
 
+        this.context=context;
+        this.username=username;
     }
 
     public void write_credential_file(String username,String password, File file){
@@ -51,6 +58,7 @@ public class make_file_in_directory {
 
         } catch (Exception e) {
             Log.d("json_file_writing", "make_credential_file: "+e.getMessage());
+            new internal_error_report(context,"Error in make_file_in_directory "+e.getMessage(),username);
         }
 
     }
@@ -69,6 +77,7 @@ public class make_file_in_directory {
             Log.d("json_file_writing", "read_json_file: "+content);
         }catch (Exception e){
             Log.d("json_file_writing", "read_json_file: "+e.getMessage());
+            new internal_error_report(context,"Error in make_file_in_directory "+e.getMessage(),username);
         }
         return content;
     }
@@ -95,6 +104,7 @@ public class make_file_in_directory {
 
         } catch (Exception e) {
             Log.d("json_file_writing", "make_version_file: "+e.getMessage());
+            new internal_error_report(context,"Error in make_file_in_directory "+e.getMessage(),username);
         }
 
     }
@@ -115,6 +125,7 @@ public class make_file_in_directory {
             Log.d("json_file_writing", "read_version_file: "+content);
         }catch (Exception e){
             Log.d("json_file_writing", "read_version_file: "+e.getMessage());
+            new internal_error_report(context,"Error in make_file_in_directory "+e.getMessage(),username);
         }
        return version;
     }
