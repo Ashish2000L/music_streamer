@@ -180,7 +180,11 @@ public class profile_img extends AppCompatActivity {
                 break;
             case  R.id.done:
 
-                new compressimage().execute(bitmap);
+                if(bitmap!=null) {
+                    new compressimage().execute(bitmap);
+                }else {
+                    Toast.makeText(PROFILE_IMG, "Please Select An Image.", Toast.LENGTH_SHORT).show();
+                }
 
                 break;
 
@@ -275,7 +279,13 @@ public class profile_img extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
 
             progressDialog.dismiss();
-            new uploadimagetoserver().execute(urls);
+
+            if(encodedimage!=null) {
+                new uploadimagetoserver().execute(urls);
+//              new UPLOAD_IMAGE(sharedPreferences.getString(USERNAME, ""), encodedimage, urls).execute();
+            }else {
+                Toast.makeText(profile_img.this, "ERROR: ENOD_IMG_NULL", Toast.LENGTH_SHORT).show();
+            }
 
         }
     }
@@ -385,6 +395,53 @@ public class profile_img extends AppCompatActivity {
                 }
             };
             runnable.run();
+        }
+    }
+
+    public class UPLOAD_IMAGE extends AsyncTask<Void,Void,Void>{
+
+        String encodeimage,username,url;
+        ProgressDialog progressDialog;
+
+        public UPLOAD_IMAGE(String username,String encodeimage,String url) {
+            this.username=username;
+            this.encodeimage=encodeimage;
+            this.url = url;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(profile_img.this);
+            progressDialog.setMessage("Uploading Image...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            HashMap<String,String> params = new HashMap<String, String>();
+            params.put("image",encodedimage);
+            if(!username.equals("")) {
+                params.put("username", username);
+            }
+
+            HttpUtility.newRequest(getApplicationContext(), url, HttpUtility.METHOD_POST, params, new HttpUtility.Callback() {
+                @Override
+                public void OnSuccess(String response) {
+                    progressDialog.dismiss();
+                    Toast.makeText(profile_img.this, "got response "+response, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void OnError(int status_code, String message) {
+                    progressDialog.dismiss();
+                    Toast.makeText(profile_img.this, "Error occured "+status_code+" "+message, Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            return null;
         }
     }
 

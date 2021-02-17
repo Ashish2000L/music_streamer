@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".new_playlist">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/night_drawable_background"
+        android:orientation="vertical"
+        android:id="@+id/back_sample"
+        android:layout_gravity="center_horizontal">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New  Playlist "
+            android:textSize="30sp"
+            android:id="@+id/header"
+            android:background="#171717"
+            android:paddingTop="5dp"
+            android:paddingHorizontal="10dp"
+            android:paddingBottom="10dp"
+            android:textColor="#ffffff"
+            android:fontFamily="@font/cambo"
+            />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/new_playlist_img"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/playlist"/>
+        </RelativeLayout>
+
+        <EditText
+            android:layout_width="210dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:id="@+id/new_playlist_name"
+            android:hint="Playlist Name"
+            android:inputType="textPersonName"
+            android:textColor="#E0E0E3"
+            android:maxLength="20"
+            style="@style/TextAppearance.AppCompat.Large"
+            android:gravity="center"
+            android:textColorHint="#E0E0E3" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/radio_grp"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:weightSum="10">
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Public"
+                android:textColor="#E0E0E3"
+                android:id="@+id/radio_public"
+                android:gravity="start"
+                android:layout_weight="2"
+                style="@style/TextAppearance.AppCompat.Large"/>
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Private"
+                android:textColor="#E0E0E3"
+                android:id="@+id/radio_private"
+                android:layout_weight="2"
+                style="@style/TextAppearance.AppCompat.Large"
+                />
+
+
+        </RadioGroup>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Songs"
+            android:background="@drawable/buttonborder"
+            android:textColor="#E0E0E3"
+            android:backgroundTint="@color/night_mode"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:id="@+id/upload_img"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

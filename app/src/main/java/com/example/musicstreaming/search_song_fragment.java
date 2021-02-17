@@ -1,5 +1,6 @@
 package com.example.musicstreaming;
 
+import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -82,6 +84,9 @@ public class search_song_fragment extends Fragment {
         setHasOptionsMenu(true);
         custom_listview.setTextFilterEnabled(true);
 
+        if(!listofallsongsArrayList.isEmpty()){
+            listofallsongsArrayList.clear();
+        }
         songsadaptor = new all_song_adaptor(view.getContext(),listofallsongsArrayList);
         custom_listview.setAdapter(songsadaptor);
 

@@ -74,6 +74,20 @@
                 android:textStyle="bold"
                 android:inputType="textVisiblePassword"/>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Advance Settings "
+                android:textColor="#536DFE"
+                android:drawableEnd="@drawable/arrow_right"
+                android:drawableTint="#536DFE"
+                android:padding="5dp"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="5dp"
+                android:id="@+id/advance_setting"
+                />
+
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

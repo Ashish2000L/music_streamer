@@ -10,6 +10,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
@@ -24,9 +26,12 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -82,9 +87,9 @@ public class settingfragment extends Fragment {
     RelativeLayout appear_anim;
     Animation appear;
     ProgressDialog progressDialog;
+    TextView advance_setting;
 
-    public settingfragment(Context context) {
-        this.context=context;
+    public settingfragment() {
         // Required empty public constructor
     }
 
@@ -96,6 +101,8 @@ public class settingfragment extends Fragment {
 
         Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(MAIN_ACTIVITY));
 
+        context=view.getContext();
+
         sharedPreferences = context.getSharedPreferences(SHARED_PREF,Context.MODE_PRIVATE);
 
         names=view.findViewById(R.id.name);
@@ -104,6 +111,7 @@ public class settingfragment extends Fragment {
         password=view.findViewById(R.id.password);
         profileimg=view.findViewById(R.id.profileimage);
         doneupdate=view.findViewById(R.id.submit);
+        advance_setting = view.findViewById(R.id.advance_setting);
 
         names.setText(sharedPreferences.getString(login.NAME,""));
         email.setText(sharedPreferences.getString(EMAIL,""));
@@ -136,6 +144,13 @@ public class settingfragment extends Fragment {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(context,profile_img.class));
+            }
+        });
+
+        advance_setting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(context,setting_advance.class));
             }
         });
 

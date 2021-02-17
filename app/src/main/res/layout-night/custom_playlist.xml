@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_vertical"
+        android:padding="3dp"
+        android:background="@color/background_playlist"
+        android:weightSum="10">
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="3"
+            android:id="@+id/playlist_image"
+            android:scaleType="fitXY"
+            android:padding="2dp"
+            />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="7"
+            android:layout_gravity="center_vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Playlist name"
+                android:gravity="center"
+                android:textSize="20sp"
+                android:id="@+id/playlist_name"
+                android:paddingTop="5dp"
+                android:fontFamily="@font/cambo"
+                android:textColor="#E0E0E3"
+                android:singleLine="true"
+                android:paddingBottom="5dp"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="singer"
+                android:textSize="15sp"
+                android:id="@+id/note_playlist"
+                android:gravity="center"
+                android:singleLine="true"
+                android:fontFamily="@font/cambo"
+                android:textColor="#E0E0E3"
+                android:fadingEdge="horizontal"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>

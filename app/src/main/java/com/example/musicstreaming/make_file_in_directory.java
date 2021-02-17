@@ -130,4 +130,49 @@ public class make_file_in_directory {
        return version;
     }
 
+    public void write_night_mode(File file,boolean value){
+        if(file.exists()) {
+            file.delete();
+
+        }
+
+        JSONObject final_json = new JSONObject();
+        try {
+            final_json.put("night_mode", value);
+
+            String json_output = final_json.toString();
+
+
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(json_output.getBytes());
+            fos.close();
+
+            Log.d("json_file_writing", "make_night_mode_file: " + final_json);
+
+        } catch (Exception e) {
+            Log.d("json_file_writing", "make_night_mode_file "+e.getMessage());
+            new internal_error_report(context,"Error in make_file_in_directory "+e.getMessage(),username);
+        }
+    }
+
+    public boolean read_night_mode(File file){
+        boolean IS_NIGHT_MODE=false;
+        int length= (int)file.length();
+        byte[] data = new byte[length];
+        try {
+            FileInputStream fin = new FileInputStream(file);
+            fin.read(data);
+            fin.close();
+
+            String content = new String(data);
+            JSONObject obj = new JSONObject(content);
+            IS_NIGHT_MODE=obj.getBoolean("night_mode");
+            Log.d("json_file_writing", "read_night_mode_file: "+content);
+        }catch (Exception e){
+            Log.d("json_file_writing", "read_night_mode_file: "+e.getMessage());
+            new internal_error_report(context,"Error in make_file_in_directory "+e.getMessage(),username);
+        }
+        return IS_NIGHT_MODE;
+    }
+
 }

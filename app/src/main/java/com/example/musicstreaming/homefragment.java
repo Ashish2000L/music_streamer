@@ -7,12 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.app.ShareCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -55,6 +57,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import static com.example.musicstreaming.MainActivity.MAIN_ACTIVITY;
+import static com.example.musicstreaming.MainActivity.get_credits;
 import static com.example.musicstreaming.MainActivity.thisisit;
 import static com.example.musicstreaming.login.SHARED_PREF;
 import static com.example.musicstreaming.login.USERNAME;
@@ -93,8 +96,8 @@ public class homefragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view =inflater.inflate(R.layout.fragment_homefragment, container, false);
 
         Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(MAIN_ACTIVITY));
@@ -117,7 +120,7 @@ public class homefragment extends Fragment {
         new show_dialogue(BuildConfig.VERSION_CODE,sharedPreferences.getString(USERNAME,""),sharedPreferences.getInt(TOKEN,0),url_for_dialogue).execute();
 
         if(listofplaylistArrayList.isEmpty()){
-            new getdata().execute(urls);
+            new getdata(1).execute(urls);
         }else{
             listviewforplaylist.startAnimation(frombottom);
         }
@@ -158,7 +161,7 @@ public class homefragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                new getdata().execute(urls);
+                new getdata(1).execute(urls);
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -178,73 +181,104 @@ public class homefragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 
-        inflater.inflate(R.menu.home_frag_menu,menu);
+        inflater.inflate(R.menu.home_frag_menu_main,menu);
 
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        searchView=(SearchView)item.getActionView();
-        searchView.setQueryHint("Search Your Playlist");
-        searchView.setIconifiedByDefault(false);
-        searchView.setIconified(false);
-        searchView.scheduleLayoutAnimation();
 
-        item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
-            @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                IS_IN_SEARCHVIEW=true;
+        if(item.getItemId()==R.id.search_playlist) {
+            searchView = (SearchView) item.getActionView();
+            searchView.setQueryHint("Search Your Playlist");
+            searchView.setIconifiedByDefault(false);
+            searchView.setIconified(false);
+            searchView.scheduleLayoutAnimation();
 
-                if(playlistadapter1==null){
-                    playlistadapter1=new playlistadapter(context,arrayList);
-                }else {
-                    playlistadapter1=null;
-                    arrayList= new ArrayList<>();
-                    playlistadapter1=new playlistadapter(context,arrayList);
-                }
+            item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                @Override
+                public boolean onMenuItemActionExpand(MenuItem item) {
+                    IS_IN_SEARCHVIEW = true;
 
-                if(arrayList.isEmpty()){
-                    arrayList.addAll(listofplaylistArrayList);
-                }else {
-                    arrayList= new ArrayList<>();
-                    arrayList.addAll(listofplaylistArrayList);
-                }
-
-                //playlistadapter1.clear();
-                listviewforplaylist.setAdapter(playlistadapter1);
-
-                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String query) {
-                        return false;
+                    if (playlistadapter1 == null) {
+                        playlistadapter1 = new playlistadapter(context, arrayList);
+                    } else {
+                        playlistadapter1 = null;
+                        arrayList = new ArrayList<>();
+                        playlistadapter1 = new playlistadapter(context, arrayList);
                     }
 
-                    @Override
-                    public boolean onQueryTextChange(String newText) {
+                    if (arrayList.isEmpty()) {
+                        arrayList.addAll(listofplaylistArrayList);
+                    } else {
+                        arrayList = new ArrayList<>();
+                        arrayList.addAll(listofplaylistArrayList);
+                    }
 
-                        if(TextUtils.isEmpty(newText)){
-                            filter("/./.");
-                        }else {
-                            filter(newText);
+                    //playlistadapter1.clear();
+                    listviewforplaylist.setAdapter(playlistadapter1);
+
+                    searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                        @Override
+                        public boolean onQueryTextSubmit(String query) {
+                            return false;
                         }
-                        Log.d("ellos", "onQueryTextChange: called +"+newText);
 
-                        return true;
-                    }
-                });
+                        @Override
+                        public boolean onQueryTextChange(String newText) {
 
-                return true;
+                            if (TextUtils.isEmpty(newText)) {
+                                filter("/./.");
+                            } else {
+                                filter(newText);
+                            }
+                            Log.d("ellos", "onQueryTextChange: called +" + newText);
+
+                            return true;
+                        }
+                    });
+
+                    return true;
+                }
+
+                @Override
+                public boolean onMenuItemActionCollapse(MenuItem item) {
+                    IS_IN_SEARCHVIEW = false;
+                    listviewforplaylist.setAdapter(playlistadapter);
+                    playlistadapter.notifyDataSetChanged();
+                    return true;
+                }
+            });
+        }else
+            if(item.getItemId()==R.id.share){
+
+                String sharebody = sharedPreferences.getString("share_msg","");
+
+                ShareCompat.IntentBuilder.from(MAIN_ACTIVITY)
+                        .setType("text/plain")
+                        .setChooserTitle("Share Via")
+                        .setSubject("Join me on Music Streaming Now!")
+                        .setText(sharebody)
+                        .startChooser();
+
             }
+            else
+                if(item.getItemId()==R.id.contactus){
+                        Intent intent = new Intent (Intent.ACTION_SEND);
+                        intent.setType("message/rfc822");
+                        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"musicstreamingforall@gmail.com"});
+                        intent.setPackage("com.google.android.gm");
+                        if (intent.resolveActivity(context.getPackageManager())!=null)
+                            startActivity(intent);
+                        else
+                            Toast.makeText(context,"Gmail App is not installed",Toast.LENGTH_LONG).show();
+                }else
+                    if(item.getItemId()==R.id.credits){
 
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                IS_IN_SEARCHVIEW=false;
-                listviewforplaylist.setAdapter(playlistadapter);
-                playlistadapter.notifyDataSetChanged();
-                return true;
-            }
-        });
+                        get_credits(MAIN_ACTIVITY);
+
+                }
 
 
         return true;
@@ -283,7 +317,11 @@ public class homefragment extends Fragment {
 
     public class getdata extends AsyncTask<String ,Void,Void>{
         String message="";
-        int number=0;
+        int number=0,loop;
+
+        public getdata(int loop) {
+            this.loop = loop;
+        }
 
         @Override
         protected void onPreExecute() {
@@ -354,7 +392,8 @@ public class homefragment extends Fragment {
                     String err="Error in getdata in homefragment "+error.getMessage();
                     new internal_error_report(context,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
 
-                    new getdata().execute(urls);
+                    if(loop>0)
+                    new getdata(loop-1).execute(urls);
 
                 }
             }) {

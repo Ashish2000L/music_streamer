@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Music Streaming</string>
+    <string name="owner">Name: <b>Ashish Kumar</b></string>
+    <string name="college">Delhi Technological Uiversity</string>
+    <string name="open">open</string>
+    <string name="close">close</string>
+
+    <string name="login"><u>Login</u></string>
+    <string name="signup"><u>SignUp</u></string>
+    <string name="forgotpass"><u>Forgot Password</u></string>
+    <string name="musicstreaming"><b>Music Streaming</b></string>
+    <string name="contact">\n<b>Need Help?</b> Do not worry we are always here to give you best experience. You can contact us<br>:</br> \n\n<b>musicstreamingforall@gmail.com</b>\n\nPlease provide brief information regarding your problem, we will get back to you as soon as possible.<br>\n\nThank you<br>\n<i>Team Music Streaming</i></br></br>
+    </string>
+    <string name="contacts">Contact: <b>musicstreamingforall@gmail.com</b></string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

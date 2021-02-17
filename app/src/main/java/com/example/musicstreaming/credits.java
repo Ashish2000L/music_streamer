@@ -2,6 +2,7 @@ package com.example.musicstreaming;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 
 public class credits extends Fragment {
@@ -45,5 +47,5 @@ public class credits extends Fragment {
 
         return view;
     }
-
+    
 }

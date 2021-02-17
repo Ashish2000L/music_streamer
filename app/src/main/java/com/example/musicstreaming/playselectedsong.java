@@ -102,7 +102,7 @@ public class playselectedsong extends AppCompatActivity{
     public static Handler updateseek=new Handler();
     public static Runnable updaterunnable;
     public static Context context1;
-    public static boolean isplaylistcomplete=false;
+    public static boolean isplaylistcomplete=false, is_from_search=false;
     public static String playlistname,playlistid,playlistimg;
     public static int dontusethis;
     public static LinearLayout backgroung_for_music;
@@ -142,7 +142,7 @@ public class playselectedsong extends AppCompatActivity{
         sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
         isplaylistcomplete=false;
 
-        new make_file_in_directory().write_version_file(new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"versions"));
+        new make_file_in_directory(this,this,sharedPreferences.getString(USERNAME,"")).write_version_file(new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"versions"));
 
         Intent intent = getIntent();
         position=intent.getExtras().getInt("position",0);
@@ -152,17 +152,23 @@ public class playselectedsong extends AppCompatActivity{
             playlistid = intent.getExtras().getString("playlistid","");
             playlistname = intent.getExtras().getString("playlistname","");
             playlistimg = intent.getExtras().getString("playlist_img_url","");
-            PLAYLIST_POS=intent.getExtras().getInt("playlist_pos");
+            PLAYLIST_POS=intent.getExtras().getInt("playlist_pos",0);
+            is_from_search = intent.getBooleanExtra("is_from_search",false);
 
-            Log.d(TAG, "onCreate: playlist id is " + playlistid);
+            Log.d("checkingplaylistid", "onCreate: this is playlist id "+playlistid);
 
             if(position!=1001) {
 
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(CURRENT_PLAYLIST_NAME,playlistnames);
-                editor.apply();
+                if(!is_from_search) {
+                    editor.putString(CURRENT_PLAYLIST_NAME, playlistnames);
 
-                playlistnameontop.setText(playlistnames);
+                    playlistnameontop.setText(playlistnames);
+
+                }else{
+                    editor.putString(CURRENT_PLAYLIST_NAME, playlistname);
+                }
+                editor.apply();
 
                 if (!lastplaylist_id.equals(playlistid)) {
                     preparelist();
@@ -264,7 +270,7 @@ public class playselectedsong extends AppCompatActivity{
                    playsong.setImageResource(R.drawable.play_white);
                 }else if(isplaylistcomplete){
                     //ontrackplay(position);
-                    if(position==1000) {
+                    if(position==1000 || is_from_search) {
                         startActivity(new Intent(playselectedsong.this,MainActivity.class));
                     }else {
                         startActivity(new Intent(playselectedsong.this, songsfromplaylist.class)
@@ -451,7 +457,7 @@ public class playselectedsong extends AppCompatActivity{
                     if(!username.equals("")) {
                         params.put("username", username);
                     }
-                    params.put("playlist_id",playlistid);
+                    params.put("playlist_id", playlistid);
                     params.put("song_id",tracks.get(onclearfrompercentservice.position).getId());
 
                     return params;
@@ -633,7 +639,7 @@ public class playselectedsong extends AppCompatActivity{
                         tracks.clear();
                         showdetail(false);
                         MainActivity.showdetail(false);
-                        if(dontusethis==1000){
+                        if(dontusethis==1000 || is_from_search){
                             context1.startActivity(new Intent(context1,MainActivity.class));
                         }else {
                             context1.startActivity(new Intent(context1, songsfromplaylist.class)
@@ -748,9 +754,13 @@ public class playselectedsong extends AppCompatActivity{
 
         public static void back_to_playlist(){
             try {
-                context1.startActivity(new Intent(context, songsfromplaylist.class)
-                        .putExtra("name", playlistname)
-                        .putExtra("id", playlistid).putExtra("imageurl", playlistimg));
+                if(is_from_search){
+                    context1.startActivity(new Intent(context, MainActivity.class));
+                }else {
+                    context1.startActivity(new Intent(context, songsfromplaylist.class)
+                            .putExtra("name", playlistname)
+                            .putExtra("id", playlistid).putExtra("imageurl", playlistimg));
+                }
             }catch (Exception e){
                 Toast.makeText(context1, "Error: "+e.getMessage(), Toast.LENGTH_LONG).show();
                 String err="Error in service: "+e.getMessage();
@@ -764,7 +774,7 @@ public class playselectedsong extends AppCompatActivity{
     public void onBackPressed() {
         super.onBackPressed();
 
-        if(position==1000){
+        if(position==1000 || is_from_search){
             startActivity(new Intent(playselectedsong.this,MainActivity.class));
         }else if(isfav){
             startActivity(new Intent(context1, songsfromplaylist.class)

@@ -66,6 +66,7 @@ import static com.example.musicstreaming.login.SHARED_PREF;
 import static com.example.musicstreaming.login.USERNAME;
 import static com.example.musicstreaming.playselectedsong.SONG_ACTIVITY;
 import static com.example.musicstreaming.playselectedsong.context1;
+import static com.example.musicstreaming.playselectedsong.is_from_search;
 import static com.example.musicstreaming.playselectedsong.like;
 import static com.example.musicstreaming.playselectedsong.loop;
 import static com.example.musicstreaming.playselectedsong.makebackground;
@@ -187,7 +188,9 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                     if(isplaying){
                         ontrackpause();
                         playselectedsong.playsong.setImageResource(R.drawable.play_white);
+
                         changeplaypauseimgs(false);
+
                         changeplaypauseimg(false);
                         isplaying=false;
                         IS_PAUSED_SONG=true;
@@ -195,6 +198,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                     }else{
                         ontrackplay(1000);
                         changeplaypauseimgs(true);
+
                         changeplaypauseimg(true);
                         playselectedsong.playsong.setImageResource(R.drawable.pause_white);
                         IS_PLAYING_SONG=true;
@@ -241,6 +245,10 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         position=positions;
 
         makebackground(tracks.get(positions).getBkcolor());
+
+        Log.d("checkingplaylistid", "preparesong: current playing song id "+tracks.get(positions).getId());
+
+
         ispreparing=true;
         check();
         if(positions==0){
@@ -310,9 +318,11 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             @Override
             public void onPrepared(MediaPlayer mp) {
                 mp.start();
+//                if(!is_from_search)
                 songsfromplaylist.showdetail(true);
                 ispreparing=false;
                 MainActivity.changeplaypauseimgs(true);
+
                 changeplaypauseimg(true);
                 MainActivity.showdetail(true);
                 new playselectedsong.updateseekdetail().execute();
@@ -330,6 +340,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                 isprepared=false;
                 ispreparing=false;
                 isplaying=false;
+
                 songsfromplaylist.showdetail(false);
                 MainActivity.showdetail(true);
                 showdetail(false);
@@ -380,6 +391,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                 ontrackpause();
                 playsong.setImageResource(R.drawable.play_white);
                 mediaPlayer.pause();
+
                 changeplaypauseimg(false);
                 changeplaypauseimgs(false);
                 isplaying=false;
@@ -403,7 +415,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
     }
 
     public static void ontracknext() {
-        
+        loopmusic(false);
         position++;
         if(isplaying && isprepared){
             mediaPlayer.stop();
@@ -421,7 +433,9 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
 
         isplaying=false;
         isprepared=false;
-        songsfromplaylist.showdetail(false);
+
+            songsfromplaylist.showdetail(false);
+
         MainActivity.showdetail(false);
 ;
         if(position<tracks.size()) {
@@ -459,6 +473,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         }else{
             preparesong(positions);
         }
+
         changeplaypauseimg(true);
         try {
             createnotification(context, playselectedsong.tracks.get(positions), R.drawable.exo_controls_pause, position, playselectedsong.tracks.size() - 1);
@@ -473,20 +488,23 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         }else if(ispreparing){
             Toast.makeText(context, "Please Wait", Toast.LENGTH_SHORT).show();
         }
+//        if(!is_from_search)
         songsfromplaylist.showdetail(true);
 
     }
 
     public static void ontrackpause() {
-        
+
         createnotification(context,playselectedsong.tracks.get(position),R.drawable.exo_controls_play,position,playselectedsong.tracks.size()-1);
         ispreparing=false;
+//        if(!is_from_search)
         changeplaypauseimg(false);
 
         updateseek.removeCallbacks(updaterunnable);
        if(isplaying && isprepared) {
            mediaPlayer.pause();
            isplaying = false;
+//           if(!is_from_search)
            songsfromplaylist.showdetail(true);
        }else if(ispreparing){
             Toast.makeText(context, "Please Wait", Toast.LENGTH_SHORT).show();
@@ -495,6 +513,8 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
     }
 
     public static void ontrackprevious() {
+
+        loopmusic(false);
         position--;
         if(isplaying && isprepared){
             mediaPlayer.stop();
@@ -508,6 +528,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         }
         }
 
+//        if(!is_from_search)
         songsfromplaylist.showdetail(false);
         MainActivity.showdetail(false);
         new playselectedsong.updateseekdetail().cancel(true);
@@ -749,16 +770,11 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
 
         if(focusChange<=0) {
             ontrackpause();
+//            if(!is_from_search)
             changeplaypauseimg(false);
             changeplaypauseimgs(false);
             playsong.setImageResource(R.drawable.play_white);
         }
-//        }else{
-//            ontrackplay(1000);
-//            changeplaypauseimg(true);
-//            changeplaypauseimgs(true);
-//            playsong.setImageResource(R.drawable.pause_white);
-//        }
 
     }
 
@@ -816,6 +832,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
 
                 case TelephonyManager.CALL_STATE_IDLE:
                     ontrackplay(1000);
+//                    if(!is_from_search)
                     changeplaypauseimg(true);
                     changeplaypauseimgs(true);
                     playsong.setImageResource(R.drawable.pause_white);
@@ -823,6 +840,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                     break;
                     case TelephonyManager.CALL_STATE_RINGING:
                         ontrackpause();
+//                        if(!is_from_search)
                         changeplaypauseimg(false);
                         changeplaypauseimgs(false);
                         playsong.setImageResource(R.drawable.play_white);
@@ -830,6 +848,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                         break;
                         case TelephonyManager.CALL_STATE_OFFHOOK:
                             ontrackpause();
+//                            if(!is_from_search)
                             changeplaypauseimg(false);
                             changeplaypauseimgs(false);
                             playsong.setImageResource(R.drawable.play_white);

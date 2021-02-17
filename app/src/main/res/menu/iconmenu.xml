@@ -29,14 +29,11 @@
         android:icon="@drawable/now_playing"
         android:title="Now Playing"
         />
+
     <item
-        android:title="Profile"
-        android:icon="@drawable/person_profile"
+        android:title="Settings"
+        android:icon="@drawable/settings"
         android:id="@+id/settings"
         />
-    <item
-        android:title="Credits"
-        android:icon="@drawable/credit"
-        android:id="@+id/credits"/>
 
 </menu>

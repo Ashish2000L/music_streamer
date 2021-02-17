@@ -3,6 +3,7 @@ package com.example.musicstreaming;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -85,12 +86,14 @@ public class splash extends AppCompatActivity {
      * Engineering ,2ndyear Student</p>
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
-    public static String TAG="this_is_a_splash",USERNAME="username",PASSWORD="password",NAME="name",IMAGE="image",EMAIL="email",TELEPHONE_STATE_CHANGE_PERMISSION="tell_state_change",DIR_NAME="Music_Streaming";
+    public static String TAG="this_is_a_splash",USERNAME="username",PASSWORD="password",NAME="name",IMAGE="image",
+            EMAIL="email",TELEPHONE_STATE_CHANGE_PERMISSION="tell_state_change",DIR_NAME="Music_Streaming",NIGHT_MODE="night_mode";
     FirebaseRemoteConfig firebaseRemoteConfig;
     private static final String VersionCode = "versioncodes";
     private static final String force_update = "force_update";
     private static final String maintain="maintain";
     private static final String Url = "url";
+    private static final String share_msg="share_msg";
     private Uri path;
     private Context context;
     private DownloadManager downloadManager;
@@ -145,6 +148,17 @@ public class splash extends AppCompatActivity {
 
         btn_refresh=findViewById(R.id.refresh);
 
+//        get_telephone_state_change_permission();
+
+        File night_mode=new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,NIGHT_MODE);
+        if(night_mode.exists()) {
+            if(new make_file_in_directory(splash.this,getApplicationContext(),sharedPreferences.getString(USERNAME,"")).read_night_mode(night_mode)){
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            }
+        }else
+        if(sharedPreferences.getBoolean(NIGHT_MODE,false)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        }
 
         runnable.run();
 
@@ -215,7 +229,8 @@ public class splash extends AppCompatActivity {
         }
     };
 
-    public void make_dir(){
+    public void make_dir()
+    {
 
         File dir=new File(Environment.getExternalStorageDirectory(),DIR_NAME);
 
@@ -328,6 +343,10 @@ public class splash extends AppCompatActivity {
 
     private void check_for_update()
     {
+        SharedPreferences.Editor edi = sharedPreferences.edit();
+        edi.putString(share_msg,firebaseRemoteConfig.getString(share_msg));
+        edi.apply();
+
         message="Checking for update ";
         String versioncode = firebaseRemoteConfig.getString(VersionCode);
         int ver = Integer.parseInt(versioncode);
@@ -374,9 +393,9 @@ public class splash extends AppCompatActivity {
 
         } else {
             Log.d(TAG, "check_for_update: need to update ");
-            if (!firebaseRemoteConfig.getBoolean(force_update)) {
+            if (!firebaseRemoteConfig.getBoolean(force_update) && (Integer.parseInt(firebaseRemoteConfig.getString(versioncode))-BuildConfig.VERSION_CODE)<3) {
                 displaywelcomemessagenotforce();
-            } else if (firebaseRemoteConfig.getBoolean(force_update)) {
+            } else  {
                 updatebyforce();
             }
         }
@@ -475,6 +494,7 @@ public class splash extends AppCompatActivity {
                 .setCancelable(false)
                 .create().show();
     }
+
     public void get_telephone_state_change_permission()
     {
         String DENIED_FIRST_TIME="denied_first_time";
@@ -611,7 +631,8 @@ public class splash extends AppCompatActivity {
         }
     }
 
-    public class downloadupdatedapk extends AsyncTask<String,Integer,Void> {
+    public class downloadupdatedapk extends AsyncTask<String,Integer,Void>
+    {
 
         @Override
         protected void onPreExecute() {
@@ -761,7 +782,8 @@ public class splash extends AppCompatActivity {
         }
     }
 
-    public void loginifexist(final String username,final String password){
+    public void loginifexist(final String username,final String password)
+    {
         String url="https://rentdetails.000webhostapp.com/musicplayer_files/login.php";
         final String urlforusergetail="https://rentdetails.000webhostapp.com/musicplayer_files/getuserdata.php";
 
@@ -825,7 +847,8 @@ public class splash extends AppCompatActivity {
         queue.add(request);
     }
 
-    public class getuserdetails extends AsyncTask<String,Void,Void>{
+    public class getuserdetails extends AsyncTask<String,Void,Void>
+    {
         String url,username,password;
 
         public getuserdetails(String url,String username,String password) {

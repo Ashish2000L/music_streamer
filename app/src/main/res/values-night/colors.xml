@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#000</color>
+    <color name="colorPrimaryDark">#000</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="drawablecolor">#686666</color>
+    <color name="background_playlist">#00FFFEFE</color>
+    <color name="background_profile_image">#ABC2BFBF</color>
+
+    <color name="night_mode">#F5201F1F</color>
+
+<!--  008577  -->
+</resources>

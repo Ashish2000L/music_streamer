@@ -3,20 +3,18 @@ package com.example.musicstreaming;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -36,16 +34,10 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
-import com.example.musicstreaming.R;
 import com.google.android.material.navigation.NavigationView;
 
-import org.json.JSONObject;
-
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 
-import static com.example.musicstreaming.login.EMAIL;
 import static com.example.musicstreaming.login.IMAGE;
 import static com.example.musicstreaming.login.NAME;
 import static com.example.musicstreaming.login.SHARED_PREF;
@@ -72,8 +64,9 @@ public class MainActivity extends AppCompatActivity {
     Fragment fragment;
     ImageView profileimage;
     TextView name,version;
-    int k=0;
+    int k=0,fragment_id=0;
     String TAG="thisisprofileimage";
+    boolean IS_FRAGMENT_SET=false;
     public static LinearLayout showdetailses,thisisit;
     public static TextView songname;
     public static ImageView playpause;
@@ -102,155 +95,149 @@ public class MainActivity extends AppCompatActivity {
         songname.setSelected(true);
         setSupportActionBar(toolbar);
 
-        sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
-        String names = "",emails,urls;
-
-        //handling profile detail in the drawable section
-        try {
-            View navview = navigationView.inflateHeaderView(R.layout.navheader);
-            if(sharedPreferences.getString(USERNAME,"").equals("aka") || sharedPreferences.getString(USERNAME,"").equals("dipcha") ){
-                navigationView.inflateMenu(R.menu.icon_menu_moderator);
-            }
-            else {
-                navigationView.inflateMenu(R.menu.iconmenu);
-            }
-            profileimage = navview.findViewById(R.id.profile);
-            name = navview.findViewById(R.id.username);
-            version = findViewById(R.id.version);
-            names=sharedPreferences.getString(NAME,"");
-            name.setText(names);
-        }catch (Exception e){
-            String err="Error in Navigation Drawable inflation"+e.getMessage();
-            new internal_error_report(MAIN_ACTIVITY,err,sharedPreferences.getString(USERNAME,"")).execute();
-        }
-
-        String vers=BuildConfig.VERSION_NAME;
-        version.setText(vers);
-
-        urls=sharedPreferences.getString(IMAGE,"");
-        loadimage(urls);
-
-        toggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.open,R.string.close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
-
-        //click listner on T.V for opening 'now playing'
-        songname.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,playselectedsong.class)
-                .putExtra("position",1000));
-            }
-        });
-
-        //defination in the bottom
-        showdetail(isprepared);
-        changeplaypauseimgs(isplaying);
-
-        //click listener for the play/pause img
-        playpause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(isplaying){
-                    playpause.setImageResource(R.drawable.normal_play);
-                    ontrackpause();
-                }else{
-                    playpause.setImageResource(R.drawable.normal_pause);
-                    ontrackplay(1000);
-                }
-            }
-        });
-
         //setting initial fragment
-        getSupportFragmentManager().beginTransaction().replace(R.id.framelayout,new homefragment()).commit();
-        navigationView.setCheckedItem(R.id.home);
+            getSupportFragmentManager().beginTransaction().replace(R.id.framelayout, new homefragment()).commit();
+            navigationView.setCheckedItem(R.id.home);
 
-        //switch between fragments
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            sharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+            String names = "", emails, urls;
+
+            //handling profile detail in the drawable section
+            try {
+                View navview = navigationView.inflateHeaderView(R.layout.navheader);
+                if (sharedPreferences.getString(USERNAME, "").equals("aka") || sharedPreferences.getString(USERNAME, "").equals("dipcha")) {
+                    navigationView.inflateMenu(R.menu.icon_menu_moderator);
+                } else {
+                    navigationView.inflateMenu(R.menu.iconmenu);
+                }
+                profileimage = navview.findViewById(R.id.profile);
+                name = navview.findViewById(R.id.username);
+                version = findViewById(R.id.version);
+                names = sharedPreferences.getString(NAME, "");
+                name.setText(names);
+            } catch (Exception e) {
+                String err = "Error in Navigation Drawable inflation" + e.getMessage();
+                new internal_error_report(MAIN_ACTIVITY, err, sharedPreferences.getString(USERNAME, "")).execute();
+            }
+
+            String vers = BuildConfig.VERSION_NAME;
+            version.setText(vers);
+
+            urls = sharedPreferences.getString(IMAGE, "");
+            loadimage(urls);
+
+            toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);
+            drawerLayout.addDrawerListener(toggle);
+            toggle.syncState();
+
+            //click listner on T.V for opening 'now playing'
+            songname.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(MainActivity.this, playselectedsong.class)
+                            .putExtra("position", 1000));
+                }
+            });
+
+            //defination in the bottom
+            showdetail(isprepared);
+            changeplaypauseimgs(isplaying);
+
+            //click listener for the play/pause img
+            playpause.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (isplaying) {
+                        playpause.setImageResource(R.drawable.normal_play);
+                        ontrackpause();
+                    } else {
+                        playpause.setImageResource(R.drawable.normal_pause);
+                        ontrackplay(1000);
+                    }
+                }
+            });
+
+            //switch between fragments
+            navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
 
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
+                    switch (menuItem.getItemId()) {
+                        case R.id.home:
+                            fragment = new homefragment();
+                            navigationView.setCheckedItem(R.id.home);
+                            toolbar.setTitle("Music Streaming");
+                            break;
 
-                switch (menuItem.getItemId()){
-                    case R.id.home:
-                        fragment =new homefragment();
-                        navigationView.setCheckedItem(R.id.home);
-                        toolbar.setTitle("Music Streaming");
-                        break;
+                        case R.id.playlist:
+                            fragment = new playlistfragment();
+                            navigationView.setCheckedItem(R.id.playlist);
+                            toolbar.setTitle("Favourates");
+                            break;
 
-                    case R.id.playlist:
-                        fragment = new playlistfragment();
-                        navigationView.setCheckedItem(R.id.playlist);
-                        toolbar.setTitle("Favourates");
-                        break;
+                        case R.id.settings:
+                            fragment = new settingfragment();
+                            navigationView.setCheckedItem(R.id.settings);
+                            toolbar.setTitle("Profile");
+                            break;
 
-                    case R.id.settings:
-                        fragment = new settingfragment(MainActivity.this);
-                        navigationView.setCheckedItem(R.id.settings);
-                        toolbar.setTitle("Profile");
-                        break;
+                        case R.id.credits:
+                            fragment = new credits();
+                            navigationView.setCheckedItem(R.id.credits);
+                            toolbar.setTitle("Music Streaming");
+                            break;
 
-                    case R.id.credits:
-                        fragment=new credits();
-                        navigationView.setCheckedItem(R.id.credits);
-                        toolbar.setTitle("Music Streaming");
-                        break;
+                        case R.id.now_plyng:
+                            if (IS_RUNNING_SERVICE) {
+                                startActivity(new Intent(MainActivity.this, playselectedsong.class)
+                                        .putExtra("position", 1000));
+                            } else {
+                                Toast.makeText(MainActivity.this, "No playlist is selected!!", Toast.LENGTH_SHORT).show();
+                            }
+                            break;
 
-                    case R.id.now_plyng:
-                        if(IS_RUNNING_SERVICE){
-                            startActivity(new Intent(MainActivity.this,playselectedsong.class)
-                                    .putExtra("position",1000));
-                        }else {
-                            Toast.makeText(MainActivity.this, "No playlist is selected!!", Toast.LENGTH_SHORT).show();
-                        }
-                        break;
-
-                    case R.id.mylibrary:
-                            fragment=new show_custom_playlists();
+                        case R.id.mylibrary:
+                            fragment = new show_custom_playlists();
                             navigationView.setCheckedItem(R.id.mylibrary);
                             toolbar.setTitle("My Library");
 
-                        break;
+                            break;
 
-                    case R.id.error_log:
-                        fragment=new error_msgs();
-                        navigationView.setCheckedItem(R.id.error_log);
-                        toolbar.setTitle("Error Logs");
-                        break;
+                        case R.id.error_log:
+                            fragment = new error_msgs();
+                            navigationView.setCheckedItem(R.id.error_log);
+                            toolbar.setTitle("Error Logs");
+                            break;
 
-                    case R.id.search:
-                        if(BuildConfig.DEBUG) {
+                        case R.id.search:
                             fragment = new search_song_fragment();
                             navigationView.setCheckedItem(R.id.search);
                             toolbar.setTitle("Search Song");
-                        }else{
-                            Toast.makeText(MainActivity.this, "We are still working on it!", Toast.LENGTH_SHORT).show();
-                        }
-                        break;
+                            break;
 
+                    }
+                    if (fragment != null) {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.framelayout, fragment).commit();
+                    }
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    return true;
                 }
-                if(fragment!=null) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.framelayout, fragment).commit();
+            });
+
+            profileimage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(MainActivity.this, profile_img.class));
+                    drawerLayout.closeDrawer(GravityCompat.START);
                 }
-                drawerLayout.closeDrawer(GravityCompat.START);
-                return true;
-            }
-        });
+            });
 
-        profileimage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,profile_img.class));
-                drawerLayout.closeDrawer(GravityCompat.START);
-            }
-        });
+            File file = new File(Environment.getExternalStorageDirectory() + "/" + DIR_NAME, "file.json");
 
-        File file = new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"file.json");
-
-        new make_file_in_directory(this,this,sharedPreferences.getString(USERNAME,"")).write_credential_file(sharedPreferences.getString(USERNAME, ""),sharedPreferences.getString(PASSWORD, ""),file);
+            new make_file_in_directory(this, this, sharedPreferences.getString(USERNAME, "")).write_credential_file(sharedPreferences.getString(USERNAME, ""), sharedPreferences.getString(PASSWORD, ""), file);
     }
 
     //backpress handler
@@ -347,6 +334,12 @@ public class MainActivity extends AppCompatActivity {
 
     public static void setsongprogress(int progress){
         progressBar.setProgress(progress);
+    }
+
+    public static void get_credits(Activity activity){
+
+        ((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().replace(R.id.framelayout,new credits()).commit();
+
     }
 
 }
