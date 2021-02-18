@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:900510045639:android:58a9744920b0de00ceb5e2",
         "android_client_info": {
-          "package_name": "com.example.musicstreaming"
+          "package_name": "com.musicstreaming.musicstreaming"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "900510045639-7nf5nmt68hl7uthuvom31lr62g7te2ej.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.musicstreaming",
+            "package_name": "com.musicstreaming.musicstreaming",
             "certificate_hash": "63582435d2a02ca9c277ad7c98d2e805e8daec4d"
           }
         },
