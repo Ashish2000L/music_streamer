@@ -3,6 +3,8 @@ package com.musicstreaming.musicstreaming.service;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
@@ -20,6 +23,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Toast;
 
@@ -73,6 +77,7 @@ import static com.musicstreaming.musicstreaming.playselectedsong.updaterunnable;
 import static com.musicstreaming.musicstreaming.playselectedsong.updateseek;
 import static com.musicstreaming.musicstreaming.playselectedsong.updateseekdetail.back_to_playlist;
 import static com.musicstreaming.musicstreaming.playselectedsong.updateseekdetail.check;
+import static com.musicstreaming.musicstreaming.songsfromplaylist.another;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.changeplaypauseimg;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.showdetail;
 
@@ -109,7 +114,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
     public static int percentupdate;
     public static Random random = new Random();
     public static int randomvalue=0;
-    AudioManager audioManager;
+    public static AudioManager audioManager;
     public static SharedPreferences sharedPreferences;
     public static String IS_RECEIVER_REGISTERED="IS_RECEIVER_REGISTERED";
     public static Handler handler = new Handler();
@@ -156,15 +161,16 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         return START_NOT_STICKY;
     }
 
-
+//TODO: Make the play/pause button enable for bluetooth headset
+    
     public static BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getExtras().getString("actionname");
+            KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
 
             switch (action){
                 case ACTION_PREVIOUS:
-
                         ontrackprevious();
                         MainActivity.showdetail(false);
                     break;
@@ -194,8 +200,32 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                 case ACTION_NEXT:
                         ontracknext();
                         MainActivity.showdetail(false);
-
                     break;
+            }
+
+            BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            if(bluetoothAdapter!=null && bluetoothAdapter.getProfileConnectionState(BluetoothProfile.HEADSET)==BluetoothProfile.STATE_CONNECTED && keyEvent!=null)
+            switch (keyEvent.getKeyCode()){
+
+                case KeyEvent.KEYCODE_MEDIA_NEXT:
+                    Toast.makeText(context, "Bluetooth next media ", Toast.LENGTH_SHORT).show();
+                    break;
+                case KeyEvent.KEYCODE_MEDIA_PLAY:
+                    Toast.makeText(context, "Bluetooth media play ", Toast.LENGTH_SHORT).show();
+                    break;
+                case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                    Toast.makeText(context, "Bluetooth media pause", Toast.LENGTH_SHORT).show();
+                    break;
+                case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                    Toast.makeText(context, "Bluetooth media previous", Toast.LENGTH_SHORT).show();
+                    break;
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                    Toast.makeText(context, "Bluetooth volume up ", Toast.LENGTH_SHORT).show();
+                    break;
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    Toast.makeText(context, "Bluetooth Volume Down", Toast.LENGTH_SHORT).show();
+                    break;
+
             }
         }
     };
@@ -230,6 +260,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         position=positions;
 
         makebackground(tracks.get(positions).getBkcolor());
+        seekBar.setSecondaryProgress(0);
 
         Log.d("checkingplaylistid", "preparesong: current playing song id "+tracks.get(positions).getId());
 
@@ -750,6 +781,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         return timestring;
     }
 
+    //TODO:Find the way to stop music when user drop call and a video is playing
     @Override
     public void onAudioFocusChange(int focusChange) {
 
@@ -816,6 +848,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             switch (state){
 
                 case TelephonyManager.CALL_STATE_IDLE:
+
                     ontrackplay(1000);
 //                    if(!is_from_search)
                     changeplaypauseimg(true);
