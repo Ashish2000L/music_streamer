@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="200dp"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/music1">
 
     <RelativeLayout
@@ -13,7 +14,7 @@
     <ImageView
         android:layout_width="140dp"
         android:layout_height="140dp"
-        android:src="@drawable/profile"
+        tools:src="@drawable/profile"
         android:layout_marginStart="10dp"
         android:id="@+id/profile"
         />

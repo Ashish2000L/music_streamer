@@ -52,7 +52,7 @@
             android:layout_height="300dp"
             android:layout_centerHorizontal="true"
             android:id="@+id/songimage"
-            android:src="@drawable/profile"
+            tools:src="@drawable/profile"
             android:paddingTop="10dp"
             android:scaleType="fitXY"
             android:paddingBottom="10dp"

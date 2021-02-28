@@ -20,7 +20,7 @@
                 android:id="@+id/animation_view"
                 android:layout_width="match_parent"
                 android:layout_height="500dp"
-                app:lottie_fileName="select_playlist.json"
+                app:lottie_fileName="get_playlist_night.json"
                 android:layout_alignParentStart="true"
                 app:lottie_loop="true"
                 app:lottie_autoPlay="true"/>
