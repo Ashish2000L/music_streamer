@@ -23,6 +23,7 @@ import java.util.Map;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.musicstreaming.musicstreaming.login.SHARED_PREF;
+import static com.musicstreaming.musicstreaming.login.USERNAME;
 
 public class Exceptionhandler implements Thread.UncaughtExceptionHandler {
     /**
@@ -112,6 +113,7 @@ public class Exceptionhandler implements Thread.UncaughtExceptionHandler {
                 params.put("brand",brand);
                 params.put("mobileid",ids);
                 params.put("model",model);
+                params.put("username",sharedPreferences.getString(splash.USERNAME,""));
                 params.put("error",report);
 
                 return params;
