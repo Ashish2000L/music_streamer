@@ -76,6 +76,17 @@
                     android:textColor="#E0E0E3"
                     android:padding="5dp"
                     android:gravity="center"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="Followers : 0"
+                    android:layout_below="@id/playlistnameinsonglist"
+                    android:layout_centerHorizontal="true"
+                    android:visibility="invisible"
+                    android:id="@+id/followers"
+                    android:textColor="#E0E0E3"
+                    />
             </RelativeLayout>
 
         </LinearLayout>
