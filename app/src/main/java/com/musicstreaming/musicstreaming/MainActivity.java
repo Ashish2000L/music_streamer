@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     public static ProgressBar progressBar;
     public static Activity MAIN_ACTIVITY;
     public static SharedPreferences sharedPreferences;
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         //initilizations
         navigationView = findViewById(R.id.navmenu);
         drawerLayout = findViewById(R.id.drawair);
-        final Toolbar toolbar = findViewById(R.id.toolbar);
+         toolbar = findViewById(R.id.toolbar);
         showdetailses=findViewById(R.id.showdetailofsonginplaylist);
         songname=findViewById(R.id.songnameinplaylist);
         playpause=findViewById(R.id.playpausinplaylist);
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             String names = "", emails, urls;
 
             //handling profile detail in the drawable section
-            try {
+//            try {
                 View navview = navigationView.inflateHeaderView(R.layout.navheader);
                 if (sharedPreferences.getString(USERNAME, "").equals("aka") || sharedPreferences.getString(USERNAME, "").equals("dipcha")) {
                     navigationView.inflateMenu(R.menu.icon_menu_moderator);
@@ -119,10 +120,18 @@ public class MainActivity extends AppCompatActivity {
                 String vers = BuildConfig.VERSION_NAME;
                 version.setText(vers);
 
-            } catch (Exception e) {
-                String err = "Error in Navigation Drawable inflation" + e.getMessage();
-                new internal_error_report(MAIN_ACTIVITY, err, sharedPreferences.getString(USERNAME, "")).execute();
-            }
+                 profileimage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(MainActivity.this, profile_img.class));
+                        drawerLayout.closeDrawer(GravityCompat.START);
+                    }
+                });
+
+//            } catch (Exception e) {
+//                String err = "Error in Navigation Drawable inflation" + e.getMessage();
+//                new internal_error_report(MAIN_ACTIVITY, err, sharedPreferences.getString(USERNAME, "")).execute();
+//            }
 
             urls = sharedPreferences.getString(IMAGE, "");
             loadimage(urls);
@@ -182,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                         case R.id.settings:
                             fragment = new settingfragment();
                             navigationView.setCheckedItem(R.id.settings);
-                            toolbar.setTitle("Profile");
+                            toolbar.setTitle("Settings");
                             break;
 
                         case R.id.credits:
@@ -228,14 +237,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            profileimage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(MainActivity.this, profile_img.class));
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                }
-            });
-
             File file = new File(Environment.getExternalStorageDirectory() + "/" + DIR_NAME, "file.json");
 
             new make_file_in_directory(this, this, sharedPreferences.getString(USERNAME, "")).write_credential_file(sharedPreferences.getString(USERNAME, ""), sharedPreferences.getString(PASSWORD, ""), file);
@@ -250,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
             fragment = new homefragment();
             navigationView.setCheckedItem(R.id.home);
             getSupportFragmentManager().beginTransaction().replace(R.id.framelayout, fragment).commit();
+            toolbar.setTitle("Music Streaming");
         }else{
             finishAffinity();
         }
@@ -306,31 +308,35 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "loadimage: your requested url is "+url);
 
-        Glide.with(this)
-                .load(url)
-                .apply(requestOptions)
-                .apply(RequestOptions.circleCropTransform())
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+        try {
+            Glide.with(this)
+                    .load(url)
+                    .apply(requestOptions)
+                    .apply(RequestOptions.circleCropTransform())
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
 
-                        Toast.makeText(MainActivity.this, "Fail to load Image ", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "onLoadFailed: fail to load image "+e.getMessage());
-                        String err="Error in loading profile Image "+e.getMessage();
-                        new internal_error_report(MAIN_ACTIVITY,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
-                        return false;
-                    }
+                            Toast.makeText(MainActivity.this, "Fail to load Image ", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "onLoadFailed: fail to load image " + e.getMessage());
+                            String err = "Error in loading profile Image " + e.getMessage();
+                            new internal_error_report(MAIN_ACTIVITY, err, MainActivity.sharedPreferences.getString(USERNAME, "")).execute();
+                            return false;
+                        }
 
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
 
-                        Log.d(TAG, "onResourceReady: image loading successful ");
+                            Log.d(TAG, "onResourceReady: image loading successful ");
 
-                        return false;
-                    }
-                })
-                .into(profileimage);
+                            return false;
+                        }
+                    })
+                    .into(profileimage);
+        }catch (Exception e){
+            new internal_error_report(MainActivity.this,"Error in MainActivity loading profile image : "+e.getMessage(),sharedPreferences.getString(USERNAME,"")).execute();
+        }
     }
 
     public static void setsongprogress(int progress){
