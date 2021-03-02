@@ -8,13 +8,15 @@ public class listofplaylist {
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
 
-    String name,id,image,likes,note;
-    public listofplaylist(String id,String name,String image,String likes,String note) {
+    String name,id,image,likes,note,totl_like;
+
+    public listofplaylist(String id, String name, String image, String likes, String note, String totl_like) {
         this.name=name;
         this.id=id;
         this.image=image;
         this.likes=likes;
         this.note=note;
+        this.totl_like=totl_like;
     }
 
     public String getNote() {
@@ -55,5 +57,13 @@ public class listofplaylist {
 
     public void setLikes(String likes) {
         this.likes = likes;
+    }
+
+    public String getTotl_like() {
+        return totl_like;
+    }
+
+    public void setTotl_like(String totl_like) {
+        this.totl_like = totl_like;
     }
 }
