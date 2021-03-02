@@ -5,7 +5,10 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+
+import static com.musicstreaming.musicstreaming.login.SHARED_PREF;
 
 public class make_custom_playlist extends AppCompatActivity {
 
@@ -32,8 +35,12 @@ public class make_custom_playlist extends AppCompatActivity {
 
         if(getIntent().getBooleanExtra("IS_MODIFYING",false)){
 
-            change_title(toolbar);
+            SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
+            SharedPreferences.Editor editor =sharedPreferences.edit();
+            editor.putBoolean("IS_MODIFYING",true);
+            editor.apply();
 
+            change_title(toolbar);
         }
 
     }
