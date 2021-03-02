@@ -240,6 +240,11 @@ public class splash extends AppCompatActivity {
             }
         }
 
+        File track = new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"track");
+        if(track.exists()){
+            track.delete();
+        }
+
     }
 
     public boolean checkConnections()
@@ -421,6 +426,7 @@ public class splash extends AppCompatActivity {
                         webView.loadUrl(new_Url);
                         webView.setWebViewClient(new WebViewClient());
                         checkforpermission();
+//                        new update_application(getApplicationContext()).samsung_store_update();
 
                     }
                 })
@@ -487,6 +493,9 @@ public class splash extends AppCompatActivity {
                 webView.getSettings().setJavaScriptEnabled(true);
                 webView.loadUrl(new_Url);
                 webView.setWebViewClient(new WebViewClient());
+
+//                new update_application(getApplicationContext()).samsung_store_update();
+
                 checkforpermission();
 
             }
@@ -610,18 +619,22 @@ public class splash extends AppCompatActivity {
                 editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION, true);
                 editor.apply();
                 getdetails();
-            }else
-                if(grantResults[0] == PackageManager.PERMISSION_DENIED || grantResults[1]==PackageManager.PERMISSION_DENIED || grantResults[2]==PackageManager.PERMISSION_DENIED){
-
-                    if(grantResults[0] == PackageManager.PERMISSION_DENIED)
-                        Toast.makeText(SPLASH_ACTIVITY, "Manage Phone permission Denied, Allow this permission to give you better experience.", Toast.LENGTH_LONG).show();
-                    if(grantResults[1] == PackageManager.PERMISSION_DENIED)
-                        Toast.makeText(SPLASH_ACTIVITY, "Manage Media permission Denied, Allow this permission to give you better experience.", Toast.LENGTH_LONG).show();
-                    if(grantResults[2] == PackageManager.PERMISSION_DENIED)
-                        Toast.makeText(SPLASH_ACTIVITY, "Manage Media permission Denied, Allow this permission to give you better experience.", Toast.LENGTH_LONG).show();
-
-                    getdetails();
-                }
+            }
+//            else
+//                if(grantResults[0] == PackageManager.PERMISSION_DENIED || grantResults[1]==PackageManager.PERMISSION_DENIED || grantResults[2]==PackageManager.PERMISSION_DENIED){
+//
+//                    if(grantResults[0] == PackageManager.PERMISSION_DENIED)
+//                        Toast.makeText(SPLASH_ACTIVITY, "Manage Phone permission Denied, Allow this permission to give you better experience.", Toast.LENGTH_LONG).show();
+//                    if(grantResults[1] == PackageManager.PERMISSION_DENIED)
+//                        Toast.makeText(SPLASH_ACTIVITY, "Manage Media permission Denied, Allow this permission to give you better experience.", Toast.LENGTH_LONG).show();
+//                    if(grantResults[2] == PackageManager.PERMISSION_DENIED)
+//                        Toast.makeText(SPLASH_ACTIVITY, "Manage Media permission Denied, Allow this permission to give you better experience.", Toast.LENGTH_LONG).show();
+//                    if(grantResults[3] == PackageManager.PERMISSION_DENIED)
+//                        Toast.makeText(SPLASH_ACTIVITY, "Manage Media permission Denied, Allow this permission to give you better experience.", Toast.LENGTH_LONG).show();
+//                    if(grantResults[4] == PackageManager.PERMISSION_DENIED)
+//                        Toast.makeText(SPLASH_ACTIVITY, "Manage Media permission Denied, Allow this permission to give you better experience.", Toast.LENGTH_LONG).show();
+//                    getdetails();
+//                }
             else{
                 SharedPreferences.Editor editor=sharedPreferences.edit();
                 editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION,false);
@@ -829,7 +842,7 @@ public class splash extends AppCompatActivity {
                 Toast.makeText(splash.this, "Unable to connect, Try again later...", Toast.LENGTH_SHORT).show();
 
                 String err="Error in loginifexist in splash "+error.getMessage();
-                new internal_error_report(SPLASH_ACTIVITY,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
+                new internal_error_report(SPLASH_ACTIVITY,err,sharedPreferences.getString(USERNAME,"")).execute();
             }
         }){
             @Override
