@@ -146,12 +146,13 @@ public class playlistfragment extends Fragment {
                                 String note = object.getString("note");
                                 String image = object.getString("image");
                                 String likes = object.getString("likes");
+                                String totl_like = object.getString("totl_like");
 
                                 Log.d(TAG, "onResponse: id is "+id);
 
                                 //String customurl = "https://rentdetails.000webhostapp.com/musicplayer_files/musicimages/"+image;
                                 //Toast.makeText(ListOfRentersForAdmin.this, usernames, Toast.LENGTH_LONG).show();
-                                listofplaylist_for_fav = new listofplaylist(id,name,image,likes,note);
+                                listofplaylist_for_fav = new listofplaylist(id,name,image,likes,note,totl_like);
                                 listofplaylistArrayList_for_fav.add(listofplaylist_for_fav);
                                 playlistadapter_for_fav.notifyDataSetChanged();
                             }
