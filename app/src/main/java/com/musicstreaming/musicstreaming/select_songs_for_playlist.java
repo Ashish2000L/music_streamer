@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -42,6 +43,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
+import static android.content.Context.MODE_PRIVATE;
+import static com.musicstreaming.musicstreaming.login.SHARED_PREF;
 import static com.musicstreaming.musicstreaming.login.USERNAME;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.POSITION_FAV_PLAYLIST;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.TAG;
@@ -78,8 +81,14 @@ public class select_songs_for_playlist extends Fragment {
         context=view.getContext();
 
         Intent intent = getActivity().getIntent();
-        PLAYLIST_IDS=intent.getExtras().getString("PLAYLIST_ID","");
-        IS_MODIFYING=intent.getExtras().getBoolean("IS_MODIFYING",false);
+        if(intent!=null) {
+            PLAYLIST_IDS = intent.getExtras().getString("PLAYLIST_ID", "");
+            IS_MODIFYING = intent.getExtras().getBoolean("IS_MODIFYING", false);
+        }else{
+            SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
+            PLAYLIST_IDS=sharedPreferences.getString("PLAYLIST_ID","");
+            IS_MODIFYING=sharedPreferences.getBoolean("IS_MODIFYING",false);
+        }
 
         custom_listview=view.findViewById(R.id.make_custom_playlist_listview);
         setHasOptionsMenu(true);
