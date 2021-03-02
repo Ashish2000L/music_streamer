@@ -159,6 +159,8 @@ public class playselectedsong extends AppCompatActivity{
 
             if(position!=1001) {
 
+                new make_file_in_directory(playselectedsong.this,getApplicationContext(),sharedPreferences.getString(splash.USERNAME,"")).write_track_file(new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"track"),tracks);
+
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 if(!is_from_search) {
                     editor.putString(CURRENT_PLAYLIST_NAME, playlistnames);
@@ -212,6 +214,10 @@ public class playselectedsong extends AppCompatActivity{
                 }
             }
         });
+
+        if(tracks.size()==0){
+            new make_file_in_directory(playselectedsong.this,getApplicationContext(),sharedPreferences.getString(splash.USERNAME,"")).read_track_file(new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"track"));
+        }
 
         final String likes=tracks.get(onclearfrompercentservice.position).getLike();
         if(likes.equals("1")){
@@ -646,6 +652,12 @@ public class playselectedsong extends AppCompatActivity{
                                     .putExtra("name", playlistname)
                                     .putExtra("id", playlistid).putExtra("imageurl", playlistimg));
                         }
+
+                        File track = new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"track");
+                        if(track.exists()){
+                            track.delete();
+                        }
+
                     }
 
                 }
