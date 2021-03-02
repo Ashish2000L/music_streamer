@@ -257,6 +257,11 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
                     if(response!=null) {
                         if(!error_handler(response).equals("error")){
                             String check=error_handler(response);
+
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("PLAYLIST_ID",check);
+                            editor.apply();
+
                             startActivity(new Intent(new_playlist.this,make_custom_playlist.class).putExtra("PLAYLIST_ID",check));
                         }
                     }else{
