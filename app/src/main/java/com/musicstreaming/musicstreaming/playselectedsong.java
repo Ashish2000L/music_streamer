@@ -48,6 +48,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.musicstreaming.musicstreaming.service.onclearfrompercentservice;
+import com.musicstreaming.musicstreaming.service.online_status_updater;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -106,7 +107,7 @@ public class playselectedsong extends AppCompatActivity{
     public static String playlistname,playlistid,playlistimg;
     public static int dontusethis;
     public static LinearLayout backgroung_for_music;
-    public SharedPreferences sharedPreferences;
+    public static SharedPreferences sharedPreferences;
     public static Activity SONG_ACTIVITY;
     ImageView down;
     public static TextView playlistnameontop,singername;
@@ -645,12 +646,13 @@ public class playselectedsong extends AppCompatActivity{
                         tracks.clear();
                         showdetail(false);
                         MainActivity.showdetail(false);
+                        online_status_updater.CURRENT_PLAYING_SONG="";
                         if(dontusethis==1000 || is_from_search){
                             context1.startActivity(new Intent(context1,MainActivity.class));
                         }else {
                             context1.startActivity(new Intent(context1, songsfromplaylist.class)
                                     .putExtra("name", playlistname)
-                                    .putExtra("id", playlistid).putExtra("imageurl", playlistimg));
+                                    .putExtra("id", playlistid).putExtra("imageurl", playlistimg).putExtra("is_custom",splash.sharedPreferences.getBoolean("is_custom",false)));
                         }
 
                         File track = new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,"track");
@@ -676,11 +678,12 @@ public class playselectedsong extends AppCompatActivity{
 
                             long duration = mediaPlayer.getCurrentPosition();
                             publishProgress(duration);
-                            Log.d(onclearfrompercentservice.TAG, "run: entered into the loop ");
+                            online_status_updater.CURRENT_PLAYING_SONG=sharedPreferences.getString(CURRENT_PLAYLIST_NAME,"");
+                            Log.d(onclearfrompercentservice.TAG, "updatesek: wea re makin this work in here "+online_status_updater.CURRENT_PLAYING_SONG);
                             updateseek.postDelayed(updaterunnable,1000);
                         }else{
                             updateseek.postDelayed(updaterunnable,1000);
-                            Log.d(onclearfrompercentservice.TAG, "run: not entering into the loop ");
+
                         }
                     }
                 };
@@ -707,7 +710,9 @@ public class playselectedsong extends AppCompatActivity{
         public void updatesek(){
 
             updateseek.postDelayed(updaterunnable,1000);
-            Log.d(onclearfrompercentservice.TAG, "updatesek: wea re makin this work in here ");
+//            online_status_updater.CURRENT_PLAYING_SONG=tracks.get(onclearfrompercentservice.position).getTitle();
+//            online_status_updater.CURRENT_PLAYING_SONG=sharedPreferences.getString(CURRENT_PLAYLIST_NAME,"");
+//            Log.d(onclearfrompercentservice.TAG, "updatesek: wea re makin this work in here "+sharedPreferences.getString(CURRENT_PLAYLIST_NAME,""));
         }
 
         @Override
@@ -793,13 +798,15 @@ public class playselectedsong extends AppCompatActivity{
                     .putExtra("name", playlistname)
                     .putExtra("id", playlistid).putExtra("imageurl", playlistimg)
                     .putExtra("isfav",isfav)
-            .putExtra("positions",PLAYLIST_POS));
+            .putExtra("positions",PLAYLIST_POS)
+            .putExtra("is_custom",sharedPreferences.getBoolean("is_custom",false)));
         }else {
             startActivity(new Intent(context1, songsfromplaylist.class)
                     .putExtra("name", playlistname)
                     .putExtra("id", playlistid).putExtra("imageurl", playlistimg)
             .putExtra("isfav",isfav)
-            .putExtra("positions",PLAYLIST_POS));
+            .putExtra("positions",PLAYLIST_POS)
+            .putExtra("is_custom",sharedPreferences.getBoolean("is_custom",false)));
         }
     }
 }
