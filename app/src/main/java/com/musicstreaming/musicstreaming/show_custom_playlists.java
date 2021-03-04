@@ -29,6 +29,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -143,21 +144,27 @@ public class show_custom_playlists extends Fragment {
                             .putExtra("positions", position)
                             .putExtra("imageurl", listofplaylistArrayList.get(position).getImage())
                             .putExtra("name", listofplaylistArrayList.get(position).getName())
-                            .putExtra("id", listofplaylistArrayList.get(position).getId()));
-                }else{
-                    SEARCH_VIEW_NAME=names_playlist[position];
-                    position=find_pos(SEARCH_VIEW_NAME);
+                            .putExtra("id", listofplaylistArrayList.get(position).getId())
+                    .putExtra("is_custom",true));
+                }else {
+                    SEARCH_VIEW_NAME = names_playlist[position];
+                    if (SEARCH_VIEW_NAME != null) {
+                        position = find_pos(SEARCH_VIEW_NAME);
 //                    POSITION_FAV_PLAYLIST=position;
-                    if(position!=1000) {
-                        startActivity(new Intent(context, songsfromplaylist.class)
-                                .putExtra("positions", position)
-                                .putExtra("imageurl", listofplaylistArrayList.get(position).getImage())
-                                .putExtra("name", listofplaylistArrayList.get(position).getName())
-                                .putExtra("id", listofplaylistArrayList.get(position).getId()));
-                    }else{
-                        Toast.makeText(context, "Fail to Proceed!", Toast.LENGTH_SHORT).show();
-                    }
+                        if (position != 1000) {
+                            startActivity(new Intent(context, songsfromplaylist.class)
+                                    .putExtra("positions", position)
+                                    .putExtra("imageurl", listofplaylistArrayList.get(position).getImage())
+                                    .putExtra("name", listofplaylistArrayList.get(position).getName())
+                                    .putExtra("id", listofplaylistArrayList.get(position).getId())
+                                    .putExtra("is_custom",true));
+                        } else {
+                            Toast.makeText(context, "Fail to Proceed!", Toast.LENGTH_SHORT).show();
+                        }
 
+                    }else{
+                        Toast.makeText(context, "ERR_NULL_NAME", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
             }
@@ -386,8 +393,9 @@ public class show_custom_playlists extends Fragment {
                                 String note = object.getString("note");
                                 String image = object.getString("image");
                                 String likes = object.getString("likes");
+                                String totl_like = object.getString("totl_like");
 
-                                listofplaylist = new listofplaylist(id,name,image,likes,note);
+                                listofplaylist = new listofplaylist(id,name,image,likes,note,totl_like);
                                 listofplaylistArrayList.add(listofplaylist);
                                 playlistadapter.notifyDataSetChanged();
                             }
