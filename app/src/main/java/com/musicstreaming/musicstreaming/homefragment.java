@@ -133,16 +133,22 @@ public class homefragment extends Fragment {
                             .putExtra("imageurl", listofplaylistArrayList.get(position).getImage())
                             .putExtra("name", listofplaylistArrayList.get(position).getName())
                             .putExtra("id", listofplaylistArrayList.get(position).getId()));
-                }else{
-                    SEARCH_VIEW_NAME=names_playlist[position];
-                    position=find_pos(SEARCH_VIEW_NAME);
-                    POSITION_FAV_PLAYLIST=position;
-                    startActivity(new Intent(context, songsfromplaylist.class)
-                            .putExtra("positions", position)
-                            .putExtra("imageurl", listofplaylistArrayList.get(position).getImage())
-                            .putExtra("name", listofplaylistArrayList.get(position).getName())
-                            .putExtra("id", listofplaylistArrayList.get(position).getId()));
+                }else {
+                    SEARCH_VIEW_NAME = names_playlist[position];
+                    if (SEARCH_VIEW_NAME != null) {
+                        position = find_pos(SEARCH_VIEW_NAME);
+                        POSITION_FAV_PLAYLIST = position;
+                        startActivity(new Intent(context, songsfromplaylist.class)
+                                .putExtra("positions", position)
+                                .putExtra("imageurl", listofplaylistArrayList.get(position).getImage())
+                                .putExtra("name", listofplaylistArrayList.get(position).getName())
+                                .putExtra("id", listofplaylistArrayList.get(position).getId()));
 
+                    }else{
+                        Toast.makeText(context, "ERR_NAM_NUL", Toast.LENGTH_SHORT).show();
+                        new internal_error_report(context,"ERROR NULL POINT IN find_pos: size= "+names_playlist.length+" position: "+position,sharedPreferences.getString(USERNAME,"")).execute();
+                        startActivity(new Intent(context,MainActivity.class));
+                    }
                 }
 
             }
@@ -166,8 +172,13 @@ public class homefragment extends Fragment {
 
     public int find_pos(String name){
         for(int i=0;i<listofplaylistArrayList.size();i++){
-            if(name.equals(listofplaylistArrayList.get(i).getName())){
-                return i;
+            try {
+                if (name.equals(listofplaylistArrayList.get(i).getName())) {
+                    return i;
+                }
+            }catch (Exception e){
+                Toast.makeText(context, "ERR_UNKN_fND_POS", Toast.LENGTH_SHORT).show();
+                new internal_error_report(context,"ERROR find_pos, homefragment : "+e.getMessage(),sharedPreferences.getString(USERNAME,"")).execute();
             }
         }
         return 1000;
@@ -353,12 +364,12 @@ public class homefragment extends Fragment {
                                 String note = object.getString("note");
                                 String image = object.getString("image");
                                 String likes = object.getString("likes");
-
+                                String totl_like = object.getString("totl_like");
                                 Log.d(TAG, "onResponse: id is "+id);
 
                                 //String customurl = "https://rentdetails.000webhostapp.com/musicplayer_files/musicimages/"+image;
                                 //Toast.makeText(ListOfRentersForAdmin.this, usernames, Toast.LENGTH_LONG).show();
-                                listofplaylist = new listofplaylist(id,name,image,likes,note);
+                                listofplaylist = new listofplaylist(id,name,image,likes,note,totl_like);
                                 listofplaylistArrayList.add(listofplaylist);
                                 playlistadapter.notifyDataSetChanged();
                             }
