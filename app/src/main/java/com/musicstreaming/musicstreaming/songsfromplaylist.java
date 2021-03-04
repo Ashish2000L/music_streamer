@@ -73,7 +73,7 @@ public class songsfromplaylist extends AppCompatActivity {
 
     int playlist_position;
     ImageView playlistimage;
-    TextView playlistnmae;
+    TextView playlistnmae,followers;
     String TAG="showingsongs",playlist_id,message="",playlistname,urls="https://rentdetails.000webhostapp.com/musicplayer_files/showsongs.php",
             imageurl="",url_for_search_song="https://rentdetails.000webhostapp.com/musicplayer_files/search_song.php";
     public ListView listViewforsongs;
@@ -83,8 +83,8 @@ public class songsfromplaylist extends AppCompatActivity {
     public static LinearLayout showsongdetails,another,topheader;
     public static TextView songname;
     public static ImageView playpausinbottom;
-    public static boolean isfav=false;
-    public SharedPreferences sharedPreferences;
+    public static boolean isfav=false,IS_CUSTOM_PLAYLIST=false;
+    public static SharedPreferences sharedPreferences;
     public static ProgressBar progressBars;
     public static String playlistnames;
     LottieAnimationView animationView;
@@ -122,6 +122,7 @@ public class songsfromplaylist extends AppCompatActivity {
         fromtop= AnimationUtils.loadAnimation(this,R.anim.fromtop);
         loading=findViewById(R.id.loading);
         main=findViewById(R.id.main);
+        followers=findViewById(R.id.followers);
         songname.setSelected(true);
 
 
@@ -131,10 +132,20 @@ public class songsfromplaylist extends AppCompatActivity {
 
         boolean is_from_search = intent.getBooleanExtra("is_from_search",false);
         String song_url = intent.getExtras().getString("song_url","");
+        IS_CUSTOM_PLAYLIST=intent.getExtras().getBoolean("is_custom",false);
+
+
 
         playlistnames=playlistname;
         if(imageurl!=null)
         loadimage(imageurl);
+
+        if (IS_CUSTOM_PLAYLIST) {
+            followers.setVisibility(View.VISIBLE);
+            followers.setText("Likes : "+show_custom_playlists.listofplaylistArrayList.get(playlist_position).getTotl_like());
+        }else{
+            followers.setVisibility(View.INVISIBLE);
+        }
 
         if(isfav){
             if(playlistfragment.listofplaylistArrayList_for_fav.get(POSITION_FAV_PLAYLIST).getId().equals("101")) {
@@ -153,6 +164,10 @@ public class songsfromplaylist extends AppCompatActivity {
 
         sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
 
+        // setting value of is_custom
+        SharedPreferences.Editor editors=sharedPreferences.edit().putBoolean("is_custom",IS_CUSTOM_PLAYLIST);
+        editors.apply();
+
         showdetail(isprepared);
         changeplaypauseimg(isplaying);
 
@@ -160,6 +175,13 @@ public class songsfromplaylist extends AppCompatActivity {
             new get_songs().execute(url_for_search_song, song_url);
         }else {
 
+            if(IS_CUSTOM_PLAYLIST){
+                if (show_custom_playlists.listofplaylistArrayList.get(playlist_position).getLikes().equals("1")) {
+                    fav_playlist.setImageResource(R.drawable.favourate_full);
+                } else if (show_custom_playlists.listofplaylistArrayList.get(playlist_position).getLikes().equals("0")) {
+                    fav_playlist.setImageResource(R.drawable.favourate);
+                }
+            }else
             if (!isfav) {
                 if (homefragment.listofplaylistArrayList.get(playlist_position).getLikes().equals("1")) {
                     fav_playlist.setImageResource(R.drawable.favourate_full);
@@ -171,13 +193,28 @@ public class songsfromplaylist extends AppCompatActivity {
             fav_playlist.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String like = homefragment.listofplaylistArrayList.get(playlist_position).getLikes();
-                    if (like == "1") {
+                    String like="";
+                    if(!IS_CUSTOM_PLAYLIST && !isfav) {
+                        like = homefragment.listofplaylistArrayList.get(playlist_position).getLikes();
+                    }else
+                        if (IS_CUSTOM_PLAYLIST)
+                        {
+                        like=show_custom_playlists.listofplaylistArrayList.get(playlist_position).getLikes();
+                    }else if (isfav){
+                            like=playlistfragment.listofplaylistArrayList_for_fav.get(POSITION_FAV_PLAYLIST).getLikes();
+                        }
+
+                    if (like.equals("1") && !like.equals("")) {
                         fav_playlist.setImageResource(R.drawable.favourate);
-                    } else if (like == "0") {
+                        new likeordislike(like).execute();
+                    } else if (like.equals("0") && !like.equals("")) {
                         fav_playlist.setImageResource(R.drawable.favourate_full);
+                        new likeordislike(like).execute();
+                    }else{
+                        Toast.makeText(songsfromplaylist.this, "empty string found!", Toast.LENGTH_SHORT).show();
                     }
-                    new likeordislike(like).execute();
+
+
                 }
             });
 
@@ -272,12 +309,13 @@ public class songsfromplaylist extends AppCompatActivity {
                     });
 
             if (!isfav) {
-                if (listofsongsArrayLisr.isEmpty()) {
-                    new getsongs().execute(urls);
-                } else {
-                    listViewforsongs.startAnimation(frombottom);
-                    topheader.startAnimation(fromtop);
-                }
+                new getsongs().execute(urls);
+//                if (listofsongsArrayLisr.isEmpty()) {
+//                    new getsongs().execute(urls);
+//                } else {
+//                    listViewforsongs.startAnimation(frombottom);
+//                    topheader.startAnimation(fromtop);
+//                }
             } else if (isfav) {
                 if (playlistfragment.listofplaylistArrayList_for_fav.get(POSITION_FAV_PLAYLIST).getId().equals("101")) {
                     String url = "https://rentdetails.000webhostapp.com/musicplayer_files/showfavsongs.php";
@@ -486,10 +524,14 @@ public class songsfromplaylist extends AppCompatActivity {
     }
 
     public static void changeplaypauseimg(boolean playing){
-        if(playing){
-            playpausinbottom.setImageResource(R.drawable.normal_pause);
-        }else{
-            playpausinbottom.setImageResource(R.drawable.normal_play);
+        try {
+            if (playing) {
+                playpausinbottom.setImageResource(R.drawable.normal_pause);
+            } else {
+                playpausinbottom.setImageResource(R.drawable.normal_play);
+            }
+        }catch (Exception e){
+            new internal_error_report(context,"Error in changeplaypauseimg in songsfromplaylist : "+e.getMessage(),sharedPreferences.getString(USERNAME,"")).execute();
         }
     }
 
@@ -626,7 +668,7 @@ public class songsfromplaylist extends AppCompatActivity {
 
     public class likeordislike extends AsyncTask<String,Void,Void>{
 
-        String likes;
+        String likes, playlist_nm="";;
         ArrayList<listofplaylist> trackArrayList=new ArrayList<>();
 
         public likeordislike(String likes) {
@@ -637,6 +679,17 @@ public class songsfromplaylist extends AppCompatActivity {
         protected Void doInBackground(String... strings) {
 
             final String username=sharedPreferences.getString(USERNAME,"");
+            final boolean isfavs=isfav,IS_CUSTOM_PLAYLISTs=IS_CUSTOM_PLAYLIST;
+
+
+            if(isfav){
+                playlist_nm=playlistfragment.listofplaylistArrayList_for_fav.get(POSITION_FAV_PLAYLIST).getName();
+            }else
+            if (IS_CUSTOM_PLAYLIST){
+                playlist_nm=show_custom_playlists.listofplaylistArrayList.get(playlist_position).getName();
+            }else {
+                playlist_nm=homefragment.listofplaylistArrayList.get(playlist_position).getName();
+            }
 
             shownewelements();
             Log.d(TAG, "doInBackground: ----------------------------------------");
@@ -654,14 +707,31 @@ public class songsfromplaylist extends AppCompatActivity {
 
                         setelement("1");
                         Log.d(TAG, "onResponse: called positive ");
-                        Toast.makeText(songsfromplaylist.this, "Liked playlist "+homefragment.listofplaylistArrayList.get(playlist_position).getName(), Toast.LENGTH_SHORT).show();
+                        if(!IS_CUSTOM_PLAYLIST && !isfav) {
+                            Toast.makeText(songsfromplaylist.this, "Liked playlist " + homefragment.listofplaylistArrayList.get(playlist_position).getName(), Toast.LENGTH_SHORT).show();
+                        }else
+                            if(isfav){
+                                Toast.makeText(songsfromplaylist.this, "Liked playlist " + playlistfragment.listofplaylistArrayList_for_fav.get(POSITION_FAV_PLAYLIST).getName(), Toast.LENGTH_SHORT).show();
+                            }
+                            else {
+                                Toast.makeText(songsfromplaylist.this, "Liked playlist " + show_custom_playlists.listofplaylistArrayList.get(playlist_position).getName(), Toast.LENGTH_SHORT).show();
+                            }
+
+
 
                     }else if(response.equals("0")){
                         fav_playlist.setImageResource(R.drawable.favourate);
 
                         setelement("0");
-                        Toast.makeText(songsfromplaylist.this, "Disliked playlist "+homefragment.listofplaylistArrayList.get(playlist_position).getName(), Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "onResponse: called negative ");
+                        if(!IS_CUSTOM_PLAYLIST && !isfav) {
+                            Toast.makeText(songsfromplaylist.this, "Disliked playlist "+homefragment.listofplaylistArrayList.get(playlist_position).getName(), Toast.LENGTH_SHORT).show();
+                        }else
+                        if(isfav){
+                            Toast.makeText(songsfromplaylist.this, "Disliked playlist "+playlistfragment.listofplaylistArrayList_for_fav.get(POSITION_FAV_PLAYLIST).getName(), Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            Toast.makeText(songsfromplaylist.this, "Disliked playlist "+show_custom_playlists.listofplaylistArrayList.get(playlist_position).getName(), Toast.LENGTH_SHORT).show();
+                        }
 
                     }else{
                         if(response!=null){
@@ -699,7 +769,8 @@ public class songsfromplaylist extends AppCompatActivity {
                     Map<String,String> params = new HashMap<String, String>();
 
                     params.put("like",likes);
-                    params.put("playlist",homefragment.listofplaylistArrayList.get(playlist_position).getName());
+
+                    params.put("playlist", playlist_nm);
                     if(!username.equals("")) {
                         params.put("username", username);
                     }
@@ -715,38 +786,108 @@ public class songsfromplaylist extends AppCompatActivity {
         }
 
         private void coplyelements(){
-            for(int i=0;i<homefragment.listofplaylistArrayList.size();i++){
-                trackArrayList.add(new listofplaylist(homefragment.listofplaylistArrayList.get(i).getId(),homefragment.listofplaylistArrayList.get(i).getName(),homefragment.listofplaylistArrayList.get(i).getImage(),
-                        homefragment.listofplaylistArrayList.get(i).getLikes(),homefragment.listofplaylistArrayList.get(i).getNote()));
-            }
+                if(!IS_CUSTOM_PLAYLIST && !isfav) {
+                    for(int i=0;i<homefragment.listofplaylistArrayList.size();i++) {
+                        trackArrayList.add(new listofplaylist(homefragment.listofplaylistArrayList.get(i).getId(), homefragment.listofplaylistArrayList.get(i).getName(), homefragment.listofplaylistArrayList.get(i).getImage(),
+                                homefragment.listofplaylistArrayList.get(i).getLikes(), homefragment.listofplaylistArrayList.get(i).getNote(), homefragment.listofplaylistArrayList.get(i).getTotl_like()));
+                    }
+                }else
+                    if(isfav){
+                        for(int i=0;i<playlistfragment.listofplaylistArrayList_for_fav.size();i++) {
+                            trackArrayList.add(new listofplaylist(playlistfragment.listofplaylistArrayList_for_fav.get(i).getId(), playlistfragment.listofplaylistArrayList_for_fav.get(i).getName(), playlistfragment.listofplaylistArrayList_for_fav.get(i).getImage(),
+                                    playlistfragment.listofplaylistArrayList_for_fav.get(i).getLikes(), playlistfragment.listofplaylistArrayList_for_fav.get(i).getNote(), playlistfragment.listofplaylistArrayList_for_fav.get(i).getTotl_like()));
+                        }
+                    }else
+                        if(IS_CUSTOM_PLAYLIST){
+                            for(int i=0;i<show_custom_playlists.listofplaylistArrayList.size();i++) {
+                                trackArrayList.add(new listofplaylist(show_custom_playlists.listofplaylistArrayList.get(i).getId(), show_custom_playlists.listofplaylistArrayList.get(i).getName(), show_custom_playlists.listofplaylistArrayList.get(i).getImage(),
+                                        show_custom_playlists.listofplaylistArrayList.get(i).getLikes(), show_custom_playlists.listofplaylistArrayList.get(i).getNote(), show_custom_playlists.listofplaylistArrayList.get(i).getTotl_like()));
+                            }
+                        }
             Log.d(TAG, "coplyelements: elements copied ");
         }
         private void setelement(String likes){
-            homefragment.listofplaylistArrayList.clear();
-            for(int i=0;i<trackArrayList.size();i++){
-                if(i!=playlist_position) {
-                    homefragment.listofplaylistArrayList.add(new listofplaylist(trackArrayList.get(i).getId(), trackArrayList.get(i).getName(), trackArrayList.get(i).getImage(),
-                            trackArrayList.get(i).getLikes(), trackArrayList.get(i).getNote()));
-                }else if(i==playlist_position){
-                    Log.d(TAG, "setelement: set the likes");
-                    homefragment.listofplaylistArrayList.add(new listofplaylist(trackArrayList.get(i).getId(), trackArrayList.get(i).getName(), trackArrayList.get(i).getImage(),
-                            likes, trackArrayList.get(i).getNote()));
+            if(isfav) {
+                playlistfragment.listofplaylistArrayList_for_fav.clear();
+                for (int i = 0; i < trackArrayList.size(); i++) {
+                    if (i != playlist_position) {
+
+                        playlistfragment.listofplaylistArrayList_for_fav.add(new listofplaylist(trackArrayList.get(i).getId(), trackArrayList.get(i).getName(), trackArrayList.get(i).getImage(),
+                                trackArrayList.get(i).getLikes(), trackArrayList.get(i).getNote(),trackArrayList.get(i).getTotl_like()));
+                    } else if (i == playlist_position) {
+                        Log.d(TAG, "setelement: set the likes");
+                        playlistfragment.listofplaylistArrayList_for_fav.add(new listofplaylist(trackArrayList.get(i).getId(), trackArrayList.get(i).getName(), trackArrayList.get(i).getImage(),
+                                likes, trackArrayList.get(i).getNote(),trackArrayList.get(i).getTotl_like()));
+                    }
                 }
-            }
+            }else
+                if (IS_CUSTOM_PLAYLIST){
+                    show_custom_playlists.listofplaylistArrayList.clear();
+                    for(int i=0;i<trackArrayList.size();i++){
+                        if(i!=playlist_position) {
+
+                            show_custom_playlists.listofplaylistArrayList.add(new listofplaylist(trackArrayList.get(i).getId(), trackArrayList.get(i).getName(), trackArrayList.get(i).getImage(),
+                                    trackArrayList.get(i).getLikes(), trackArrayList.get(i).getNote(),trackArrayList.get(i).getTotl_like()));
+                        }else if(i==playlist_position){
+                            Log.d(TAG, "setelement: set the likes");
+                            if(likes.equals("0")) {
+                                show_custom_playlists.listofplaylistArrayList.add(new listofplaylist(trackArrayList.get(i).getId(), trackArrayList.get(i).getName(), trackArrayList.get(i).getImage(),
+                                        likes, trackArrayList.get(i).getNote(), "" + (Integer.parseInt(trackArrayList.get(i).getTotl_like()) - 1)));
+                            }else {
+                                show_custom_playlists.listofplaylistArrayList.add(new listofplaylist(trackArrayList.get(i).getId(), trackArrayList.get(i).getName(), trackArrayList.get(i).getImage(),
+                                        likes, trackArrayList.get(i).getNote(), "" + (Integer.parseInt(trackArrayList.get(i).getTotl_like()) + 1)));
+                            }
+                        }
+                    }
+                    followers.setText("Likes : "+(Integer.parseInt(show_custom_playlists.listofplaylistArrayList.get(playlist_position).getTotl_like())));
+                }else {
+                    homefragment.listofplaylistArrayList.clear();
+                    for(int i=0;i<trackArrayList.size();i++){
+                        if(i!=playlist_position) {
+
+                            homefragment.listofplaylistArrayList.add(new listofplaylist(trackArrayList.get(i).getId(), trackArrayList.get(i).getName(), trackArrayList.get(i).getImage(),
+                                    trackArrayList.get(i).getLikes(), trackArrayList.get(i).getNote(),trackArrayList.get(i).getTotl_like()));
+                        }else if(i==playlist_position){
+                            Log.d(TAG, "setelement: set the likes");
+                            homefragment.listofplaylistArrayList.add(new listofplaylist(trackArrayList.get(i).getId(), trackArrayList.get(i).getName(), trackArrayList.get(i).getImage(),
+                                    likes, trackArrayList.get(i).getNote(),trackArrayList.get(i).getTotl_like()));
+                        }
+                    }
+                }
             trackArrayList.clear();
         }
 
         private void shownewelements(){
 
-            Log.d(TAG, "shownewelements: position is "+onclearfrompercentservice.position);
-
-            for(int i=0;i<homefragment.listofplaylistArrayList.size();i++){
-                Log.d(TAG, "shownewelements: id "+homefragment.listofplaylistArrayList.get(i).getId());
-                Log.d(TAG, "shownewelements: name "+homefragment.listofplaylistArrayList.get(i).getName());
-                Log.d(TAG, "shownewelements: image "+homefragment.listofplaylistArrayList.get(i).getImage());
-                Log.d(TAG, "shownewelements: like "+homefragment.listofplaylistArrayList.get(i).getLikes());
-                Log.d(TAG, "shownewelements: note "+homefragment.listofplaylistArrayList.get(i).getNote());
-            }
+            if (isfav) {
+                Log.d(TAG, "shownewelements: position is fav");
+                for (int i = 0; i < playlistfragment.listofplaylistArrayList_for_fav.size(); i++) {
+                    Log.d(TAG, "shownewelements: id " + playlistfragment.listofplaylistArrayList_for_fav.get(i).getId());
+                    Log.d(TAG, "shownewelements: name " + playlistfragment.listofplaylistArrayList_for_fav.get(i).getName());
+                    Log.d(TAG, "shownewelements: totel like " + playlistfragment.listofplaylistArrayList_for_fav.get(i).getTotl_like());
+                    Log.d(TAG, "shownewelements: like " + playlistfragment.listofplaylistArrayList_for_fav.get(i).getLikes());
+                    Log.d(TAG, "shownewelements: note " + playlistfragment.listofplaylistArrayList_for_fav.get(i).getNote());
+                }
+            }else
+                if (IS_CUSTOM_PLAYLIST){
+                    Log.d(TAG, "shownewelements: position is custom");
+                    for (int i = 0; i < show_custom_playlists.listofplaylistArrayList.size(); i++) {
+                        Log.d(TAG, "shownewelements: id " + show_custom_playlists.listofplaylistArrayList.get(i).getId());
+                        Log.d(TAG, "shownewelements: name " + show_custom_playlists.listofplaylistArrayList.get(i).getName());
+                        Log.d(TAG, "shownewelements: totel like " + show_custom_playlists.listofplaylistArrayList.get(i).getTotl_like());
+                        Log.d(TAG, "shownewelements: like " + show_custom_playlists.listofplaylistArrayList.get(i).getLikes());
+                        Log.d(TAG, "shownewelements: note " + show_custom_playlists.listofplaylistArrayList.get(i).getNote());
+                    }
+                }else {
+                    Log.d(TAG, "shownewelements: position is random");
+                    for (int i = 0; i < homefragment.listofplaylistArrayList.size(); i++) {
+                        Log.d(TAG, "shownewelements: id " + homefragment.listofplaylistArrayList.get(i).getId());
+                        Log.d(TAG, "shownewelements: name " + homefragment.listofplaylistArrayList.get(i).getName());
+                        Log.d(TAG, "shownewelements: totel like " + homefragment.listofplaylistArrayList.get(i).getTotl_like());
+                        Log.d(TAG, "shownewelements: like " + homefragment.listofplaylistArrayList.get(i).getLikes());
+                        Log.d(TAG, "shownewelements: note " + homefragment.listofplaylistArrayList.get(i).getNote());
+                    }
+                }
         }
     }
 
@@ -950,7 +1091,7 @@ public class songsfromplaylist extends AppCompatActivity {
                         Toast.makeText(songsfromplaylist.this, "Error occured!!", Toast.LENGTH_LONG).show();
                     }
 
-                    String err="Error in getdata in homefragment "+error.getMessage();
+                    String err="Error in getdata in songsfromplaylist "+error.getMessage();
                     new internal_error_report(songsfromplaylist.this,err,MainActivity.sharedPreferences.getString(USERNAME,"")).execute();
 
                     startActivity(new Intent(context,MainActivity.class));
