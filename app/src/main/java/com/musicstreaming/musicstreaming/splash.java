@@ -11,6 +11,7 @@ import androidx.core.content.FileProvider;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,6 +22,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -29,6 +31,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.webkit.CookieManager;
@@ -50,6 +53,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.musicstreaming.musicstreaming.service.onclearfrompercentservice;
+import com.musicstreaming.musicstreaming.service.online_status_updater;
 import com.musicstreaming.musicstreaming.service.phone_state_broadcast_reciever;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -72,6 +77,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static android.Manifest.permission.ACCESS_BACKGROUND_LOCATION;
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.musicstreaming.musicstreaming.checkserveravailability.connection;
 import static com.musicstreaming.musicstreaming.checkserveravailability.iscomplete;
@@ -87,7 +95,7 @@ public class splash extends AppCompatActivity {
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
     public static String TAG="this_is_a_splash",USERNAME="username",PASSWORD="password",NAME="name",IMAGE="image",
-            EMAIL="email",TELEPHONE_STATE_CHANGE_PERMISSION="tell_state_change",DIR_NAME="Music_Streaming",NIGHT_MODE="night_mode";
+            EMAIL="email",TELEPHONE_STATE_CHANGE_PERMISSION="tell_state_change",DIR_NAME="Music_Streaming",NIGHT_MODE="night_mode",SHARED_PREF="sharedpref";
     FirebaseRemoteConfig firebaseRemoteConfig;
     private static final String VersionCode = "versioncodes";
     private static final String force_update = "force_update";
@@ -122,8 +130,14 @@ public class splash extends AppCompatActivity {
         Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(this));
 
         new checkserveravailability(this).execute();
-
         sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
+
+        if (!isservicerunning(online_status_updater.class)) {
+            startService(new Intent(getBaseContext(), online_status_updater.class)
+                    .putExtra("username", sharedPreferences.getString(USERNAME,""))
+            .putExtra("status","online"));
+        }
+
         firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
         FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
                 .setDeveloperModeEnabled(true).build(); //.setDeveloperModeEnabled(BuildConfig.DEBUG)
@@ -509,7 +523,10 @@ public class splash extends AppCompatActivity {
         String DENIED_FIRST_TIME="denied_first_time";
         if(ContextCompat.checkSelfPermission(splash.this, Manifest.permission.READ_PHONE_STATE)== PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(splash.this, WRITE_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(splash.this, Manifest.permission.READ_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED) {
+                ContextCompat.checkSelfPermission(splash.this, Manifest.permission.READ_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(splash.this,Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(splash.this,Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(splash.this,Manifest.permission.ACCESS_BACKGROUND_LOCATION)==PackageManager.PERMISSION_GRANTED) {
 
             SharedPreferences.Editor editor=sharedPreferences.edit();
             editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION,true);
@@ -520,7 +537,10 @@ public class splash extends AppCompatActivity {
         }else{
             if(ActivityCompat.shouldShowRequestPermissionRationale(splash.this, Manifest.permission.READ_PHONE_STATE ) &&
                     ActivityCompat.shouldShowRequestPermissionRationale(splash.this, WRITE_EXTERNAL_STORAGE )&&
-                    ActivityCompat.shouldShowRequestPermissionRationale(splash.this, Manifest.permission.READ_EXTERNAL_STORAGE )){
+                    ActivityCompat.shouldShowRequestPermissionRationale(splash.this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
+                            ActivityCompat.shouldShowRequestPermissionRationale(splash.this, ACCESS_COARSE_LOCATION )&&
+                            ActivityCompat.shouldShowRequestPermissionRationale(splash.this, ACCESS_BACKGROUND_LOCATION )&&
+                            ActivityCompat.shouldShowRequestPermissionRationale(splash.this, ACCESS_FINE_LOCATION )){
 
                 if(sharedPreferences.getBoolean(DENIED_FIRST_TIME,true)) {
                     SharedPreferences.Editor editor=sharedPreferences.edit();
@@ -532,17 +552,17 @@ public class splash extends AppCompatActivity {
                             .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    ActivityCompat.requestPermissions(splash.this, new String[]{Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE}, 20);
+                                    ActivityCompat.requestPermissions(splash.this, new String[]{Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE,ACCESS_FINE_LOCATION,ACCESS_BACKGROUND_LOCATION,ACCESS_COARSE_LOCATION}, 20);
                                 }
                             })
                             .setCancelable(false)
                             .create().show();
                 }else{
-                    ActivityCompat.requestPermissions(splash.this, new String[]{Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE}, 20);
+                    ActivityCompat.requestPermissions(splash.this, new String[]{Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE,ACCESS_FINE_LOCATION,ACCESS_BACKGROUND_LOCATION,ACCESS_COARSE_LOCATION}, 20);
                 }
 
             }else{
-                ActivityCompat.requestPermissions(splash.this,new String[]{Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE},20);
+                ActivityCompat.requestPermissions(splash.this,new String[]{Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE,ACCESS_FINE_LOCATION,ACCESS_BACKGROUND_LOCATION,ACCESS_COARSE_LOCATION},20);
             }
         }
     }
@@ -614,7 +634,8 @@ public class splash extends AppCompatActivity {
             }
         }else
         if(requestCode==20 ){
-            if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1]==PackageManager.PERMISSION_GRANTED && grantResults[2]==PackageManager.PERMISSION_GRANTED) {
+            if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1]==PackageManager.PERMISSION_GRANTED && grantResults[2]==PackageManager.PERMISSION_GRANTED &&
+            grantResults[3]==PackageManager.PERMISSION_GRANTED && grantResults[4]==PackageManager.PERMISSION_GRANTED && grantResults[5]==PackageManager.PERMISSION_GRANTED) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION, true);
                 editor.apply();
@@ -1113,6 +1134,16 @@ public class splash extends AppCompatActivity {
                     break;
             }
         }
+    }
+
+    public boolean isservicerunning(Class<?> serviceclass){
+        ActivityManager manager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
+        for(ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer.MAX_VALUE)){
+            if(serviceclass.getName().equals(serviceInfo.service.getClassName())){
+                return true;
+            }
+        }
+        return false;
     }
 
 }
