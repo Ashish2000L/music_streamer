@@ -13,7 +13,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.DownloadManager;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,6 +28,7 @@ import android.database.Cursor;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -53,6 +57,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.musicstreaming.musicstreaming.service.GPSTracker;
 import com.musicstreaming.musicstreaming.service.onclearfrompercentservice;
 import com.musicstreaming.musicstreaming.service.online_status_updater;
 import com.musicstreaming.musicstreaming.service.phone_state_broadcast_reciever;
@@ -95,7 +100,8 @@ public class splash extends AppCompatActivity {
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
     public static String TAG="this_is_a_splash",USERNAME="username",PASSWORD="password",NAME="name",IMAGE="image",
-            EMAIL="email",TELEPHONE_STATE_CHANGE_PERMISSION="tell_state_change",DIR_NAME="Music_Streaming",NIGHT_MODE="night_mode",SHARED_PREF="sharedpref";
+            EMAIL="email",TELEPHONE_STATE_CHANGE_PERMISSION="tell_state_change",DIR_NAME="Music_Streaming",NIGHT_MODE="night_mode",SHARED_PREF="sharedpref",
+            LOCATION_ACCESS_PERMISSION="location_access_permission";
     FirebaseRemoteConfig firebaseRemoteConfig;
     private static final String VersionCode = "versioncodes";
     private static final String force_update = "force_update";
@@ -212,7 +218,7 @@ public class splash extends AppCompatActivity {
                                 message="Connection Established ";
                                 seekBar.setProgress(50);
 
-                                get_telephone_state_change_permission();
+                                Check_Location_Enabled();
 
                                 Log.d(TAG, "run: connection successful ");
                             }else{
@@ -518,6 +524,75 @@ public class splash extends AppCompatActivity {
                 .create().show();
     }
 
+    public void Check_Location_Enabled(){
+
+        try {
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            boolean gpsenabled = false;
+            boolean networkenabled = false;
+
+
+            try {
+                gpsenabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            } catch (Exception e) {
+                Log.d(TAG, "Check_Location_Enabled: gpslocation " + e.getMessage());
+            }
+
+            try {
+                networkenabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            } catch (Exception e) {
+                Log.d(TAG, "Check_Location_Enabled: networkenable " + e.getMessage());
+            }
+
+            if (!gpsenabled) {
+
+                new AlertDialog.Builder(splash.this)
+                        .setCancelable(false)
+                        .setTitle("GPS enabling required!")
+                        .setMessage("Enable GPS to give you better suggestion. For more detail please refer to privacy policy.")
+                        .setPositiveButton("Enable", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                                get_telephone_state_change_permission();
+                            }
+                        })
+                        .setNeutralButton("Privacy Policy", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent browser = new Intent(Intent.ACTION_VIEW,Uri.parse("http://free4all.ezyro.com/Music_streaming/privacy_policy.html"));
+                                startActivity(browser);
+                                finish();
+                            }
+                        })
+                        .create()
+                        .show();
+
+            }else {
+                get_telephone_state_change_permission();
+            }
+        }catch (Exception e){
+            new internal_error_report(context,"Error in GPSTracker: "+e.getMessage(),sharedPreferences.getString(USERNAME,""));
+        }
+    }
+
+    public void start_job_schedular_for_location_access(){
+        ComponentName componentName = new ComponentName(this, GPSTracker.class);
+        JobInfo info = new JobInfo.Builder(1,componentName)
+                .setPersisted(true)
+                .setPeriodic(1000*60*15)
+                .build();
+
+        JobScheduler jobScheduler = (JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
+        int result=jobScheduler.schedule(info);
+
+        if(result==JobScheduler.RESULT_SUCCESS){
+            Log.d(TAG, "start_job_schedular_for_location_access: successfully completed job ");
+        }else{
+            Log.d(TAG, "start_job_schedular_for_location_access: Job failed and scheduled ");
+        }
+    }
+
     public void get_telephone_state_change_permission()
     {
         String DENIED_FIRST_TIME="denied_first_time";
@@ -530,10 +605,15 @@ public class splash extends AppCompatActivity {
 
             SharedPreferences.Editor editor=sharedPreferences.edit();
             editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION,true);
+            editor.putBoolean(LOCATION_ACCESS_PERMISSION,true);
             editor.apply();
+
+            if(!isservicerunning(GPSTracker.class)){
+
+                start_job_schedular_for_location_access();
+
+            }
             getdetails();
-
-
         }else{
             if(ActivityCompat.shouldShowRequestPermissionRationale(splash.this, Manifest.permission.READ_PHONE_STATE ) &&
                     ActivityCompat.shouldShowRequestPermissionRationale(splash.this, WRITE_EXTERNAL_STORAGE )&&
@@ -548,11 +628,19 @@ public class splash extends AppCompatActivity {
                     editor.apply();
                     new AlertDialog.Builder(splash.this)
                             .setTitle("Permission needed")
-                            .setMessage("Need this permission to give you better performation of our application!")
+                            .setMessage("Permissions required to provide you best suggestions. Refer to Privacy Policy for more details.")
                             .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     ActivityCompat.requestPermissions(splash.this, new String[]{Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE,ACCESS_FINE_LOCATION,ACCESS_BACKGROUND_LOCATION,ACCESS_COARSE_LOCATION}, 20);
+                                }
+                            })
+                            .setNeutralButton("Privacy Policy", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent browser = new Intent(Intent.ACTION_VIEW,Uri.parse("http://free4all.ezyro.com/Music_streaming/privacy_policy.html"));
+                                    startActivity(browser);
+                                    finish();
                                 }
                             })
                             .setCancelable(false)
@@ -636,9 +724,16 @@ public class splash extends AppCompatActivity {
         if(requestCode==20 ){
             if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1]==PackageManager.PERMISSION_GRANTED && grantResults[2]==PackageManager.PERMISSION_GRANTED &&
             grantResults[3]==PackageManager.PERMISSION_GRANTED && grantResults[4]==PackageManager.PERMISSION_GRANTED && grantResults[5]==PackageManager.PERMISSION_GRANTED) {
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION, true);
-                editor.apply();
+
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(LOCATION_ACCESS_PERMISSION,true);
+                    editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION, true);
+                    editor.apply();
+
+                if(!isservicerunning(GPSTracker.class)){
+                    start_job_schedular_for_location_access();
+                }
+
                 getdetails();
             }
 //            else
@@ -657,9 +752,30 @@ public class splash extends AppCompatActivity {
 //                    getdetails();
 //                }
             else{
-                SharedPreferences.Editor editor=sharedPreferences.edit();
-                editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION,false);
-                editor.apply();
+                if(grantResults[0]!=PackageManager.PERMISSION_GRANTED) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION, false);
+                    editor.apply();
+                }else{
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(TELEPHONE_STATE_CHANGE_PERMISSION, true);
+                    editor.apply();
+                }
+                    if(grantResults[3]!=PackageManager.PERMISSION_GRANTED && grantResults[5]!=PackageManager.PERMISSION_GRANTED)
+                    {
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(LOCATION_ACCESS_PERMISSION, false);
+                        editor.apply();
+                }else {
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(LOCATION_ACCESS_PERMISSION, true);
+                        editor.apply();
+
+                        if(!isservicerunning(GPSTracker.class)){
+                            start_job_schedular_for_location_access();
+                        }
+
+                    }
                 getdetails();
             }
         }
