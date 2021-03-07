@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/night_drawable_background"
+    android:background="@drawable/night_drawable_backg round"
     tools:context=".setting_advance">
 
     <androidx.appcompat.widget.Toolbar
@@ -29,5 +29,61 @@
         android:layout_below="@id/toolbar"
         android:id="@+id/night_mode"
         />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/night_mode">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Privacy Policy"
+            android:fontFamily="@font/aclonica"
+            style="@style/TextAppearance.AppCompat.Headline"
+            android:textColor="#E0E0E3"
+            android:layout_marginTop="5dp"
+            android:padding="10dp"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="  Privacy Policy"
+            android:drawableStart="@drawable/privacy_policy_icon"
+            android:padding="5dp"
+            android:fontFamily="@font/allerta_stencil"
+            android:textColor="#E0E0E3"
+            android:textSize="18sp"
+            android:gravity="center_vertical"
+            android:drawableEnd="@drawable/arrow_right_536dfe"
+            android:onClick="get_to_privacy_policy"
+            android:drawableTint="#fff"
+            />
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Headline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/aclonica"
+            android:padding="10dp"
+            android:text="Join us on"
+            android:textColor="#E0E0E3" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/discord_icon_32"
+            android:padding="5dp"
+            android:fontFamily="@font/allerta_stencil"
+            android:textColor="#E0E0E3"
+            android:text="  Discord"
+            android:gravity="center_vertical"
+            android:textSize="18sp"
+            android:drawableEnd="@drawable/arrow_right"
+            android:onClick="get_to_discord"
+            />
+
+    </LinearLayout>
 
 </RelativeLayout>
