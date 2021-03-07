@@ -11,8 +11,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
@@ -54,7 +54,6 @@ import com.musicstreaming.musicstreaming.songsfromplaylist;
 import com.musicstreaming.musicstreaming.track;
 
 import java.io.IOException;
-import java.util.Random;
 
 import static com.musicstreaming.musicstreaming.MainActivity.changeplaypauseimgs;
 import static com.musicstreaming.musicstreaming.get_error_song.RESPONSE_STATUS;
@@ -77,9 +76,10 @@ import static com.musicstreaming.musicstreaming.playselectedsong.updaterunnable;
 import static com.musicstreaming.musicstreaming.playselectedsong.updateseek;
 import static com.musicstreaming.musicstreaming.playselectedsong.updateseekdetail.back_to_playlist;
 import static com.musicstreaming.musicstreaming.playselectedsong.updateseekdetail.check;
-import static com.musicstreaming.musicstreaming.songsfromplaylist.another;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.changeplaypauseimg;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.showdetail;
+import static com.musicstreaming.musicstreaming.splash.SHARED_PREF;
+import static com.musicstreaming.musicstreaming.splash.TELEPHONE_STATE_CHANGE_PERMISSION;
 
 public class onclearfrompercentservice extends Service implements AudioManager.OnAudioFocusChangeListener {
     /**
@@ -89,14 +89,14 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
      * <p>Finished First version on 17-Aug-2020</p>
      */
     
-    public static String TAG="serviceformusic";
+    public static String TAG="serviceformusic",lastplaylist_id="-1";
     public static boolean isplaying=false;
     public static int position=0;
     public static boolean TERMINATION_STATUS=false;
     public static MediaPlayer mediaPlayer;
     public static boolean IS_RUNNING_SERVICE=false;
     public static boolean IS_PAUSED_SONG=false;
-    public static boolean IS_PLAYING_SONG=false;
+    public static boolean IS_PLAYING_SONG=false, IS_ON_CALL_BEFORE =true,ispreparing=false,isprepared=false;
     public static Context SERVICE_CONTEXT;
     public static int POSITION_FAV_PLAYLIST=0;
 
@@ -104,16 +104,11 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
     public static final String ACTION_PREVIOUS="actionprevious";
     public static final String ACTION_PLAY="actionplay";
     public static final String ACTION_NEXT="actionnext";
-
-    public static boolean isprepared=false;
+;
     public static Bitmap icon;
     public static Notification notification;
     public static Context context;
-    public static boolean ispreparing=false;
-    public static String lastplaylist_id="-1";
     public static int percentupdate;
-    public static Random random = new Random();
-    public static int randomvalue=0;
     public static AudioManager audioManager;
     public static SharedPreferences sharedPreferences;
     public static String IS_RECEIVER_REGISTERED="IS_RECEIVER_REGISTERED";
@@ -155,6 +150,8 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
 
         mediaPlayer=new MediaPlayer();
         preparesong(position);
+
+        sharedPreferences = getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
 
         startForeground(1, notification);
 
@@ -481,7 +478,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
     }
 
     public static void ontrackplay(int positions) {
-
+        IS_ON_CALL_BEFORE =false;
         if(positions==1000){
             positions=position;
             new playselectedsong.updateseekdetail().updatesek();
@@ -579,6 +576,9 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             Intent intentplay = new Intent(context, NotificationActionService.class).setAction(ACTION_PLAY);
             final PendingIntent pendingIntentplay=PendingIntent.getBroadcast(context,0,intentplay,PendingIntent.FLAG_UPDATE_CURRENT);
 
+            Intent getToSongActivity = new Intent(context,playselectedsong.class);
+            final PendingIntent pendingIntentToSongActivity = PendingIntent.getActivity(context,2,getToSongActivity,PendingIntent.FLAG_UPDATE_CURRENT);
+
             final PendingIntent pendingIntentnext;
             final int drw_next;
             if(pos==size){
@@ -593,7 +593,6 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             Glide.with(context)
                     .asBitmap()
                     .load(track.getImurl())
-                    .placeholder(R.drawable.music3)
                     .into(new SimpleTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -613,6 +612,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                                             .setShowActionsInCompactView(0,1,2)
                                             .setMediaSession(mediaSessionCompat.getSessionToken()))
                                     .setPriority(NotificationCompat.PRIORITY_LOW)
+                                    .setContentIntent(pendingIntentToSongActivity)
                                     .build();
 
                             notificationManagerCompat.notify(1,notification);
@@ -624,7 +624,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                     .setSmallIcon(R.drawable.music)
                     .setContentTitle(track.getTitle())
                     .setContentText(track.getAlbum())
-                    .setLargeIcon(icon)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.drawable.music_2))
                     .setOnlyAlertOnce(true)
                     .addAction(drw_previous,"Previous",pendingIntentprevious)
                     .addAction(play,"Play",pendingIntentplay)
@@ -634,6 +634,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                             .setShowActionsInCompactView(0,1,2)
                             .setMediaSession(mediaSessionCompat.getSessionToken()))
                     .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setContentIntent(pendingIntentToSongActivity)
                     .build();
 
             Log.d(TAG, "onResourceReady: resourse is "+icon);
@@ -657,6 +658,9 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             Intent intentplay = new Intent(context, NotificationActionService.class).setAction(ACTION_PLAY);
             final PendingIntent pendingIntentplay=PendingIntent.getBroadcast(context,0,intentplay,PendingIntent.FLAG_UPDATE_CURRENT);
 
+            Intent getToSongActivity = new Intent(context,playselectedsong.class);
+            final PendingIntent pendingIntentToSongActivity = PendingIntent.getActivity(context,2,getToSongActivity,PendingIntent.FLAG_UPDATE_CURRENT);
+
             final PendingIntent pendingIntentnext;
             final int drw_next;
             if(pos==size){
@@ -671,7 +675,6 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             Glide.with(context)
                     .asBitmap()
                     .load(track.getImurl())
-                    .placeholder(R.drawable.music3)
                     .into(new SimpleTarget<Bitmap>() {
                         @Override
                         public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -691,6 +694,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                                             .setShowActionsInCompactView(0,1,2)
                                             .setMediaSession(mediaSessionCompat.getSessionToken()))
                                     .setPriority(NotificationCompat.PRIORITY_LOW)
+                                    .setContentIntent(pendingIntentToSongActivity)
                                     .build();
 
                             Log.d(TAG, "onResourceReady: resourse is "+icon);
@@ -703,7 +707,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                     .setSmallIcon(R.drawable.music)
                     .setContentTitle(track.getTitle())
                     .setContentText(track.getAlbum())
-                    .setLargeIcon(icon)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.drawable.music_2))
                     .setOnlyAlertOnce(true)
                     .addAction(drw_previous,"Previous",pendingIntentprevious)
                     .addAction(play,"Play",pendingIntentplay)
@@ -713,6 +717,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                             .setShowActionsInCompactView(0,1,2)
                             .setMediaSession(mediaSessionCompat.getSessionToken()))
                     .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setContentIntent(pendingIntentToSongActivity)
                     .build();
 
             Log.d(TAG, "onResourceReady: resourse is "+icon);
@@ -787,10 +792,21 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
 
         if(focusChange<=0) {
             ontrackpause();
-//            if(!is_from_search)
             changeplaypauseimg(false);
             changeplaypauseimgs(false);
             playsong.setImageResource(R.drawable.play_white);
+
+            Log.d(TAG, "onAudioFocusChange: song paused due to audio focus "+ IS_ON_CALL_BEFORE);
+        }else {
+            Log.d(TAG, "onAudioFocusChange: audio focus released "+ IS_ON_CALL_BEFORE);
+            if(IS_ON_CALL_BEFORE) {
+                ontrackplay(1000);
+                changeplaypauseimg(true);
+                changeplaypauseimgs(true);
+                playsong.setImageResource(R.drawable.pause_white);
+
+                IS_ON_CALL_BEFORE=false;
+            }
         }
 
     }
@@ -845,33 +861,27 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         public void onCallStateChanged(int state, String phoneNumber) {
             super.onCallStateChanged(state, phoneNumber);
 
-            switch (state){
+            if(sharedPreferences.getBoolean(TELEPHONE_STATE_CHANGE_PERMISSION,false)) {
+                switch (state) {
 
-                case TelephonyManager.CALL_STATE_IDLE:
-
-                    ontrackplay(1000);
-//                    if(!is_from_search)
-                    changeplaypauseimg(true);
-                    changeplaypauseimgs(true);
-                    playsong.setImageResource(R.drawable.pause_white);
-
-                    break;
+                    case TelephonyManager.CALL_STATE_IDLE:
+                        IS_ON_CALL_BEFORE =true;
+                        break;
                     case TelephonyManager.CALL_STATE_RINGING:
+                    case TelephonyManager.CALL_STATE_OFFHOOK:
+                        IS_ON_CALL_BEFORE =true;
                         ontrackpause();
-//                        if(!is_from_search)
                         changeplaypauseimg(false);
                         changeplaypauseimgs(false);
                         playsong.setImageResource(R.drawable.play_white);
 
-                        break;
-                        case TelephonyManager.CALL_STATE_OFFHOOK:
-                            ontrackpause();
-//                            if(!is_from_search)
-                            changeplaypauseimg(false);
-                            changeplaypauseimgs(false);
-                            playsong.setImageResource(R.drawable.play_white);
+                        Log.d(TAG, "onCallStateChanged: paused due to call stat: "+ IS_ON_CALL_BEFORE);
 
-                            break;
+                        break;
+
+                }
+            }else{
+                Log.d(TAG, "onCallStateChanged: call permission false ");
             }
 
         }
