@@ -6,9 +6,11 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.View;
 import android.widget.CompoundButton;
 
 import java.io.File;
@@ -98,4 +100,17 @@ public class setting_advance extends AppCompatActivity {
         });
     }
 
+    public void get_to_discord(View view) {
+
+        Intent toDiscord = new Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/h5byA5FMKz"));
+        startActivity(toDiscord);
+
+    }
+
+    public void get_to_privacy_policy(View view) {
+
+        Intent toPrivacyPolicy = new Intent(Intent.ACTION_VIEW,Uri.parse("http://free4all.ezyro.com/Music_streaming/privacy_policy.html"));
+        startActivity(toPrivacyPolicy);
+
+    }
 }

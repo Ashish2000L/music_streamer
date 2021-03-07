@@ -45,6 +45,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.musicstreaming.musicstreaming.service.online_status_updater;
 
 import java.io.File;
 import java.util.HashMap;
@@ -206,6 +207,7 @@ public class settingfragment extends Fragment {
             progressDialog.setMessage("Logging Out, Please wait...");
             progressDialog.show();
 
+            online_status_updater.username="";
 
             terminate_all_process.run();
             Runnable check_termination_status = new Runnable() {
