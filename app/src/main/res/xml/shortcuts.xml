@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:shortcutId="new_playlist"
+        android:enabled="true"
+        android:icon="@drawable/add_playlist"
+        android:shortcutShortLabel="@string/shortcut_short_label"
+        android:shortcutLongLabel="@string/shortcut_long_label"
+        >
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.musicstreaming.musicstreaming"
+            android:targetClass="com.musicstreaming.musicstreaming.splash" >
+            <extra
+                android:name="shortcut_tap_value"
+                android:value="4"/>
+<!--            currently this extra is not working but this is how we add extra to the intent in the xml-->
+        </intent>
+
+<!--        <categories android:name="android.shortcut.conversation" />-->
+    </shortcut>
+<!--    android:shortcutDisabledMessage="this is a disable message"-->
+</shortcuts>
