@@ -303,7 +303,7 @@ public class playselectedsong extends AppCompatActivity{
 
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
 
-            NotificationChannel channel = new NotificationChannel(onclearfrompercentservice.CHHANEL_ID,"this is a channel ",
+            NotificationChannel channel = new NotificationChannel(onclearfrompercentservice.CHHANEL_ID,"Music Notification",
                     NotificationManager.IMPORTANCE_LOW);
             channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
             channel.setLightColor(Color.GREEN);

@@ -95,10 +95,11 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
     public static boolean TERMINATION_STATUS=false;
     public static MediaPlayer mediaPlayer;
     public static boolean IS_RUNNING_SERVICE=false;
-    public static boolean IS_PAUSED_SONG=false;
+    public static boolean IS_PAUSED_SONG=false,IS_IMAGE_SET=false;;
     public static boolean IS_PLAYING_SONG=false, IS_ON_CALL_BEFORE =true,ispreparing=false,isprepared=false;
     public static Context SERVICE_CONTEXT;
     public static int POSITION_FAV_PLAYLIST=0;
+
 
     public static final String CHHANEL_ID="channel1";
     public static final String ACTION_PREVIOUS="actionprevious";
@@ -557,6 +558,9 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
     }
 
     public static void createnotification(final Context context, final track track, final int play, int pos, int size){
+
+        IS_IMAGE_SET=false;
+
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
 
             final NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
@@ -576,7 +580,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             Intent intentplay = new Intent(context, NotificationActionService.class).setAction(ACTION_PLAY);
             final PendingIntent pendingIntentplay=PendingIntent.getBroadcast(context,0,intentplay,PendingIntent.FLAG_UPDATE_CURRENT);
 
-            Intent getToSongActivity = new Intent(context,playselectedsong.class);
+            Intent getToSongActivity = new Intent(context,playselectedsong.class).putExtra("position", 1000);
             final PendingIntent pendingIntentToSongActivity = PendingIntent.getActivity(context,2,getToSongActivity,PendingIntent.FLAG_UPDATE_CURRENT);
 
             final PendingIntent pendingIntentnext;
@@ -615,30 +619,34 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                                     .setContentIntent(pendingIntentToSongActivity)
                                     .build();
 
+                            IS_IMAGE_SET=true;
+
                             notificationManagerCompat.notify(1,notification);
 
                         }
                     });
 
-            notification = new NotificationCompat.Builder(context,CHHANEL_ID)
-                    .setSmallIcon(R.drawable.music)
-                    .setContentTitle(track.getTitle())
-                    .setContentText(track.getAlbum())
-                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.drawable.music_2))
-                    .setOnlyAlertOnce(true)
-                    .addAction(drw_previous,"Previous",pendingIntentprevious)
-                    .addAction(play,"Play",pendingIntentplay)
-                    .addAction(drw_next,"Next",pendingIntentnext)
-                    .setShowWhen(false)
-                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                            .setShowActionsInCompactView(0,1,2)
-                            .setMediaSession(mediaSessionCompat.getSessionToken()))
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
-                    .setContentIntent(pendingIntentToSongActivity)
-                    .build();
+            if(!IS_IMAGE_SET) {
+                notification = new NotificationCompat.Builder(context, CHHANEL_ID)
+                        .setSmallIcon(R.drawable.music)
+                        .setContentTitle(track.getTitle())
+                        .setContentText(track.getAlbum())
+                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.music_2))
+                        .setOnlyAlertOnce(true)
+                        .addAction(drw_previous, "Previous", pendingIntentprevious)
+                        .addAction(play, "Play", pendingIntentplay)
+                        .addAction(drw_next, "Next", pendingIntentnext)
+                        .setShowWhen(false)
+                        .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                                .setShowActionsInCompactView(0, 1, 2)
+                                .setMediaSession(mediaSessionCompat.getSessionToken()))
+                        .setPriority(NotificationCompat.PRIORITY_LOW)
+                        .setContentIntent(pendingIntentToSongActivity)
+                        .build();
 
-            Log.d(TAG, "onResourceReady: resourse is "+icon);
-            notificationManagerCompat.notify(1,notification);
+                Log.d(TAG, "onResourceReady: resourse is " + icon);
+                notificationManagerCompat.notify(1, notification);
+            }
 
         }else{
             final NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
@@ -658,7 +666,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
             Intent intentplay = new Intent(context, NotificationActionService.class).setAction(ACTION_PLAY);
             final PendingIntent pendingIntentplay=PendingIntent.getBroadcast(context,0,intentplay,PendingIntent.FLAG_UPDATE_CURRENT);
 
-            Intent getToSongActivity = new Intent(context,playselectedsong.class);
+            Intent getToSongActivity = new Intent(context,playselectedsong.class).putExtra("position", 1000);
             final PendingIntent pendingIntentToSongActivity = PendingIntent.getActivity(context,2,getToSongActivity,PendingIntent.FLAG_UPDATE_CURRENT);
 
             final PendingIntent pendingIntentnext;
@@ -697,31 +705,35 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
                                     .setContentIntent(pendingIntentToSongActivity)
                                     .build();
 
+                            IS_IMAGE_SET=true;
+
                             Log.d(TAG, "onResourceReady: resourse is "+icon);
                             notificationManagerCompat.notify(1,notification);
 
                         }
                     });
 
-            notification = new NotificationCompat.Builder(context)
-                    .setSmallIcon(R.drawable.music)
-                    .setContentTitle(track.getTitle())
-                    .setContentText(track.getAlbum())
-                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.drawable.music_2))
-                    .setOnlyAlertOnce(true)
-                    .addAction(drw_previous,"Previous",pendingIntentprevious)
-                    .addAction(play,"Play",pendingIntentplay)
-                    .addAction(drw_next,"Next",pendingIntentnext)
-                    .setShowWhen(false)
-                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                            .setShowActionsInCompactView(0,1,2)
-                            .setMediaSession(mediaSessionCompat.getSessionToken()))
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
-                    .setContentIntent(pendingIntentToSongActivity)
-                    .build();
+            if(!IS_IMAGE_SET) {
+                notification = new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.drawable.music)
+                        .setContentTitle(track.getTitle())
+                        .setContentText(track.getAlbum())
+                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.music_2))
+                        .setOnlyAlertOnce(true)
+                        .addAction(drw_previous, "Previous", pendingIntentprevious)
+                        .addAction(play, "Play", pendingIntentplay)
+                        .addAction(drw_next, "Next", pendingIntentnext)
+                        .setShowWhen(false)
+                        .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                                .setShowActionsInCompactView(0, 1, 2)
+                                .setMediaSession(mediaSessionCompat.getSessionToken()))
+                        .setPriority(NotificationCompat.PRIORITY_LOW)
+                        .setContentIntent(pendingIntentToSongActivity)
+                        .build();
 
-            Log.d(TAG, "onResourceReady: resourse is "+icon);
-            notificationManagerCompat.notify(1,notification);
+                Log.d(TAG, "onResourceReady: resourse is " + icon);
+                notificationManagerCompat.notify(1, notification);
+            }
         }
     }
 
