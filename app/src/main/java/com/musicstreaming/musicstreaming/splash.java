@@ -1,10 +1,12 @@
 package com.musicstreaming.musicstreaming;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
@@ -24,7 +26,11 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Icon;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -57,7 +63,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.musicstreaming.musicstreaming.service.GPSTracker;
+import com.musicstreaming.musicstreaming.service.get_fav_song_list;
 import com.musicstreaming.musicstreaming.service.onclearfrompercentservice;
 import com.musicstreaming.musicstreaming.service.online_status_updater;
 import com.musicstreaming.musicstreaming.service.phone_state_broadcast_reciever;
@@ -74,9 +84,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +102,9 @@ import static com.musicstreaming.musicstreaming.checkserveravailability.connecti
 import static com.musicstreaming.musicstreaming.checkserveravailability.iscomplete;
 import static com.musicstreaming.musicstreaming.checkserveravailability.strings;
 import static com.musicstreaming.musicstreaming.login.SHARED_PREF;
+import static com.musicstreaming.musicstreaming.playlistfragment.listofplaylistArrayList_for_fav;
+import static com.musicstreaming.musicstreaming.service.get_fav_song_list.listofplaylistArrayList_for_shortcut;
+import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.POSITION_FAV_PLAYLIST;
 import static java.lang.Thread.sleep;
 
 public class splash extends AppCompatActivity {
@@ -119,12 +134,13 @@ public class splash extends AppCompatActivity {
     LottieAnimationView lottieAnimationView;
     Handler stathandler=new Handler();
     final Handler handler = new Handler();
-    int num=0;
+    int num=0,SHORTCUT_TAP_VALUE=0;
     public static Activity SPLASH_ACTIVITY;
     public static SharedPreferences sharedPreferences;
     BroadcastReceiver downloads;
     Button btn_refresh;
     LinearLayout top_layout,bottom_layout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +159,9 @@ public class splash extends AppCompatActivity {
                     .putExtra("username", sharedPreferences.getString(USERNAME,""))
             .putExtra("status","online"));
         }
+
+        Intent intent = getIntent();
+        SHORTCUT_TAP_VALUE=intent.getIntExtra("shortcut_tap_value",0);
 
         firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
         FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
@@ -195,6 +214,7 @@ public class splash extends AppCompatActivity {
         });
 
     }
+
     int count=0;
     Runnable runnable = new Runnable() {
         @Override
@@ -377,7 +397,7 @@ public class splash extends AppCompatActivity {
         int ver = Integer.parseInt(versioncode);
         Log.d(TAG, "check_for_update: version is "+ver);
         Log.d(TAG, "check_for_update: fetched version is "+versioncode);
-        
+
         int version = BuildConfig.VERSION_CODE;
         if (ver == version) {
             String username,password;
@@ -1052,7 +1072,25 @@ public class splash extends AppCompatActivity {
                         Log.d(TAG, "onResponse: error in json is "+e.getMessage());
                     }
                     seekBar.setProgress(100);
-                    startActivity(new Intent(splash.this,MainActivity.class));
+
+                    if(SHORTCUT_TAP_VALUE==0) {
+                        startActivity(new Intent(splash.this, MainActivity.class));
+                    }else if(SHORTCUT_TAP_VALUE==1){
+                        startActivity(new Intent(splash.this, MainActivity .class).putExtra("fragment_id",2)
+                                .putExtra("is_from_shortcut",true)
+                                .putExtra("playlist_position",1));
+                    }else if(SHORTCUT_TAP_VALUE==2){
+                        startActivity(new Intent(splash.this, MainActivity .class).putExtra("fragment_id",2)
+                                .putExtra("is_from_shortcut",true)
+                                .putExtra("playlist_position",2));
+                    }else if(SHORTCUT_TAP_VALUE==3){
+                        startActivity(new Intent(splash.this, MainActivity .class).putExtra("fragment_id",2)
+                                .putExtra("is_from_shortcut",true)
+                                .putExtra("playlist_position",3));
+                    }else
+                        if(SHORTCUT_TAP_VALUE==4){
+                        startActivity(new Intent(splash.this,new_playlist.class));
+                    }
                     finish();
                 }
             }, new Response.ErrorListener() {
@@ -1115,7 +1153,7 @@ public class splash extends AppCompatActivity {
                 Log.d(TAG, "DownloadFile: couldnot locate your file at "+file.getAbsolutePath());
             }
         }
-        
+
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
