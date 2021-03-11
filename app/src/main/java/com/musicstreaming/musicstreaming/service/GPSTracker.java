@@ -231,9 +231,13 @@ public class GPSTracker extends JobService implements LocationListener {
     public boolean onStartJob(JobParameters params) {
         parameters=params;
         IS_JOB_SERVICE_RUNNING=true;
-        if(ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED){
-            Check_Location_Enabled();
+        try {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                Check_Location_Enabled();
+            }
+        }catch(Exception e){
+            e.printStackTrace();
         }
         return true;
     }
