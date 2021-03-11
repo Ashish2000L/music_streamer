@@ -2,17 +2,21 @@ package com.musicstreaming.musicstreaming;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -39,6 +43,8 @@ import com.karumi.dexter.listener.single.PermissionListener;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -48,6 +54,9 @@ import java.util.Map;
 
 import static com.musicstreaming.musicstreaming.login.SHARED_PREF;
 import static com.musicstreaming.musicstreaming.login.USERNAME;
+import static com.musicstreaming.musicstreaming.splash.DIR_NAME;
+import static com.musicstreaming.musicstreaming.splash.NIGHT_MODE;
+import static com.musicstreaming.musicstreaming.splash.PASSWORD;
 
 public class new_playlist extends AppCompatActivity implements View.OnClickListener {
 
@@ -76,12 +85,48 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
 
         sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
 
+//        if(sharedPreferences.getString(USERNAME,"").equals("")) {
+//            if(ContextCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED) {
+//                File credentials = new File(Environment.getExternalStorageDirectory() + "/" + DIR_NAME, "file.json");
+//                if (credentials.exists()) {
+//                    String credentail = new make_file_in_directory(this, getApplicationContext(), "").read_credentail_file(credentials);
+//                    try {
+//                        JSONObject obj = new JSONObject(credentail);
+//                        JSONObject crednt = obj.getJSONObject("credential");
+//                        String username = crednt.getString("username");
+//                        String password = crednt.getString("password");
+//
+//                        SharedPreferences.Editor editor = sharedPreferences.edit();
+//                        editor.putString("username", username);
+//                        editor.putString("password", password);
+//                        editor.apply();
+//
+//                    } catch (Exception e) {
+//                        Log.d("json_file_writing", "onClick: " + e.getMessage());
+//                    }
+//                } else {
+//                    startActivity(new Intent(this, login.class));
+//                }
+//            }else{
+//                startActivity(new Intent(this, login.class));
+//            }
+//        }
         btn=findViewById(R.id.upload_img);
         playlist_name=findViewById(R.id.new_playlist_name);
         playlist_img=findViewById(R.id.new_playlist_img);
         group=findViewById(R.id.radio_grp);
         btn.setOnClickListener(this);
         playlist_img.setOnClickListener(this);
+
+        File night_mode=new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,NIGHT_MODE);
+        if(night_mode.exists()) {
+            if(new make_file_in_directory(this,getApplicationContext(),sharedPreferences.getString(USERNAME,"")).read_night_mode(night_mode)){
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            }
+        }else
+        if(sharedPreferences.getBoolean(NIGHT_MODE,false)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        }
 
         group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -338,5 +383,11 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
             return err;
         }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(this,MainActivity.class).putExtra("fragment_id",6));
     }
 }
