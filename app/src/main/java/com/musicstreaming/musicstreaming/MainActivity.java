@@ -2,6 +2,7 @@ package com.musicstreaming.musicstreaming;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -12,9 +13,15 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -33,15 +40,20 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.navigation.NavigationView;
+import com.musicstreaming.musicstreaming.service.get_fav_song_list;
 
 import java.io.File;
+import java.util.Arrays;
 
 import static com.musicstreaming.musicstreaming.login.IMAGE;
 import static com.musicstreaming.musicstreaming.login.NAME;
 import static com.musicstreaming.musicstreaming.login.SHARED_PREF;
 import static com.musicstreaming.musicstreaming.login.USERNAME;
+import static com.musicstreaming.musicstreaming.service.get_fav_song_list.listofplaylistArrayList_for_shortcut;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.IS_RUNNING_SERVICE;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.isplaying;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.isprepared;
@@ -50,6 +62,7 @@ import static com.musicstreaming.musicstreaming.service.onclearfrompercentservic
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.position;
 import static com.musicstreaming.musicstreaming.splash.DIR_NAME;
 import static com.musicstreaming.musicstreaming.splash.PASSWORD;
+import static java.lang.Thread.sleep;
 
 public class MainActivity extends AppCompatActivity {
     /**
@@ -74,15 +87,19 @@ public class MainActivity extends AppCompatActivity {
     public static Activity MAIN_ACTIVITY;
     public static SharedPreferences sharedPreferences;
     Toolbar toolbar;
+    public static Context MAIN_ACTIVITY_CONTEXT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         MAIN_ACTIVITY=this;
+        MAIN_ACTIVITY_CONTEXT=this;
 
         //error handler
         Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(this));
+
+        sharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
 
         //initilizations
         navigationView = findViewById(R.id.navmenu);
@@ -96,15 +113,33 @@ public class MainActivity extends AppCompatActivity {
         songname.setSelected(true);
         setSupportActionBar(toolbar);
 
+        String url="https://rentdetails.000webhostapp.com/musicplayer_files/favouratemusic.php",
+                username;
+        username=sharedPreferences.getString(USERNAME,"");
+
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N_MR1) {
+            new get_fav_song_list(this).execute(url, username);
+        }
+
+
         //setting initial fragment
+        Intent intent = getIntent();
+        fragment_id=intent.getIntExtra("fragment_id",0);
+        k=intent.getIntExtra("k",1);
+
+        if(fragment_id==0) {
             getSupportFragmentManager().beginTransaction().replace(R.id.framelayout, new homefragment()).commit();
             navigationView.setCheckedItem(R.id.home);
+        }else{
+            replaceFrameLayout(fragment_id);
+            if (fragment != null) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.framelayout, fragment).commit();
+            }
+        }
 
-            sharedPreferences = getSharedPreferences(SHARED_PREF, MODE_PRIVATE);
+
             String names = "", emails, urls;
 
-            //handling profile detail in the drawable section
-//            try {
                 View navview = navigationView.inflateHeaderView(R.layout.navheader);
                 if (sharedPreferences.getString(USERNAME, "").equals("aka") || sharedPreferences.getString(USERNAME, "").equals("dipcha")) {
                     navigationView.inflateMenu(R.menu.icon_menu_moderator);
@@ -127,11 +162,6 @@ public class MainActivity extends AppCompatActivity {
                         drawerLayout.closeDrawer(GravityCompat.START);
                     }
                 });
-
-//            } catch (Exception e) {
-//                String err = "Error in Navigation Drawable inflation" + e.getMessage();
-//                new internal_error_report(MAIN_ACTIVITY, err, sharedPreferences.getString(USERNAME, "")).execute();
-//            }
 
             urls = sharedPreferences.getString(IMAGE, "");
             loadimage(urls);
@@ -247,10 +277,7 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         //Fragment check=new homefragment();
         if(k==0) {
-            k=1;
-            fragment = new homefragment();
-            navigationView.setCheckedItem(R.id.home);
-            getSupportFragmentManager().beginTransaction().replace(R.id.framelayout, fragment).commit();
+            startActivity(new Intent(this,MainActivity.class).putExtra("k",1));
             toolbar.setTitle("Music Streaming");
         }else{
             finishAffinity();
@@ -349,4 +376,62 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void replaceFrameLayout(int fragment_id){
+
+        switch (fragment_id) {
+            case 1:
+                fragment = new homefragment();
+                navigationView.setCheckedItem(R.id.home);
+                toolbar.setTitle("Music Streaming");
+                break;
+
+            case 2:
+                fragment = new playlistfragment();
+                navigationView.setCheckedItem(R.id.playlist);
+                toolbar.setTitle("Favourates");
+                break;
+
+            case 3:
+                fragment = new settingfragment();
+                navigationView.setCheckedItem(R.id.settings);
+                toolbar.setTitle("Settings");
+                break;
+
+            case 4:
+                fragment = new credits();
+                navigationView.setCheckedItem(R.id.credits);
+                toolbar.setTitle("Music Streaming");
+                break;
+
+            case 5:
+                if (IS_RUNNING_SERVICE) {
+                    startActivity(new Intent(MainActivity.this, playselectedsong.class)
+                            .putExtra("position", 1000));
+                } else {
+                    Toast.makeText(MainActivity.this, "No playlist is selected!!", Toast.LENGTH_SHORT).show();
+                }
+               break;
+
+            case 6:
+                fragment = new show_custom_playlists();
+                navigationView.setCheckedItem(R.id.mylibrary);
+                toolbar.setTitle("My Library");
+
+                break;
+
+            case 7:
+                fragment = new error_msgs();
+                navigationView.setCheckedItem(R.id.error_log);
+                toolbar.setTitle("Error Logs");
+                break;
+
+            case 8:
+                fragment = new search_song_fragment();
+                navigationView.setCheckedItem(R.id.search);
+                toolbar.setTitle("Search Song");
+                break;
+        }
+
+
+    }
 }
