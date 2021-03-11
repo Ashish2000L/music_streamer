@@ -3,14 +3,18 @@ package com.musicstreaming.musicstreaming;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -49,6 +53,7 @@ import com.musicstreaming.musicstreaming.service.onclearfrompercentservice;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,6 +67,7 @@ import static com.musicstreaming.musicstreaming.service.onclearfrompercentservic
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.ontrackpause;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.ontrackplay;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.position;
+import static com.musicstreaming.musicstreaming.splash.DIR_NAME;
 
 public class songsfromplaylist extends AppCompatActivity {
     /**
@@ -106,6 +112,7 @@ public class songsfromplaylist extends AppCompatActivity {
         playlist_position=intent.getExtras().getInt("positions");
         isfav=intent.getExtras().getBoolean("isfav",false);
         Log.d(TAG, "onCreate: id for the song is "+playlist_id);
+        Log.d(TAG, "onCreate: isfav "+isfav);
 
         playlistimage = findViewById(R.id.playlistimagesinsongslist);
         playlistnmae = findViewById(R.id.playlistnameinsonglist);
@@ -385,6 +392,7 @@ public class songsfromplaylist extends AppCompatActivity {
 
             String url = strings[0];
             final String username=sharedPreferences.getString(USERNAME,"");
+            Log.d(TAG, "doInBackground: url "+url);
 
             StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
@@ -559,6 +567,8 @@ public class songsfromplaylist extends AppCompatActivity {
             final String username=sharedPreferences.getString(USERNAME,"");
 
             Log.d(TAG, "doInBackground: playlist id is "+playlist_id);
+            Log.d(TAG, "doInBackground: username of the user is " +username);
+            Log.d(TAG, "doInBackground: url "+url);
 
 
             StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
@@ -894,6 +904,7 @@ public class songsfromplaylist extends AppCompatActivity {
     public class get_fav_songs extends AsyncTask<String,Void,Void>{
 
         int number=0;
+        String username;
 
         @Override
         protected void onPreExecute() {
@@ -906,7 +917,35 @@ public class songsfromplaylist extends AppCompatActivity {
         protected Void doInBackground(final String... strings) {
 
             String url = strings[0];
-            final String username=sharedPreferences.getString(USERNAME,"");
+            username=sharedPreferences.getString(USERNAME,"");
+
+            Log.d(TAG, "doInBackground: username of the user is " +username);
+            Log.d(TAG, "doInBackground: url "+url);
+            if(username.equals("")){
+                username=sharedPreferences.getString("username","");
+
+                File credentials = new File(Environment.getExternalStorageDirectory() + "/" + DIR_NAME, "file.json");
+                if (credentials.exists() && username.equals("") && ContextCompat.checkSelfPermission(songsfromplaylist.this, Manifest.permission.READ_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED) {
+                    String credentail = new make_file_in_directory(songsfromplaylist.this, getApplicationContext(), "").read_credentail_file(credentials);
+                    try {
+                        JSONObject obj = new JSONObject(credentail);
+                        JSONObject crednt = obj.getJSONObject("credential");
+                        String usernames = crednt.getString("username");
+                        String password = crednt.getString("password");
+
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("username", usernames);
+                        editor.putString("password", password);
+                        editor.apply();
+
+                        username=usernames;
+                    } catch (Exception e) {
+                        Log.d("json_file_writing", "onClick: " + e.getMessage());
+                    }
+                }else {
+                    startActivity(new Intent(songsfromplaylist.this,login.class));
+                }
+            }
 
             StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
@@ -935,6 +974,8 @@ public class songsfromplaylist extends AppCompatActivity {
                                 listofsongs = new listofsongs(id,name,songurl,image,like,singer,bkcolor);
                                 listofsongsArrayLisr.add(listofsongs);
                                 songadapter.notifyDataSetChanged();
+
+                                Log.d(TAG, "onResponse: id "+id);
 
                             }
                         }
