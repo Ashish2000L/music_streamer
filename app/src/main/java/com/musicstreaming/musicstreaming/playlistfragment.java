@@ -62,6 +62,8 @@ public class playlistfragment extends Fragment {
     Animation frombottom;
     LottieAnimationView animationView;
     RelativeLayout loading;
+    Boolean IS_FROM_SHORTCUT=false;
+    int PLAYLIST_POSITION_FROM_SHORTCUT=0;
 
 
     public playlistfragment() {
@@ -80,6 +82,14 @@ public class playlistfragment extends Fragment {
         Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(MAIN_ACTIVITY));
 
         sharedPreferences=context.getSharedPreferences(SHARED_PREF,Context.MODE_PRIVATE);
+
+        try{
+            IS_FROM_SHORTCUT=getActivity().getIntent().getBooleanExtra("is_from_shortcut",false);
+            PLAYLIST_POSITION_FROM_SHORTCUT=getActivity().getIntent().getIntExtra("playlist_position",0);
+            POSITION_FAV_PLAYLIST=PLAYLIST_POSITION_FROM_SHORTCUT; 
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         frombottom= AnimationUtils.loadAnimation(context,R.anim.frombottom);
         animationView=view.findViewById(R.id.animation_view);
@@ -156,6 +166,16 @@ public class playlistfragment extends Fragment {
                                 listofplaylistArrayList_for_fav.add(listofplaylist_for_fav);
                                 playlistadapter_for_fav.notifyDataSetChanged();
                             }
+
+                            if(IS_FROM_SHORTCUT) {
+                                if(PLAYLIST_POSITION_FROM_SHORTCUT!=0) {
+                                    startActivity(new Intent(context, songsfromplaylist.class)
+                                            .putExtra("isfav", true).putExtra("positions", PLAYLIST_POSITION_FROM_SHORTCUT)
+                                            .putExtra("id", listofplaylistArrayList_for_fav.get(PLAYLIST_POSITION_FROM_SHORTCUT).getId())
+                                            .putExtra("name", listofplaylistArrayList_for_fav.get(PLAYLIST_POSITION_FROM_SHORTCUT).getName())
+                                            .putExtra("imageurl", listofplaylistArrayList_for_fav.get(PLAYLIST_POSITION_FROM_SHORTCUT).getImage()));
+                                }
+                            }
                         }
 
 
@@ -163,6 +183,7 @@ public class playlistfragment extends Fragment {
                         e.printStackTrace();
                         message="failed ";
                         //new erroinfetch().execute(e.getMessage());
+                        startActivity(new Intent(context,MainActivity.class)); 
                         Log.d(TAG, "onResponse: error in json is "+e.getMessage());
                     }
 
