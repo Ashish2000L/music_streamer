@@ -8,6 +8,7 @@
     <color name="background_profile_image">#ABC2BFBF</color>
 
     <color name="night_mode">#F5201F1F</color>
-
+    <color name="background_colour">#575859</color>
+    <color name="text_colour">#F7F8F8</color>
 <!--  008577  -->
 </resources>
