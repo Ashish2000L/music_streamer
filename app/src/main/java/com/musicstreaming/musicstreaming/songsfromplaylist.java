@@ -3,6 +3,9 @@ package com.musicstreaming.musicstreaming;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.motion.widget.MotionLayout;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
@@ -11,6 +14,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,6 +25,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -48,6 +54,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.musicstreaming.musicstreaming.service.onclearfrompercentservice;
 
 import org.json.JSONArray;
@@ -56,6 +63,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.musicstreaming.musicstreaming.login.SHARED_PREF;
@@ -77,26 +85,28 @@ public class songsfromplaylist extends AppCompatActivity {
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
 
-    int playlist_position;
+    int playlist_position,lastFirstVisibleItem=0;
     ImageView playlistimage;
-    TextView playlistnmae,followers;
+    TextView playlistnmae,followers,scrolltesting;
     String TAG="showingsongs",playlist_id,message="",playlistname,urls="https://rentdetails.000webhostapp.com/musicplayer_files/showsongs.php",
             imageurl="",url_for_search_song="https://rentdetails.000webhostapp.com/musicplayer_files/search_song.php";
     public ListView listViewforsongs;
     public songadapter songadapter;
     listofsongs listofsongs;
-    RelativeLayout relativeLayout;
-    public static LinearLayout showsongdetails,another,topheader;
+    public static LinearLayout showsongdetails;
     public static TextView songname;
     public static ImageView playpausinbottom;
-    public static boolean isfav=false,IS_CUSTOM_PLAYLIST=false;
+    public static boolean isfav=false,IS_CUSTOM_PLAYLIST=false,IS_MOTION_LAYOUT_FINISHED=false;
     public static SharedPreferences sharedPreferences;
     public static ProgressBar progressBars;
     public static String playlistnames;
     LottieAnimationView animationView;
     Animation frombottom,fromtop;
-    RelativeLayout loading,main;
+    RelativeLayout loading;
     ImageView fav_playlist;
+    ConstraintLayout topheader,relativeLayout;
+    FloatingActionButton floatingActionButton;
+    MotionLayout main;
 
     static ArrayList<listofsongs> listofsongsArrayLisr = new ArrayList<>();
 
@@ -116,20 +126,22 @@ public class songsfromplaylist extends AppCompatActivity {
 
         playlistimage = findViewById(R.id.playlistimagesinsongslist);
         playlistnmae = findViewById(R.id.playlistnameinsonglist);
-        relativeLayout=findViewById(R.id.setbackround);
+//        relativeLayout=findViewById(R.id.setbackround);
         songname=findViewById(R.id.songnameatbottom);
         playpausinbottom=findViewById(R.id.playpausinbottom);
         topheader=findViewById(R.id.toplinearheader);
         showsongdetails=findViewById(R.id.bottomsongshowing);
-        another=findViewById(R.id.settheheight);
         progressBars=findViewById(R.id.songprogresses);
         animationView=findViewById(R.id.animation_view);
         fav_playlist=findViewById(R.id.fav_playlist);
         frombottom= AnimationUtils.loadAnimation(this,R.anim.frombottom);
         fromtop= AnimationUtils.loadAnimation(this,R.anim.fromtop);
         loading=findViewById(R.id.loading);
-        main=findViewById(R.id.main);
+        main=findViewById(R.id.constraintLayout);
         followers=findViewById(R.id.followers);
+        floatingActionButton=findViewById(R.id.floatbuttom);
+        listViewforsongs = findViewById(R.id.listvieforsongs);
+//        scrolltesting=findViewById(R.id.scrolltesting);
         songname.setSelected(true);
 
 
@@ -177,6 +189,86 @@ public class songsfromplaylist extends AppCompatActivity {
 
         showdetail(isprepared);
         changeplaypauseimg(isplaying);
+
+        if(playlist_id.equals(playselectedsong.playlistid) && playlistname.equals(playselectedsong.playlistname)){
+            floatingActionButton.setVisibility(View.GONE);
+        }
+
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(songsfromplaylist.this, playselectedsong.class)
+                        .putExtra("position", 0)
+                        .putExtra("playlist_pos", playlist_position)
+                        .putExtra("playlistname", playlistname)
+                        .putExtra("playlistid", playlist_id).putExtra("playlist_img_url", imageurl)
+                );
+            }
+        });
+
+        listViewforsongs.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                if(scrollState==0){
+//                    scrolltesting.setVisibility(View.GONE);
+//                    listViewforsongs.setEnabled(true);
+                    Log.d(TAG, "onScrollStateChanged: scrolling stopped");
+                }else if(!IS_MOTION_LAYOUT_FINISHED && listViewforsongs.getId()==view.getId()){
+                    int currentFirstVisibleItem = listViewforsongs.getFirstVisiblePosition();
+                    if(currentFirstVisibleItem>lastFirstVisibleItem){
+//                        listViewforsongs.setEnabled(false);
+                        Log.d(TAG, "onScrollStateChanged: scrolling down");
+                    }else{
+                        if(currentFirstVisibleItem<lastFirstVisibleItem){
+//                            scrolltesting.setVisibility(View.VISIBLE);
+//                            listViewforsongs.setEnabled(false);
+                            Log.d(TAG, "onScrollStateChanged: scrolling up ");
+                        }
+                    }
+
+                    lastFirstVisibleItem=currentFirstVisibleItem;
+                }
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if(firstVisibleItem==0){
+//                    scrolltesting.setVisibility(View.VISIBLE);
+//                    listViewforsongs.setEnabled(false);
+                }
+            }
+        });
+
+
+        main.addTransitionListener(new MotionLayout.TransitionListener() {
+            @Override
+            public void onTransitionStarted(MotionLayout motionLayout, int i, int i1) {
+//                scrolltesting.setVisibility(View.VISIBLE);
+                IS_MOTION_LAYOUT_FINISHED=false;
+//                listViewforsongs.setEnabled(false);
+                Log.d(TAG, "onTransitionStarted: motion started");
+            }
+
+            @Override
+            public void onTransitionChange(MotionLayout motionLayout, int i, int i1, float v) {
+
+            }
+
+            @Override
+            public void onTransitionCompleted(MotionLayout motionLayout, int i) {
+//                scrolltesting.setVisibility(View.GONE);
+//                listViewforsongs.setEnabled(true);
+                IS_MOTION_LAYOUT_FINISHED=true;
+                Log.d(TAG, "onTransitionCompleted: motion completed");
+            }
+
+            @Override
+            public void onTransitionTrigger(MotionLayout motionLayout, int i, boolean b, float v) {
+
+            }
+        });
+
 
         if(is_from_search) {
             new get_songs().execute(url_for_search_song, song_url);
@@ -253,7 +345,6 @@ public class songsfromplaylist extends AppCompatActivity {
             });
 
             songadapter = new songadapter(this, listofsongsArrayLisr);
-            listViewforsongs = findViewById(R.id.listvieforsongs);
             listViewforsongs.setAdapter(songadapter);
 
             listViewforsongs.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -303,14 +394,14 @@ public class songsfromplaylist extends AppCompatActivity {
                     .into(new CustomTarget<Drawable>() {
                         @Override
                         public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                            relativeLayout.setBackground(resource);
+//                            relativeLayout.setBackground(resource);
                             Log.d(TAG, "onResourceReady: your drawable resource is " + resource);
                         }
 
                         @Override
                         public void onLoadCleared(@Nullable Drawable placeholder) {
                             Log.d(TAG, "onLoadCleared: placeholder wiile loading is " + placeholder);
-                            relativeLayout.setBackground(placeholder);
+//                            relativeLayout.setBackground(placeholder);
                         }
 
                     });
@@ -382,7 +473,6 @@ public class songsfromplaylist extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            listViewforsongs.setVisibility(View.GONE);
             loading.setVisibility(View.VISIBLE);
             main.setVisibility(View.GONE);
         }
@@ -418,18 +508,18 @@ public class songsfromplaylist extends AppCompatActivity {
                                String singer = object.getString("singer");
                                String bkcolor=object.getString("bkcolor");
 
+                                Log.d(TAG, "onResponse: we had processed your response "+id);
+
                                 listofsongs = new listofsongs(id,name,songurl,image,like,singer,bkcolor);
                                 listofsongsArrayLisr.add(listofsongs);
                                 songadapter.notifyDataSetChanged();
 
                             }
                         }
-
-
                     } catch (Exception e) {
                         e.printStackTrace();
                         message="failed ";
-
+                        Log.d(TAG, "onResponse: hey we got an error, pls check out "+e.getMessage());
                     }
 
                 }
@@ -479,8 +569,8 @@ public class songsfromplaylist extends AppCompatActivity {
 
                         loading.setVisibility(View.GONE);
                         main.setVisibility(View.VISIBLE);
-                        listViewforsongs.setVisibility(View.VISIBLE);
-                        listViewforsongs.startAnimation(frombottom);
+//                        listViewforsongs.setVisibility(View.VISIBLE);
+//                        listViewforsongs.startAnimation(frombottom);
                         topheader.startAnimation(fromtop);
                         if(!message.equalsIgnoreCase("Done progress")) {
                             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
@@ -508,8 +598,8 @@ public class songsfromplaylist extends AppCompatActivity {
 
     public static void showdetail(boolean isplaying){
 
-        LinearLayout.LayoutParams params=(LinearLayout.LayoutParams)another.getLayoutParams();
-        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) showsongdetails.getLayoutParams();
+//        LinearLayout.LayoutParams params=(LinearLayout.LayoutParams)another.getLayoutParams();
+//        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) showsongdetails.getLayoutParams();
         if(isplaying){
             try {
                 showsongdetails.setVisibility(View.VISIBLE);
@@ -517,16 +607,16 @@ public class songsfromplaylist extends AppCompatActivity {
                 String artist = playselectedsong.tracks.get(position).getAlbum();
                 String finalname = songnames + " (" + artist + ")";
                 songname.setText(finalname);
-                params.weight = 9.1f;
-                layoutParams.weight = 0.9f;
+//                params.weight = 9.1f;
+//                layoutParams.weight = 0.9f;
             }catch (Exception e){
                 e.printStackTrace();
             }
 
         }else{
             showsongdetails.setVisibility(View.GONE);
-            params.weight=10.0f;
-            layoutParams.weight=0.0f;
+//            params.weight=10.0f;
+//            layoutParams.weight=0.0f;
         }
 
     }
@@ -552,7 +642,7 @@ public class songsfromplaylist extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            listViewforsongs.setVisibility(View.GONE);
+//            listViewforsongs.setVisibility(View.GONE);
             loading.setVisibility(View.VISIBLE);
             main.setVisibility(View.GONE);
         }
@@ -654,8 +744,8 @@ public class songsfromplaylist extends AppCompatActivity {
                     if(!message.equals("") && !message.isEmpty()){
                         loading.setVisibility(View.GONE);
                         main.setVisibility(View.VISIBLE);
-                        listViewforsongs.setVisibility(View.VISIBLE);
-                        listViewforsongs.startAnimation(frombottom);
+//                        listViewforsongs.setVisibility(View.VISIBLE);
+//                        listViewforsongs.startAnimation(frombottom);
                         topheader.startAnimation(fromtop);
                         if(!message.equalsIgnoreCase("Done progress")) {
                             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
@@ -908,7 +998,7 @@ public class songsfromplaylist extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            listViewforsongs.setVisibility(View.GONE);
+//            listViewforsongs.setVisibility(View.GONE);
             loading.setVisibility(View.VISIBLE);
             main.setVisibility(View.GONE);
         }
@@ -1034,8 +1124,8 @@ public class songsfromplaylist extends AppCompatActivity {
 
                         loading.setVisibility(View.GONE);
                         main.setVisibility(View.VISIBLE);
-                        listViewforsongs.setVisibility(View.VISIBLE);
-                        listViewforsongs.startAnimation(frombottom);
+//                        listViewforsongs.setVisibility(View.VISIBLE);
+//                        listViewforsongs.startAnimation(frombottom);
                         topheader.startAnimation(fromtop);
                         if(!message.equalsIgnoreCase("Done progress")) {
                             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
