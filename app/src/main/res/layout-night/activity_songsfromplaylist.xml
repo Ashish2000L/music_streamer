@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".songsfromplaylist"
-    android:weightSum="10"
-    android:orientation="vertical">
+    tools:context=".songsfromplaylist">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -34,158 +32,185 @@
             android:textSize="40sp" />
     </RelativeLayout>
 
-
-    <RelativeLayout
+    <androidx.constraintlayout.motion.widget.MotionLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/main">
+        android:orientation="vertical"
+        app:layoutDescription="@xml/sample_xml_constraintlayout_scene"
+        app:showPaths="true">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="130dp"
-            android:orientation="horizontal"
-            android:padding="10dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/toplinearheader"
-            android:fadingEdge="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="230dp"
             android:background="@drawable/night_drawable_background"
-            >
-            <ImageView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                tools:src="@drawable/playlist_1"
-                android:id="@+id/playlistimagesinsongslist"
-                android:scaleType="fitXY"
-                />
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
-                    android:id="@+id/fav_playlist"
-                    android:src="@drawable/favourate"/>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    tools:text="playlist name"
-                    android:textSize="30sp"
-                    android:layout_centerInParent="true"
-                    android:id="@+id/playlistnameinsonglist"
-                    android:textColor="#E0E0E3"
-                    android:padding="5dp"
-                    android:gravity="center"/>
+            android:padding="5dp"
+            app:layout_constraintBottom_toTopOf="@id/setbackround"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    tools:text="Followers : 0"
-                    android:layout_below="@id/playlistnameinsonglist"
-                    android:layout_centerHorizontal="true"
-                    android:visibility="invisible"
-                    android:id="@+id/followers"
-                    android:textColor="#E0E0E3"
-                    />
-            </RelativeLayout>
+        <ImageView
+            android:id="@+id/playlistimagesinsongslist"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:src="@drawable/playlist_1"
+            android:scaleType="fitXY"
+            app:layout_constraintLeft_toLeftOf="@id/toplinearheader"
+            app:layout_constraintTop_toTopOf="@id/toplinearheader"
+            app:layout_constraintBottom_toTopOf="@id/playlistnameinsonglist"
+            app:layout_constraintRight_toRightOf="@id/toplinearheader"/>
 
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/fav_playlist"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/favourate"
+            app:layout_constraintRight_toRightOf="@id/toplinearheader"
+            app:layout_constraintTop_toTopOf="@id/toplinearheader"
+            app:tint="#E0E0E3" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/playlist_1"
-        android:backgroundTint="@color/background_profile_image"
-        android:backgroundTintMode="multiply"
-        android:id="@+id/setbackround"
-        android:layout_below="@id/toplinearheader">
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:weightSum="10"
-    android:orientation="vertical">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="9.1"
-        android:id="@+id/settheheight"
-        android:orientation="vertical">
-        <RelativeLayout
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/normal_play"
+            android:id="@+id/floatbuttom"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/listvieforsongs"
+            app:fabSize="normal"
+            style="@style/Widget.Design.FloatingActionButton"
+            android:elevation="10dp"
+            android:layout_marginEnd="20dp"
+            android:backgroundTint="#BABCBD"
+            android:tint="#171717"
+            />
+
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/adjust_blur">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_alignParentTop="true"
-                android:background="@drawable/gradient_song_listview_night_mode"/>
+            android:layout_height="20dp"
+            android:id="@+id/background"
+            android:rotationX="180"
+            android:background="@drawable/gradient_song_listview_night_mode"
+            app:layout_constraintBottom_toBottomOf="@id/playlistimagesinsongslist"
+            app:layout_constraintLeft_toLeftOf="@id/playlistimagesinsongslist"
+            app:layout_constraintRight_toRightOf="@id/playlistimagesinsongslist"/>
+
+
+        <TextView
+            android:id="@+id/playlistnameinsonglist"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:padding="2dp"
+            android:paddingStart="10dp"
+            android:textSize="25sp"
+            android:maxLines="1"
+            android:textColor="#E0E0E3"
+            app:layout_constraintBottom_toBottomOf="@id/toplinearheader"
+            app:layout_constraintLeft_toLeftOf="@id/toplinearheader"
+            app:layout_constraintRight_toRightOf="@id/toplinearheader"
+            android:text="Playlist Name"/>
+
+        <TextView
+            android:id="@+id/followers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/playlistnameinsonglist"
+            android:visibility="invisible"
+            android:textColor="#E0E0E3"
+            app:layout_constraintBottom_toBottomOf="@id/toplinearheader"
+            app:layout_constraintLeft_toLeftOf="@id/toplinearheader"
+            app:layout_constraintRight_toRightOf="@id/toplinearheader"
+            app:layout_constraintTop_toTopOf="@id/toplinearheader"
+            tools:text="Followers : 0" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:id="@+id/background_top_listview"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/gradient_song_listview_night_mode"
+            app:layout_constraintTop_toBottomOf="@id/toplinearheader"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:elevation="3dp"/>
+
         <ListView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fadingEdge="vertical"
-            android:layout_marginTop="3dp"
-            android:requiresFadingEdge="vertical"
-            android:fadingEdgeLength="50dp"
-            android:divider="@null"
-            tools:listitem="@layout/custom_songs"
-            android:id="@+id/listvieforsongs">
-        </ListView>
-        </RelativeLayout>
-    </LinearLayout>
-        <LinearLayout
+            android:id="@+id/listvieforsongs"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:orientation="vertical"
-            android:layout_weight="0.9"
-            android:background="@drawable/forbottombar_night_mode"
+            android:fadingEdge="vertical"
+            android:fadingEdgeLength="50dp"
+            android:requiresFadingEdge="vertical"
+            android:scrollbars="none"
+            android:divider="@null"
+            android:background="@color/background_colour"
+            android:visibility="visible"
+            tools:listitem="@layout/custom_songs"
+            app:layout_constraintTop_toBottomOf="@id/toplinearheader"
+            app:layout_constraintBottom_toTopOf="@id/bottomsongshowing"
+            android:elevation="1dp"/>
 
+        <LinearLayout
             android:id="@+id/bottomsongshowing"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/forbottombar"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            >
+            android:orientation="vertical"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
             <ProgressBar
+                android:id="@+id/songprogresses"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="3dp"
                 android:outlineAmbientShadowColor="#536DFE"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:id="@+id/songprogresses"
-                android:progressDrawable="@drawable/progress_bar_design_night_mode"/>
+                android:progressDrawable="@drawable/progress_bar_design" />
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:weightSum="10"
-                android:padding="5dp"
+                android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:padding="5dp"
+                android:weightSum="10">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="8"
-                android:layout_height="match_parent"
-                style="@style/TextAppearance.AppCompat.Large"
-                android:textColor="#E0E0E3"
-                android:ellipsize="marquee"
-                android:singleLine="true"
-                android:scrollHorizontally="true"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:focusable="true"
-                android:gravity="center"
-                android:paddingStart="15dp"
-                android:focusableInTouchMode="true"
-                android:id="@+id/songnameatbottom"
-                android:freezesText="true"
-                android:text="this is a song name ad i am extending this text to see the effect of the marquee" />
-            <ImageView
-                android:layout_width="0dp"
-                android:layout_weight="2"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:tint="#E0E0E3"
-                android:src="@drawable/normal_play"
-                android:id="@+id/playpausinbottom"/>
+                <TextView
+                    android:id="@+id/songnameatbottom"
+                    style="@style/TextAppearance.AppCompat.Large"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="8"
+                    android:ellipsize="marquee"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:freezesText="true"
+                    android:gravity="center"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:paddingStart="15dp"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:text="this is a song name ad i am extending this text to see the effect of the marquee"
+                    android:textColor="#354EFA" />
+
+                <ImageView
+                    android:id="@+id/playpausinbottom"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="2"
+                    android:src="@drawable/normal_play" />
+            </LinearLayout>
         </LinearLayout>
-        </LinearLayout>
-</LinearLayout>
-    </RelativeLayout>
-    </RelativeLayout>
-</LinearLayout>
+
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
