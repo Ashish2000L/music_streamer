@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        motion:constraintSetEnd="@+id/end"
+        motion:constraintSetStart="@id/start"
+        motion:duration="1000">
+       <KeyFrameSet>
+           <KeyAttribute
+               motion:motionTarget="@+id/followers"
+               motion:framePosition="75"
+               android:alpha="0" />
+           <KeyAttribute
+               motion:motionTarget="@+id/playlistnameinsonglist"
+               motion:framePosition="30"
+               android:alpha="0" />
+           <KeyAttribute
+               motion:motionTarget="@+id/playlistnameinsonglist"
+               motion:framePosition="75"
+               android:alpha="0" />
+           <KeyAttribute
+               motion:motionTarget="@+id/floatbuttom"
+               motion:framePosition="50"
+               android:alpha="0" />
+           <KeyAttribute
+               motion:motionTarget="@+id/floatbuttom"
+               motion:framePosition="100"
+               android:alpha="0" />
+           <KeyAttribute
+               motion:motionTarget="@+id/followers"
+               motion:framePosition="0"
+               android:alpha="0" />
+           <KeyAttribute
+               motion:motionTarget="@+id/setbackround"
+               motion:framePosition="90"
+               android:elevation="6dp" />
+           <KeyAttribute
+               motion:motionTarget="@+id/setbackround"
+               motion:framePosition="100"
+               android:elevation="0dp" />
+       </KeyFrameSet>
+
+        <OnSwipe motion:touchAnchorId="@+id/listvieforsongs"
+            motion:touchAnchorSide="top"
+            motion:dragDirection="dragUp"/>
+
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start">
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:id="@+id/playlistimagesinsongslist"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginStart="10dp"
+            motion:layout_constraintBottom_toBottomOf="@id/toplinearheader"
+            motion:layout_constraintLeft_toLeftOf="@id/toplinearheader"
+            motion:layout_constraintTop_toTopOf="@id/toplinearheader" />
+        <Constraint
+            android:id="@+id/toplinearheader"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            motion:layout_constraintBottom_toTopOf="@id/setbackround"
+            motion:layout_constraintLeft_toLeftOf="parent"
+            motion:layout_constraintRight_toRightOf="parent"
+            motion:layout_constraintTop_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/playlistnameinsonglist"
+            motion:layout_constraintLeft_toRightOf="@id/playlistimagesinsongslist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="@id/toplinearheader"
+            motion:layout_constraintRight_toRightOf="@id/toplinearheader"
+            motion:layout_constraintTop_toTopOf="@id/toplinearheader" />
+        <Constraint
+            android:id="@+id/followers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="@id/toplinearheader"
+            android:visibility="visible"
+            motion:layout_constraintLeft_toRightOf="@id/playlistimagesinsongslist"
+            motion:layout_constraintRight_toRightOf="@id/toplinearheader"
+            motion:layout_constraintTop_toBottomOf="@id/playlistnameinsonglist"
+            android:layout_marginTop="0dp" />
+
+        <Constraint
+            android:id="@+id/background"
+            android:layout_width="140dp"
+            android:layout_height="20dp"
+            android:rotationX="180"
+            motion:layout_constraintBottom_toBottomOf="@id/playlistimagesinsongslist"
+            motion:layout_constraintLeft_toLeftOf="@id/playlistimagesinsongslist"
+            motion:layout_constraintRight_toRightOf="@id/playlistimagesinsongslist" />
+        <Constraint
+            android:id="@+id/make_swipe_work"
+            android:elevation="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            motion:layout_constraintBottom_toBottomOf="@id/setbackround"
+            motion:layout_constraintLeft_toLeftOf="@id/setbackround"
+            motion:layout_constraintRight_toRightOf="@id/setbackround"
+            motion:layout_constraintTop_toTopOf="@id/setbackround" />
+    </ConstraintSet>
+</MotionScene>
