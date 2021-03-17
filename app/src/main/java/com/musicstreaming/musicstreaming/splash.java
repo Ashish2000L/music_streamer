@@ -37,6 +37,7 @@ import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -50,6 +51,7 @@ import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.ExpandableListAdapter;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -105,6 +107,7 @@ import static com.musicstreaming.musicstreaming.login.SHARED_PREF;
 import static com.musicstreaming.musicstreaming.playlistfragment.listofplaylistArrayList_for_fav;
 import static com.musicstreaming.musicstreaming.service.get_fav_song_list.listofplaylistArrayList_for_shortcut;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.POSITION_FAV_PLAYLIST;
+import static com.musicstreaming.musicstreaming.service.online_status_updater.CURRENT_ACTIVITY_CONTEXT;
 import static java.lang.Thread.sleep;
 
 public class splash extends AppCompatActivity {
@@ -148,6 +151,7 @@ public class splash extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         SPLASH_ACTIVITY=this;
+        CURRENT_ACTIVITY_CONTEXT=this;
 
         Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(this));
 
@@ -465,8 +469,14 @@ public class splash extends AppCompatActivity {
                         webView.getSettings().setJavaScriptEnabled(true);
                         webView.loadUrl(new_Url);
                         webView.setWebViewClient(new WebViewClient());
-                        checkforpermission();
-//                        new update_application(getApplicationContext()).samsung_store_update();
+
+                        if(Build.MANUFACTURER.toLowerCase().equals("samsung")) {
+                            new update_application(getApplicationContext()).samsung_store_update();
+                        }else {
+                            checkforpermission();
+                        }
+
+
 
                     }
                 })
@@ -534,9 +544,11 @@ public class splash extends AppCompatActivity {
                 webView.loadUrl(new_Url);
                 webView.setWebViewClient(new WebViewClient());
 
-//                new update_application(getApplicationContext()).samsung_store_update();
-
-                checkforpermission();
+                if(Build.MANUFACTURER.toLowerCase().equals("samsung")) {
+                    new update_application(getApplicationContext()).samsung_store_update();
+                }else{
+                    checkforpermission();
+                }
 
             }
         })

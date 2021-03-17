@@ -11,6 +11,7 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -75,6 +76,7 @@ import static com.musicstreaming.musicstreaming.service.onclearfrompercentservic
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.ontrackpause;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.ontrackplay;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.position;
+import static com.musicstreaming.musicstreaming.service.online_status_updater.CURRENT_ACTIVITY_CONTEXT;
 import static com.musicstreaming.musicstreaming.splash.DIR_NAME;
 
 public class songsfromplaylist extends AppCompatActivity {
@@ -107,6 +109,7 @@ public class songsfromplaylist extends AppCompatActivity {
     ConstraintLayout topheader,relativeLayout;
     FloatingActionButton floatingActionButton;
     MotionLayout main;
+    public static Context SONGS_FROM_PLAYLIST_CONTEXT;
 
     static ArrayList<listofsongs> listofsongsArrayLisr = new ArrayList<>();
 
@@ -116,6 +119,10 @@ public class songsfromplaylist extends AppCompatActivity {
         setContentView(R.layout.activity_songsfromplaylist);
 
         Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(this));
+
+        SONGS_FROM_PLAYLIST_CONTEXT=this;
+
+        CURRENT_ACTIVITY_CONTEXT=this;
 
         Intent intent = getIntent();
         playlist_id= intent.getExtras().getString("id","");
