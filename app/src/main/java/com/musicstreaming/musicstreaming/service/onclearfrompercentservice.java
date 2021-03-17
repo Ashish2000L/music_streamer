@@ -509,7 +509,11 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
 
     public static void ontrackpause() {
 
-        createnotification(context,playselectedsong.tracks.get(position),R.drawable.exo_controls_play,position,playselectedsong.tracks.size()-1);
+        try {
+            createnotification(context, playselectedsong.tracks.get(position), R.drawable.exo_controls_play, position, playselectedsong.tracks.size() - 1);
+        }catch (Exception e){
+            new internal_error_report(context,"Error in track pause "+e.getMessage(),sharedPreferences.getString(USERNAME,""));
+        }
         ispreparing=false;
 //        if(!is_from_search)
         changeplaypauseimg(false);
@@ -560,180 +564,181 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
     public static void createnotification(final Context context, final track track, final int play, int pos, int size){
 
         IS_IMAGE_SET=false;
+        final NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+        final MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(context,"tag");
 
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+        if(notificationManagerCompat!=null && mediaSessionCompat!=null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-            final NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
-            final MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(context,"tag");
+                final PendingIntent pendingIntentprevious;
+                final int drw_previous;
+                if (pos == 0) {
+                    pendingIntentprevious = null;
+                    drw_previous = 0;
+                } else {
+                    Intent intentprevious = new Intent(context, NotificationActionService.class).setAction(ACTION_PREVIOUS);
+                    pendingIntentprevious = PendingIntent.getBroadcast(context, 0, intentprevious, PendingIntent.FLAG_UPDATE_CURRENT);
+                    drw_previous = R.drawable.exo_controls_previous;
+                }
 
-            final PendingIntent pendingIntentprevious;
-            final int drw_previous;
-            if(pos== 0){
-                pendingIntentprevious=null;
-                drw_previous=0;
-            }else{
-                Intent intentprevious = new Intent(context, NotificationActionService.class).setAction(ACTION_PREVIOUS);
-                pendingIntentprevious=PendingIntent.getBroadcast(context,0,intentprevious,PendingIntent.FLAG_UPDATE_CURRENT);
-                drw_previous=R.drawable.exo_controls_previous;
+                Intent intentplay = new Intent(context, NotificationActionService.class).setAction(ACTION_PLAY);
+                final PendingIntent pendingIntentplay = PendingIntent.getBroadcast(context, 0, intentplay, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                Intent getToSongActivity = new Intent(context, playselectedsong.class).putExtra("position", 1000);
+                final PendingIntent pendingIntentToSongActivity = PendingIntent.getActivity(context, 2, getToSongActivity, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                final PendingIntent pendingIntentnext;
+                final int drw_next;
+                if (pos == size) {
+                    pendingIntentnext = null;
+                    drw_next = 0;
+                } else {
+                    Intent intentnext = new Intent(context, NotificationActionService.class).setAction(ACTION_NEXT);
+                    pendingIntentnext = PendingIntent.getBroadcast(context, 0, intentnext, PendingIntent.FLAG_UPDATE_CURRENT);
+                    drw_next = R.drawable.exo_controls_next;
+                }
+
+                Glide.with(context)
+                        .asBitmap()
+                        .load(track.getImurl())
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                icon = resource;
+
+                                notification = new NotificationCompat.Builder(context, CHHANEL_ID)
+                                        .setSmallIcon(R.drawable.music)
+                                        .setContentTitle(track.getTitle())
+                                        .setContentText(track.getAlbum())
+                                        .setLargeIcon(icon)
+                                        .setOnlyAlertOnce(true)
+                                        .addAction(drw_previous, "Previous", pendingIntentprevious)
+                                        .addAction(play, "Play", pendingIntentplay)
+                                        .addAction(drw_next, "Next", pendingIntentnext)
+                                        .setShowWhen(false)
+                                        .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                                                .setShowActionsInCompactView(0, 1, 2)
+                                                .setMediaSession(mediaSessionCompat.getSessionToken()))
+                                        .setPriority(NotificationCompat.PRIORITY_LOW)
+                                        .setContentIntent(pendingIntentToSongActivity)
+                                        .build();
+
+                                IS_IMAGE_SET = true;
+
+                                notificationManagerCompat.notify(1, notification);
+
+                            }
+                        });
+
+                if (!IS_IMAGE_SET) {
+                    notification = new NotificationCompat.Builder(context, CHHANEL_ID)
+                            .setSmallIcon(R.drawable.music)
+                            .setContentTitle(track.getTitle())
+                            .setContentText(track.getAlbum())
+                            .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.music_2))
+                            .setOnlyAlertOnce(true)
+                            .addAction(drw_previous, "Previous", pendingIntentprevious)
+                            .addAction(play, "Play", pendingIntentplay)
+                            .addAction(drw_next, "Next", pendingIntentnext)
+                            .setShowWhen(false)
+                            .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                                    .setShowActionsInCompactView(0, 1, 2)
+                                    .setMediaSession(mediaSessionCompat.getSessionToken()))
+                            .setPriority(NotificationCompat.PRIORITY_LOW)
+                            .setContentIntent(pendingIntentToSongActivity)
+                            .build();
+
+                    Log.d(TAG, "onResourceReady: resourse is " + icon);
+                    notificationManagerCompat.notify(1, notification);
+                }
+
+            } else {
+
+                final PendingIntent pendingIntentprevious;
+                final int drw_previous;
+                if (pos == 0) {
+                    pendingIntentprevious = null;
+                    drw_previous = 0;
+                } else {
+                    Intent intentprevious = new Intent(context, NotificationActionService.class).setAction(ACTION_PREVIOUS);
+                    pendingIntentprevious = PendingIntent.getBroadcast(context, 0, intentprevious, PendingIntent.FLAG_UPDATE_CURRENT);
+                    drw_previous = R.drawable.exo_controls_previous;
+                }
+
+                Intent intentplay = new Intent(context, NotificationActionService.class).setAction(ACTION_PLAY);
+                final PendingIntent pendingIntentplay = PendingIntent.getBroadcast(context, 0, intentplay, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                Intent getToSongActivity = new Intent(context, playselectedsong.class).putExtra("position", 1000);
+                final PendingIntent pendingIntentToSongActivity = PendingIntent.getActivity(context, 2, getToSongActivity, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                final PendingIntent pendingIntentnext;
+                final int drw_next;
+                if (pos == size) {
+                    pendingIntentnext = null;
+                    drw_next = 0;
+                } else {
+                    Intent intentnext = new Intent(context, NotificationActionService.class).setAction(ACTION_NEXT);
+                    pendingIntentnext = PendingIntent.getBroadcast(context, 0, intentnext, PendingIntent.FLAG_UPDATE_CURRENT);
+                    drw_next = R.drawable.exo_controls_next;
+                }
+
+                Glide.with(context)
+                        .asBitmap()
+                        .load(track.getImurl())
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                icon = resource;
+                                Log.d(TAG, "onResourceReady: hey we called this after loading your image of the notificaion, its cool ha!!");
+                                notification = new NotificationCompat.Builder(context)
+                                        .setSmallIcon(R.drawable.music)
+                                        .setContentTitle(track.getTitle())
+                                        .setContentText(track.getAlbum())
+                                        .setLargeIcon(icon)
+                                        .setOnlyAlertOnce(true)
+                                        .addAction(drw_previous, "Previous", pendingIntentprevious)
+                                        .addAction(play, "Play", pendingIntentplay)
+                                        .addAction(drw_next, "Next", pendingIntentnext)
+                                        .setShowWhen(false)
+                                        .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                                                .setShowActionsInCompactView(0, 1, 2)
+                                                .setMediaSession(mediaSessionCompat.getSessionToken()))
+                                        .setPriority(NotificationCompat.PRIORITY_LOW)
+                                        .setContentIntent(pendingIntentToSongActivity)
+                                        .build();
+
+                                IS_IMAGE_SET = true;
+
+                                Log.d(TAG, "onResourceReady: resourse is " + icon);
+                                notificationManagerCompat.notify(1, notification);
+
+                            }
+                        });
+
+                if (!IS_IMAGE_SET) {
+                    notification = new NotificationCompat.Builder(context)
+                            .setSmallIcon(R.drawable.music)
+                            .setContentTitle(track.getTitle())
+                            .setContentText(track.getAlbum())
+                            .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.music_2))
+                            .setOnlyAlertOnce(true)
+                            .addAction(drw_previous, "Previous", pendingIntentprevious)
+                            .addAction(play, "Play", pendingIntentplay)
+                            .addAction(drw_next, "Next", pendingIntentnext)
+                            .setShowWhen(false)
+                            .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                                    .setShowActionsInCompactView(0, 1, 2)
+                                    .setMediaSession(mediaSessionCompat.getSessionToken()))
+                            .setPriority(NotificationCompat.PRIORITY_LOW)
+                            .setContentIntent(pendingIntentToSongActivity)
+                            .build();
+
+                    Log.d(TAG, "onResourceReady: resourse is " + icon);
+                    notificationManagerCompat.notify(1, notification);
+                }
             }
-
-            Intent intentplay = new Intent(context, NotificationActionService.class).setAction(ACTION_PLAY);
-            final PendingIntent pendingIntentplay=PendingIntent.getBroadcast(context,0,intentplay,PendingIntent.FLAG_UPDATE_CURRENT);
-
-            Intent getToSongActivity = new Intent(context,playselectedsong.class).putExtra("position", 1000);
-            final PendingIntent pendingIntentToSongActivity = PendingIntent.getActivity(context,2,getToSongActivity,PendingIntent.FLAG_UPDATE_CURRENT);
-
-            final PendingIntent pendingIntentnext;
-            final int drw_next;
-            if(pos==size){
-                pendingIntentnext=null;
-                drw_next=0;
-            }else{
-                Intent intentnext = new Intent(context, NotificationActionService.class).setAction(ACTION_NEXT);
-                pendingIntentnext=PendingIntent.getBroadcast(context,0,intentnext,PendingIntent.FLAG_UPDATE_CURRENT);
-                drw_next=R.drawable.exo_controls_next;
-            }
-
-            Glide.with(context)
-                    .asBitmap()
-                    .load(track.getImurl())
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            icon=resource;
-
-                            notification = new NotificationCompat.Builder(context,CHHANEL_ID)
-                                    .setSmallIcon(R.drawable.music)
-                                    .setContentTitle(track.getTitle())
-                                    .setContentText(track.getAlbum())
-                                    .setLargeIcon(icon)
-                                    .setOnlyAlertOnce(true)
-                                    .addAction(drw_previous,"Previous",pendingIntentprevious)
-                                    .addAction(play,"Play",pendingIntentplay)
-                                    .addAction(drw_next,"Next",pendingIntentnext)
-                                    .setShowWhen(false)
-                                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                                            .setShowActionsInCompactView(0,1,2)
-                                            .setMediaSession(mediaSessionCompat.getSessionToken()))
-                                    .setPriority(NotificationCompat.PRIORITY_LOW)
-                                    .setContentIntent(pendingIntentToSongActivity)
-                                    .build();
-
-                            IS_IMAGE_SET=true;
-
-                            notificationManagerCompat.notify(1,notification);
-
-                        }
-                    });
-
-            if(!IS_IMAGE_SET) {
-                notification = new NotificationCompat.Builder(context, CHHANEL_ID)
-                        .setSmallIcon(R.drawable.music)
-                        .setContentTitle(track.getTitle())
-                        .setContentText(track.getAlbum())
-                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.music_2))
-                        .setOnlyAlertOnce(true)
-                        .addAction(drw_previous, "Previous", pendingIntentprevious)
-                        .addAction(play, "Play", pendingIntentplay)
-                        .addAction(drw_next, "Next", pendingIntentnext)
-                        .setShowWhen(false)
-                        .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                                .setShowActionsInCompactView(0, 1, 2)
-                                .setMediaSession(mediaSessionCompat.getSessionToken()))
-                        .setPriority(NotificationCompat.PRIORITY_LOW)
-                        .setContentIntent(pendingIntentToSongActivity)
-                        .build();
-
-                Log.d(TAG, "onResourceReady: resourse is " + icon);
-                notificationManagerCompat.notify(1, notification);
-            }
-
         }else{
-            final NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
-            final MediaSessionCompat mediaSessionCompat = new MediaSessionCompat(context,"tag");
-
-            final PendingIntent pendingIntentprevious;
-            final int drw_previous;
-            if(pos== 0){
-                pendingIntentprevious=null;
-                drw_previous=0;
-            }else{
-                Intent intentprevious = new Intent(context, NotificationActionService.class).setAction(ACTION_PREVIOUS);
-                pendingIntentprevious=PendingIntent.getBroadcast(context,0,intentprevious,PendingIntent.FLAG_UPDATE_CURRENT);
-                drw_previous=R.drawable.exo_controls_previous;
-            }
-
-            Intent intentplay = new Intent(context, NotificationActionService.class).setAction(ACTION_PLAY);
-            final PendingIntent pendingIntentplay=PendingIntent.getBroadcast(context,0,intentplay,PendingIntent.FLAG_UPDATE_CURRENT);
-
-            Intent getToSongActivity = new Intent(context,playselectedsong.class).putExtra("position", 1000);
-            final PendingIntent pendingIntentToSongActivity = PendingIntent.getActivity(context,2,getToSongActivity,PendingIntent.FLAG_UPDATE_CURRENT);
-
-            final PendingIntent pendingIntentnext;
-            final int drw_next;
-            if(pos==size){
-                pendingIntentnext=null;
-                drw_next=0;
-            }else{
-                Intent intentnext = new Intent(context, NotificationActionService.class).setAction(ACTION_NEXT);
-                pendingIntentnext=PendingIntent.getBroadcast(context,0,intentnext,PendingIntent.FLAG_UPDATE_CURRENT);
-                drw_next=R.drawable.exo_controls_next;
-            }
-
-            Glide.with(context)
-                    .asBitmap()
-                    .load(track.getImurl())
-                    .into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                            icon=resource;
-                            Log.d(TAG, "onResourceReady: hey we called this after loading your image of the notificaion, its cool ha!!");
-                            notification = new NotificationCompat.Builder(context)
-                                    .setSmallIcon(R.drawable.music)
-                                    .setContentTitle(track.getTitle())
-                                    .setContentText(track.getAlbum())
-                                    .setLargeIcon(icon)
-                                    .setOnlyAlertOnce(true)
-                                    .addAction(drw_previous,"Previous",pendingIntentprevious)
-                                    .addAction(play,"Play",pendingIntentplay)
-                                    .addAction(drw_next,"Next",pendingIntentnext)
-                                    .setShowWhen(false)
-                                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                                            .setShowActionsInCompactView(0,1,2)
-                                            .setMediaSession(mediaSessionCompat.getSessionToken()))
-                                    .setPriority(NotificationCompat.PRIORITY_LOW)
-                                    .setContentIntent(pendingIntentToSongActivity)
-                                    .build();
-
-                            IS_IMAGE_SET=true;
-
-                            Log.d(TAG, "onResourceReady: resourse is "+icon);
-                            notificationManagerCompat.notify(1,notification);
-
-                        }
-                    });
-
-            if(!IS_IMAGE_SET) {
-                notification = new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.music)
-                        .setContentTitle(track.getTitle())
-                        .setContentText(track.getAlbum())
-                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.music_2))
-                        .setOnlyAlertOnce(true)
-                        .addAction(drw_previous, "Previous", pendingIntentprevious)
-                        .addAction(play, "Play", pendingIntentplay)
-                        .addAction(drw_next, "Next", pendingIntentnext)
-                        .setShowWhen(false)
-                        .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                                .setShowActionsInCompactView(0, 1, 2)
-                                .setMediaSession(mediaSessionCompat.getSessionToken()))
-                        .setPriority(NotificationCompat.PRIORITY_LOW)
-                        .setContentIntent(pendingIntentToSongActivity)
-                        .build();
-
-                Log.d(TAG, "onResourceReady: resourse is " + icon);
-                notificationManagerCompat.notify(1, notification);
-            }
+            Log.d(TAG, "createnotification: error while creating notification");
         }
     }
 
