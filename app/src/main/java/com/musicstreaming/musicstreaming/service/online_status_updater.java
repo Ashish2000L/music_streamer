@@ -17,6 +17,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.ExpandableListAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -30,15 +31,25 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.musicstreaming.musicstreaming.Exceptionhandler;
+import com.musicstreaming.musicstreaming.MainActivity;
+import com.musicstreaming.musicstreaming.MyExpandableListAdaptor;
+import com.musicstreaming.musicstreaming.child_item_expandable_listview;
+import com.musicstreaming.musicstreaming.internal_error_report;
+import com.musicstreaming.musicstreaming.login;
 import com.musicstreaming.musicstreaming.make_file_in_directory;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.security.Provider;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static com.musicstreaming.musicstreaming.MainActivity.MAIN_ACTIVITY_CONTEXT;
+import static com.musicstreaming.musicstreaming.MainActivity.expandableListView;
 import static com.musicstreaming.musicstreaming.service.GPSTracker.IS_JOB_SERVICE_RUNNING;
 import static com.musicstreaming.musicstreaming.service.GPSTracker.addr_location;
 import static com.musicstreaming.musicstreaming.splash.DIR_NAME;
@@ -54,6 +65,12 @@ public class online_status_updater extends Service {
     public static String status,username;
     public  Handler handler = new Handler();
     public static String CURRENT_PLAYING_SONG="";
+    public static Context CURRENT_ACTIVITY_CONTEXT,PREVIOUS_ACTIVITY_CONTEXT;
+    public static List<Integer> group_item=new ArrayList<>();
+    public static List<child_item_expandable_listview> child_item0 = new ArrayList<>();
+    public static List<child_item_expandable_listview> child_item1 = new ArrayList<>();
+    public static Map<Integer,List<child_item_expandable_listview>> child_items=new HashMap<Integer, List<child_item_expandable_listview>>();
+    public static MyExpandableListAdaptor expandableListAdapter;
 
     public online_status_updater() {
     }
@@ -168,11 +185,15 @@ public class online_status_updater extends Service {
 
                         Log.d(TAG, "onResponse: " + response);
 
+                        new get_friends_details().execute("https://rentdetails.000webhostapp.com/musicplayer_files/friends_folder/get_friends_status.php",username);
+
+
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d(TAG, "onErrorResponse: " + error.getMessage());
+                        new get_friends_details().execute("https://rentdetails.000webhostapp.com/musicplayer_files/friends_folder/get_friends_status.php",username);
                     }
                 }) {
                     @Override
@@ -256,5 +277,118 @@ public class online_status_updater extends Service {
         }else{
             Log.d(TAG, "start_job_schedular_for_location_access: Job failed and scheduled ");
         }
+    }
+
+    public class get_friends_details extends AsyncTask<String,Void,Void>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            try {
+                expandableListAdapter = new MyExpandableListAdaptor(MainActivity.MAIN_ACTIVITY_CONTEXT,child_items,group_item);
+            }catch (Exception e){
+                expandableListAdapter = new MyExpandableListAdaptor(SPLASH_ACTIVITY,child_items,group_item);
+            }
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+
+            String url = strings[0];
+            username=sharedPreferences.getString(login.USERNAME,"");
+            if(username.equals(""))
+                username=strings[1];
+
+            if(!username.equals("")) {
+                StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        child_item0.clear();
+                        child_item1.clear();
+                        String[] status_values=new String[2];
+
+                        try {
+
+                            JSONObject jsonObject = new JSONObject(response);
+                            String success = jsonObject.getString("success");
+                            status_values[0]=jsonObject.getString("online");
+                            status_values[1]=jsonObject.getString("offline");
+                            JSONArray jsonArray = jsonObject.getJSONArray("data");
+                            if (success.equals("1")) {
+                                for (int i =0 ; i <jsonArray.length(); i++) {
+                                    JSONObject object = jsonArray.getJSONObject(i);
+
+                                    String id = object.getString("id");
+                                    String name = object.getString("name");
+                                    String username = object.getString("username");
+                                    String status = object.getString("status");
+                                    String current_playlist = object.getString("now_playing");
+                                    String image = object.getString("image");
+
+                                    if(status.equals("0")) {
+                                        child_item0.add(new child_item_expandable_listview(id, username, name, current_playlist, status, image));
+                                    }else if(status.equals("1")){
+                                        child_item1.add(new child_item_expandable_listview(id, username, name, current_playlist, status, image));
+                                    }
+
+                                    Log.d(TAG, "onResponse:  "+id+" : "+name+" : "+username+" : "+status+" : "+current_playlist+" : "+image);
+
+                                }
+                            }
+
+                            child_items.put(0,child_item0);
+                            child_items.put(1,child_item1);
+
+                            populate_group(status_values);
+
+//                            try {
+//                                expandableListAdapter = new MyExpandableListAdaptor(MainActivity.MAIN_ACTIVITY_CONTEXT,child_items,group_item);
+//                            }catch (Exception e){
+//                                expandableListAdapter = new MyExpandableListAdaptor(SPLASH_ACTIVITY,child_items,group_item);
+//                            }
+
+                            expandableListAdapter.notifyDataSetChanged();
+
+//                            if(expandableListView!=null && CURRENT_ACTIVITY_CONTEXT==MAIN_ACTIVITY_CONTEXT)
+//                                expandableListView.setAdapter(expandableListAdapter);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        String err="Error in getdata in playlistfragment "+error.getMessage();
+                        new internal_error_report(SPLASH_ACTIVITY,err, MainActivity.sharedPreferences.getString(login.USERNAME,"")).execute();
+
+                    }
+                }){
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        Map<String,String> params=new HashMap<String, String>();
+
+                        params.put("username", username);
+
+                        return params;
+                    }
+                };
+
+
+                RequestQueue queue = Volley.newRequestQueue(SPLASH_ACTIVITY);
+                queue.add(request);
+            }else {
+                Log.d("getting_fav_songs", "doInBackground: username is found null, pls check");
+            }
+
+            return null;
+        }
+    }
+
+    public void populate_group(String[] i){
+        group_item.clear();
+        for(String j : i)
+            group_item.add(Integer.parseInt(j));
     }
 }

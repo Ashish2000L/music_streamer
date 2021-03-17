@@ -9,12 +9,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.os.BuildCompat;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -26,7 +29,9 @@ import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.musicstreaming.musicstreaming.BuildConfig;
 import com.musicstreaming.musicstreaming.MainActivity;
+import com.musicstreaming.musicstreaming.child_item_expandable_listview;
 import com.musicstreaming.musicstreaming.internal_error_report;
 import com.musicstreaming.musicstreaming.listofplaylist;
 import com.musicstreaming.musicstreaming.songsfromplaylist;
@@ -115,7 +120,9 @@ public class get_fav_song_list extends AsyncTask<String,Void,Void> {
                 }
                 listofplaylistArrayList_for_fav=listofplaylistArrayList_for_shortcut;
                 Log.d("getting_fav_songs", "onResponse: done "+listofplaylistArrayList_for_shortcut.size());
-                createShortcutForAppIcon();
+
+                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N_MR1)
+                    createShortcutForAppIcon();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -146,6 +153,7 @@ public class get_fav_song_list extends AsyncTask<String,Void,Void> {
         return null;
     }
 
+    @RequiresApi(Build.VERSION_CODES.N_MR1)
     private void createShortcutForAppIcon() {
 
 
@@ -267,4 +275,6 @@ public class get_fav_song_list extends AsyncTask<String,Void,Void> {
         }
 
     }
+
+
 }
