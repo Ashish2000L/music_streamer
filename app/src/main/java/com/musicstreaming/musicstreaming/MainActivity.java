@@ -27,6 +27,8 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -45,9 +47,11 @@ import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.navigation.NavigationView;
 import com.musicstreaming.musicstreaming.service.get_fav_song_list;
+import com.musicstreaming.musicstreaming.service.online_status_updater;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.musicstreaming.musicstreaming.login.IMAGE;
 import static com.musicstreaming.musicstreaming.login.NAME;
@@ -60,6 +64,9 @@ import static com.musicstreaming.musicstreaming.service.onclearfrompercentservic
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.ontrackpause;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.ontrackplay;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.position;
+import static com.musicstreaming.musicstreaming.service.online_status_updater.child_items;
+import static com.musicstreaming.musicstreaming.service.online_status_updater.expandableListAdapter;
+import static com.musicstreaming.musicstreaming.service.online_status_updater.group_item;
 import static com.musicstreaming.musicstreaming.splash.DIR_NAME;
 import static com.musicstreaming.musicstreaming.splash.PASSWORD;
 import static java.lang.Thread.sleep;
@@ -77,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
     Fragment fragment;
     ImageView profileimage;
     TextView name,version;
-    int k=0,fragment_id=0;
+    int k=0,fragment_id=0,lastExpandedGroup=-1;;
     String TAG="thisisprofileimage";
     boolean IS_FRAGMENT_SET=false;
     public static LinearLayout showdetailses,thisisit;
@@ -88,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     public static SharedPreferences sharedPreferences;
     Toolbar toolbar;
     public static Context MAIN_ACTIVITY_CONTEXT;
+    public static ExpandableListView expandableListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         MAIN_ACTIVITY=this;
         MAIN_ACTIVITY_CONTEXT=this;
+        online_status_updater.CURRENT_ACTIVITY_CONTEXT=MAIN_ACTIVITY_CONTEXT;
 
         //error handler
         Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(this));
@@ -110,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
         playpause=findViewById(R.id.playpausinplaylist);
         thisisit=findViewById(R.id.thisisit);
         progressBar=findViewById(R.id.songprogress);
+        expandableListView=findViewById(R.id.expandableListView);
         songname.setSelected(true);
         setSupportActionBar(toolbar);
 
@@ -121,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
             new get_fav_song_list(this).execute(url, username);
         }
 
+//        expandableListAdapter=new MyExpandableListAdaptor(this,online_status_updater.child_items,group_item);
+        expandableListView.setAdapter(expandableListAdapter);
 
         //setting initial fragment
         Intent intent = getIntent();
@@ -182,6 +194,26 @@ public class MainActivity extends AppCompatActivity {
             //defination in the bottom
             showdetail(isprepared);
             changeplaypauseimgs(isplaying);
+
+            expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+                @Override
+                public void onGroupExpand(int groupPosition) {
+                    if(lastExpandedGroup!=-1 && groupPosition!=lastExpandedGroup){
+                        expandableListView.collapseGroup(groupPosition);
+                    }
+                    lastExpandedGroup=groupPosition;
+                }
+            });
+
+            expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+                @Override
+                public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+
+                    Toast.makeText(MainActivity.this, "You clicked on "+expandableListAdapter.getChild(groupPosition, childPosition).getName(), Toast.LENGTH_SHORT).show();
+
+                    return true;
+                }
+            });
 
             //click listener for the play/pause img
             playpause.setOnClickListener(new View.OnClickListener() {
@@ -270,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
             File file = new File(Environment.getExternalStorageDirectory() + "/" + DIR_NAME, "file.json");
 
             new make_file_in_directory(this, this, sharedPreferences.getString(USERNAME, "")).write_credential_file(sharedPreferences.getString(USERNAME, ""), sharedPreferences.getString(PASSWORD, ""), file);
+
     }
 
     //backpress handler
