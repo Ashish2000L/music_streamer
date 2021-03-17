@@ -38,7 +38,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         app:layoutDescription="@xml/sample_xml_constraintlayout_scene"
-        app:showPaths="true">
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/toplinearheader"

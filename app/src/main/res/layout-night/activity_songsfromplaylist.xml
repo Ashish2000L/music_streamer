@@ -37,8 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        app:layoutDescription="@xml/sample_xml_constraintlayout_scene"
-        app:showPaths="true">
+        app:layoutDescription="@xml/sample_xml_constraintlayout_scene">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/toplinearheader"
@@ -158,7 +157,7 @@
             android:id="@+id/bottomsongshowing"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@drawable/forbottombar"
+            android:background="@drawable/forbottombar_night_mode"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:orientation="vertical"
@@ -172,8 +171,8 @@
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="3dp"
-                android:outlineAmbientShadowColor="#536DFE"
-                android:progressDrawable="@drawable/progress_bar_design" />
+                android:outlineAmbientShadowColor="#E0E0E3"
+                android:progressDrawable="@drawable/progress_bar_design_night_mode" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -199,7 +198,7 @@
                     android:scrollHorizontally="true"
                     android:singleLine="true"
                     android:text="this is a song name ad i am extending this text to see the effect of the marquee"
-                    android:textColor="#354EFA" />
+                    android:textColor="#E0E0E3" />
 
                 <ImageView
                     android:id="@+id/playpausinbottom"
@@ -207,6 +206,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="2"
+                    app:tint="#E0E0E3"
                     android:src="@drawable/normal_play" />
             </LinearLayout>
         </LinearLayout>
