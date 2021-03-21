@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
@@ -233,7 +234,12 @@ public class settingfragment extends Fragment {
             };
 
             check_termination_status.run();
-        }
+        }else
+            if(item.getItemId()==R.id.qr_code){
+
+                startActivity(new Intent(context,make_custom_playlist.class).putExtra("IS_QR_CODE",true));
+
+            }
 
         return true;
     }

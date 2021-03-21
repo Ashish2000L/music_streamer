@@ -54,6 +54,7 @@ import com.musicstreaming.musicstreaming.songsfromplaylist;
 import com.musicstreaming.musicstreaming.track;
 
 import java.io.IOException;
+import java.util.Random;
 
 import static com.musicstreaming.musicstreaming.MainActivity.changeplaypauseimgs;
 import static com.musicstreaming.musicstreaming.get_error_song.RESPONSE_STATUS;
@@ -114,6 +115,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
     public static SharedPreferences sharedPreferences;
     public static String IS_RECEIVER_REGISTERED="IS_RECEIVER_REGISTERED";
     public static Handler handler = new Handler();
+    Random random=new Random();
 
     
     @Nullable
@@ -166,6 +168,7 @@ public class onclearfrompercentservice extends Service implements AudioManager.O
         public void onReceive(Context context, Intent intent) {
             String action = intent.getExtras().getString("actionname");
             KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+
 
             switch (action){
                 case ACTION_PREVIOUS:

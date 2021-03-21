@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
     NavigationView navigationView;
-    DrawerLayout drawerLayout;
+    public static DrawerLayout drawerLayout;
     ActionBarDrawerToggle toggle;
     Fragment fragment;
     ImageView profileimage;
