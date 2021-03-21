@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import static com.musicstreaming.musicstreaming.login.NAME;
 import static com.musicstreaming.musicstreaming.login.SHARED_PREF;
 
 public class make_custom_playlist extends AppCompatActivity {
@@ -21,6 +22,7 @@ public class make_custom_playlist extends AppCompatActivity {
     public static Activity MAKE_NEW_PLAYLIST;
     public static String PLAYLIST_ID=""; //playlist id-> which we get after we make new playlist
     Intent intent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,19 +30,25 @@ public class make_custom_playlist extends AppCompatActivity {
 
         MAKE_NEW_PLAYLIST=this;
         Toolbar toolbar = findViewById(R.id.new_playlist_toolbar);
-
+        SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
         setSupportActionBar(toolbar);
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.custom_frame_layout, new select_songs_for_playlist()).commit();
+        if(getIntent().getBooleanExtra("IS_QR_CODE",false)){
 
-        if(getIntent().getBooleanExtra("IS_MODIFYING",false)){
+            getSupportFragmentManager().beginTransaction().replace(R.id.custom_frame_layout, new qr_code()).commit();
+            toolbar.setTitle(sharedPreferences.getString(NAME,"Music Streaming"));
+        }else {
 
-            SharedPreferences sharedPreferences = getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
-            SharedPreferences.Editor editor =sharedPreferences.edit();
-            editor.putBoolean("IS_MODIFYING",true);
-            editor.apply();
+            getSupportFragmentManager().beginTransaction().replace(R.id.custom_frame_layout, new select_songs_for_playlist()).commit();
 
-            change_title(toolbar);
+            if(getIntent().getBooleanExtra("IS_MODIFYING",false)){
+
+                SharedPreferences.Editor editor =sharedPreferences.edit();
+                editor.putBoolean("IS_MODIFYING",true);
+                editor.apply();
+
+                change_title(toolbar);
+            }
         }
 
     }
