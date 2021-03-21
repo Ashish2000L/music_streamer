@@ -17,11 +17,13 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.ExpandableListAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -49,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.musicstreaming.musicstreaming.MainActivity.MAIN_ACTIVITY_CONTEXT;
+import static com.musicstreaming.musicstreaming.MainActivity.drawerLayout;
 import static com.musicstreaming.musicstreaming.MainActivity.expandableListView;
 import static com.musicstreaming.musicstreaming.service.GPSTracker.IS_JOB_SERVICE_RUNNING;
 import static com.musicstreaming.musicstreaming.service.GPSTracker.addr_location;
@@ -349,8 +352,10 @@ public class online_status_updater extends Service {
 
                             expandableListAdapter.notifyDataSetChanged();
 
-//                            if(expandableListView!=null && CURRENT_ACTIVITY_CONTEXT==MAIN_ACTIVITY_CONTEXT)
-//                                expandableListView.setAdapter(expandableListAdapter);
+                            if(expandableListView!=null && CURRENT_ACTIVITY_CONTEXT==MAIN_ACTIVITY_CONTEXT)
+                                if(drawerLayout!=null)
+                                    if(!drawerLayout.isDrawerOpen(GravityCompat.END))
+                                        expandableListView.setAdapter(expandableListAdapter);
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -361,7 +366,7 @@ public class online_status_updater extends Service {
                     public void onErrorResponse(VolleyError error) {
 
                         String err="Error in getdata in playlistfragment "+error.getMessage();
-                        new internal_error_report(SPLASH_ACTIVITY,err, MainActivity.sharedPreferences.getString(login.USERNAME,"")).execute();
+                        new internal_error_report(SPLASH_ACTIVITY,err, sharedPreferences.getString(login.USERNAME,"")).execute();
 
                     }
                 }){
