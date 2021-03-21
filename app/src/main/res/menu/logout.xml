@@ -3,10 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/qr_code"
+        android:icon="@drawable/qrcode_icon"
+        android:title="QRCode"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/logout"
         android:icon="@drawable/ic_power_settings_new_black_24dp"
         android:title="LogOut"
         app:showAsAction="always"/>
-
 
 </menu>
