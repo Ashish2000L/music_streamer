@@ -11,8 +11,8 @@
 
     <ImageView
         android:id="@+id/profile_image_frd"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:scaleType="fitXY"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -31,7 +31,7 @@
     <TextView
         android:id="@+id/frd_name"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:gravity="center_vertical"
         android:paddingHorizontal="10dp"
         android:textSize="25sp"
@@ -46,7 +46,7 @@
     <TextView
         android:id="@+id/frd_playlist"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="20dp"
         android:ellipsize="end"
         android:paddingHorizontal="10dp"
         android:fadingEdge="horizontal"
@@ -56,9 +56,9 @@
         android:freezesText="true"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:gravity="center"
+        android:gravity="start"
         tools:text="Hey I am listening this song xd hello"
-        android:textSize="20sp"
+        android:textSize="15sp"
         android:textColor="@color/text_colour"
         android:scrollHorizontally="true"
         app:layout_constraintLeft_toRightOf="@id/profile_image_frd"
@@ -68,7 +68,7 @@
     <ImageView
         android:id="@+id/drag_left_to_uf"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:src="@drawable/arrow_right_536dfe"
         app:layout_constraintRight_toLeftOf="@id/unfrd"
         app:layout_constraintTop_toTopOf="parent"
@@ -78,7 +78,6 @@
         android:id="@+id/unfrd"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginTop="5dp"
         android:backgroundTint="#ED1212"
         android:text="Unfriend"
         android:textColor="#fff"

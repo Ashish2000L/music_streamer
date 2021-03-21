@@ -27,7 +27,7 @@
         <Constraint
             android:id="@+id/drag_left_to_uf"
             android:layout_width="0dp"
-            android:layout_height="60dp"
+            android:layout_height="50dp"
             motion:layout_constraintRight_toLeftOf="@id/unfrd"
             motion:layout_constraintTop_toTopOf="parent"
             android:rotation="180" />
@@ -37,7 +37,6 @@
             android:layout_height="50dp"
             android:visibility="visible"
             motion:layout_constraintRight_toRightOf="parent"
-            motion:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="5dp" />
+            motion:layout_constraintTop_toTopOf="parent" />
     </ConstraintSet>
 </MotionScene>
