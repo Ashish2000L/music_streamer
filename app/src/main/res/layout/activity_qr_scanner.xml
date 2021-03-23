@@ -6,4 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".qr_scanner">
 
+<!--    this is useless layout as the layout is set by the zxing-->
+
 </androidx.constraintlayout.widget.ConstraintLayout>

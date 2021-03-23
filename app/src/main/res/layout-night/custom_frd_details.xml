@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:paddingVertical="20dp"
+    android:background="@color/night_mode">
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:id="@+id/frd_profile_img"
+        android:layout_centerHorizontal="true"
+        android:scaleType="fitXY"
+        android:padding="5dp"
+        android:backgroundTint="#fff"
+        android:background="@drawable/circle_for_cross_in_custom_dialogue"
+        tools:src="@drawable/playlist_1"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/frd_profile_img"
+        android:id="@+id/friend_name"
+        android:layout_marginTop="5dp"
+        android:paddingVertical="5dp"
+        tools:text="Frd Name"
+        android:gravity="center"
+        android:textSize="25sp"
+        android:textColor="@color/text_colour"
+        android:fontFamily="@font/allerta_stencil"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/friend_name"
+        android:paddingHorizontal="15dp"
+        android:paddingVertical="10dp"
+        android:weightSum="2">
+    <Button
+        android:id="@+id/btn_close"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/buttonborder"
+        android:backgroundTint="@color/background_colour"
+        android:fontFamily="@font/cambo"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textColor="@color/text_colour"
+        android:layout_marginEnd="10dp"
+        android:text="Close" />
+
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Send Request"
+        android:id="@+id/send_req"
+        android:layout_weight="1"
+        android:textColor="@color/text_colour"
+        android:layout_marginStart="10dp"
+        android:layout_gravity="center"
+        android:background="@drawable/buttonborder"
+        android:backgroundTint="@color/background_colour"
+        android:fontFamily="@font/cambo"/>
+    </LinearLayout>
+
+</RelativeLayout>
