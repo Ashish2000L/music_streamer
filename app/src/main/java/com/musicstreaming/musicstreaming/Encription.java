@@ -90,6 +90,8 @@ public class Encription {
 
         public String Decript(String enc_txt){
 
+            enc_txt=getCleanText(enc_txt);
+
             makeParts(enc_txt);
 
             seperate_txt();
@@ -97,7 +99,7 @@ public class Encription {
             return decriptTxt();
         }
 
-        public static String decriptTxt(){
+        public String decriptTxt(){
 
             String text="";
             int i=0;
@@ -120,11 +122,14 @@ public class Encription {
                 i++;
             }
 
+            parts=null;
+            txt=null;
+            rand=null;
 
             return text.split("\\.")[0];
         }
 
-        public static void seperate_txt(){
+        public void seperate_txt(){
             int i=0;
             for(String str : parts){
 
@@ -140,13 +145,17 @@ public class Encription {
 
         }
 
-        public static void makeParts(String txt){
+        public void makeParts(String txt){
             int p=0;
             for(int i=0;i<txt.length(); i+=18){
 
                 parts[p]=txt.substring(i,i+18);
                 p++;
             }
+        }
+
+        public String getCleanText(String text){
+            return text.split("/")[0];
         }
 
     }
