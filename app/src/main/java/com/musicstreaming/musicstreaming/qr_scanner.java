@@ -1,13 +1,23 @@
 package com.musicstreaming.musicstreaming;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -17,7 +27,21 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.google.zxing.Result;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,7 +55,10 @@ import java.util.Random;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
+import static com.musicstreaming.musicstreaming.MainActivity.MAIN_ACTIVITY;
 import static com.musicstreaming.musicstreaming.login.USERNAME;
+import static com.musicstreaming.musicstreaming.qr_code.validateQRImage;
+import static com.musicstreaming.musicstreaming.qr_code.validateUerDataFromServer;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.TAG;
 
 public class qr_scanner extends AppCompatActivity implements ZXingScannerView.ResultHandler {
@@ -44,6 +71,27 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
 
         zXingScannerView=new ZXingScannerView(this);
         setContentView(zXingScannerView);
+
+        Dexter.withActivity(this)
+                .withPermission(Manifest.permission.CAMERA)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse response) {
+                        zXingScannerView.startCamera();
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse response) {
+                        Toast.makeText(qr_scanner.this, "Permission Denied!", Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(qr_scanner.this,make_custom_playlist.class).putExtra("IS_QR_CODE",true));
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).check();
+
     }
 
 
@@ -58,10 +106,28 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
 
     public void Decript_QRCode(String encodedTxt){
 
-        String username = new Encription.Decription().Decript(encodedTxt);
+        if(validateQRImage(encodedTxt)) {
+            String username = new Encription.Decription().Decript(encodedTxt);
 
-        startActivity(new Intent(this,make_custom_playlist.class).putExtra("IS_QR_CODE",true).putExtra("USERNAME_QR",username).putExtra("IS_SCANNING_DONE",true));
+            startActivity(new Intent(this, make_custom_playlist.class).putExtra("IS_QR_CODE", true).putExtra("USERNAME_QR", username).putExtra("IS_SCANNING_DONE", true));
+        }else {
+            Toast.makeText(this, "Failed to scan, Try Again!", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(this, make_custom_playlist.class).putExtra("IS_QR_CODE", true));
+        }
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        zXingScannerView.stopCamera();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        zXingScannerView.setResultHandler(this);
+        zXingScannerView.startCamera();
     }
 
     public static class getUserDetails extends AsyncTask<Void,Void,Void>{
@@ -69,6 +135,9 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
         Context context;
         public static String username,name,image,plylst_count;
         public static List<String> playlist_names=new ArrayList<>();
+        public static boolean IS_COMPLETED_LOADING=false;
+        ProgressDialog progressDialog;
+
         public getUserDetails(Context context) {
             this.context = context;
         }
@@ -76,6 +145,10 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setMessage("Getting User Info....");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
         }
 
         @Override
@@ -107,22 +180,33 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
                                     playlist_names.add(plylst_name);
 
                                 }
+                                IS_COMPLETED_LOADING=true;
+                                progressDialog.dismiss();
+                            }else{
+                                IS_COMPLETED_LOADING=true;
+                                progressDialog.dismiss();
                             }
+
+                            validateUerDataFromServer();
                         }else{
                             toastMessage(jsonObject.getString("error"));
+                            IS_COMPLETED_LOADING=true;
+                            progressDialog.dismiss();
                         }
-
 
                     } catch (Exception e) {
                         e.printStackTrace();
                         Log.d(TAG, "onResponse: error in json is "+e.getMessage());
+                        IS_COMPLETED_LOADING=true;
+                        progressDialog.dismiss();
                     }
 
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-
+                    IS_COMPLETED_LOADING=true;
+                    progressDialog.dismiss();
                     if(error.getMessage()!=null){
 
                         Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
@@ -160,4 +244,9 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(qr_scanner.this,make_custom_playlist.class).putExtra("IS_QR_CODE",true));
+    }
 }
