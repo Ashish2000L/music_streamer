@@ -41,11 +41,12 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/qr_code_image"
-            android:text="Scan Image"
             android:paddingHorizontal="20dp"
+            android:text="Select From Gallery"
             android:textColor="#fff"
             android:fontFamily="@font/cambo"
-            android:background="@color/background_colour"/>
+            android:background="@drawable/buttonborder"
+            android:backgroundTint="@color/background_colour"/>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
