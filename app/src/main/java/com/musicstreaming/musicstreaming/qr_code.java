@@ -30,8 +30,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -200,14 +203,18 @@ public class qr_code extends Fragment {
                         new qr_scanner.getUserDetails(context).execute();
 
                         custom_dialod(context);
+                    }else{
+                        Toast.makeText(context, "Failed to scan, Try Again!", Toast.LENGTH_SHORT).show();
                     }
                 }catch (NotFoundException ex){
                     ex.printStackTrace();
                     Log.d(TAG, "onActivityResult: "+ex.getMessage());
+                    Toast.makeText(context, "ERR_QR_NULL", Toast.LENGTH_SHORT).show();
                 }
             }catch (FileNotFoundException e){
                 e.printStackTrace();
                 Log.d(TAG, "onActivityResult: "+e.getMessage());
+                Toast.makeText(context, "ERR_QR_PTH_NUL", Toast.LENGTH_SHORT).show();
             }
 
         }else{
@@ -288,6 +295,7 @@ public class qr_code extends Fragment {
         final TextView frd_name;
         final Button close, send_req;
         final ImageView frd_image;
+        final ListView listView;
         final AlertDialog.Builder alert = new AlertDialog.Builder(context);
         final View mview = getLayoutInflater().inflate(R.layout.custom_frd_details,null);
 
@@ -306,12 +314,14 @@ public class qr_code extends Fragment {
                     String name = qr_scanner.getUserDetails.name;
                     String image = qr_scanner.getUserDetails.image;
                     String playlist = qr_scanner.getUserDetails.plylst_count;
-                    List<String> names_plyst= qr_scanner.getUserDetails.playlist_names;
+                    ArrayAdapter<String> names_plyst= qr_scanner.getUserDetails.playlist_names;
 
                     alert.setView(mview);
 
                     frd_name.setText(name);
                     loadimage(image,frd_image);
+
+                    listView.setAdapter(names_plyst);
 
                     final AlertDialog alertDialog = alert.create();
                     alertDialog.setCanceledOnTouchOutside(false);
@@ -383,7 +393,7 @@ public class qr_code extends Fragment {
 
     public static boolean validateQRImage(String data){
         try {
-            if (data.split("/")[1].equals("1")) {
+            if (data.split("/")[1].equals("1") && data.length()==290) {
                 return true;
             }
         }catch (Exception e){

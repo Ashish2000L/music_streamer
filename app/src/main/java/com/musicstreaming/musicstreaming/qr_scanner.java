@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -134,12 +135,13 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
 
         Context context;
         public static String username,name,image,plylst_count;
-        public static List<String> playlist_names=new ArrayList<>();
+        public static ArrayAdapter<String> playlist_names;
         public static boolean IS_COMPLETED_LOADING=false;
         ProgressDialog progressDialog;
 
         public getUserDetails(Context context) {
             this.context = context;
+            playlist_names=new ArrayAdapter<String>(context,R.layout.custom_frd_details);
         }
 
         @Override
