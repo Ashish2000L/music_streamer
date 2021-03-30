@@ -178,7 +178,20 @@ public class MainActivity extends AppCompatActivity {
             urls = sharedPreferences.getString(IMAGE, "");
             loadimage(urls);
 
-            toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);
+            toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close){
+
+                @Override
+                public void onDrawerClosed(View drawerView) {
+                    super.onDrawerClosed(drawerView);
+                    expandableListView.setAdapter(expandableListAdapter);
+                }
+
+                @Override
+                public void onDrawerOpened(View drawerView) {
+                    super.onDrawerOpened(drawerView);
+                    expandableListView.setAdapter(expandableListAdapter);
+                }
+            };
             drawerLayout.addDrawerListener(toggle);
             toggle.syncState();
 
