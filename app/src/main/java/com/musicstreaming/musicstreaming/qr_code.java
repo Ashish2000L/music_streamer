@@ -422,4 +422,87 @@ public class qr_code extends Fragment {
         }
 
     }
+
+    public static class makeFriend extends AsyncTask<Void,Void,Void>{
+
+        ProgressDialog progressDialog;
+        String username,mainUsername,status,TAG="make_friend";
+        Context context;
+        public makeFriend(Context context,String username,String mainUsername,String status) {
+            this.username=username;
+            this.mainUsername=mainUsername;
+            this.status=status;
+            this.context=context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog=new ProgressDialog(context);
+            progressDialog.setMessage("Please Wait....");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+            if(Integer.parseInt(status)>0){
+                status="0";
+            }else{
+                status="1";
+            }
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            String url="https://rentdetails.000webhostapp.com/musicplayer_files/friends_folder/makefriend.php";
+
+            StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+
+                    progressDialog.dismiss();
+                    if(!response.equals("success")){
+                        Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
+                    }else{
+                        context.startActivity(new Intent(context,MainActivity.class));
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    progressDialog.dismiss();
+                    if(error.getMessage()!=null){
+
+                        Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }else{
+
+                        Toast.makeText(context, "Error occured!!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    Log.d(TAG, "onErrorResponse: "+ error.networkResponse.statusCode);
+
+                    String err="Error in getdata in homefragment "+error.getMessage();
+                    new internal_error_report(context,err,username).execute();
+
+                }
+            }){
+
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+
+                    Map<String,String> params = new HashMap<String, String>();
+
+                    params.put("frdusername",username);
+                    params.put("username",mainUsername);
+                    params.put("status",status);
+                    return params;
+                }
+            };
+            RequestQueue queue = Volley.newRequestQueue(context);
+            queue.add(request);
+
+            return null;
+        }
+    }
 }
