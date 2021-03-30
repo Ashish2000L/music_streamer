@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        motion:constraintSetEnd="@+id/end"
+        motion:constraintSetStart="@id/start"
+        motion:duration="1000">
+       <KeyFrameSet>
+           <KeyAttribute
+               motion:motionTarget="@+id/playlist_items_public_frd"
+               motion:framePosition="0"
+               android:alpha="0" />
+           <KeyAttribute
+               motion:motionTarget="@+id/playlist_items_public_frd"
+               motion:framePosition="80"
+               android:alpha="0" />
+           <KeyAttribute
+               motion:motionTarget="@+id/playlist_items_public_frd"
+               motion:framePosition="100"
+               android:alpha="1" />
+       </KeyFrameSet>
+        <OnClick motion:targetId="@+id/imageView" />
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start">
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:id="@+id/playlist_items_public_frd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            motion:layout_constraintBottom_toTopOf="@id/button_layouts"
+            android:layout_marginEnd="30dp"
+            motion:layout_constraintTop_toBottomOf="@id/listview_header"
+            motion:layout_constraintRight_toRightOf="parent"
+            motion:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginStart="30dp"/>
+        <Constraint
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            motion:layout_constraintBottom_toBottomOf="@id/listview_header"
+            android:layout_marginEnd="10dp"
+            android:rotation="90"
+            motion:layout_constraintRight_toRightOf="@id/listview_header"
+            motion:layout_constraintTop_toTopOf="@id/listview_header" />
+        <Constraint
+            android:layout_height="70dp"
+            motion:layout_constraintTop_toTopOf="parent"
+            android:layout_width="70dp"
+            android:id="@+id/frd_profile_img"
+            motion:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="20dp" />
+        <Constraint
+            motion:layout_editor_absoluteY="75dp"
+            android:layout_height="0dp"
+            android:layout_width="wrap_content"
+            android:id="@+id/friend_name"
+            motion:layout_constraintTop_toTopOf="@id/frd_profile_img"
+            motion:layout_constraintBottom_toBottomOf="@id/frd_profile_img"
+            motion:layout_constraintLeft_toRightOf="@id/frd_profile_img"
+            motion:layout_constraintRight_toRightOf="parent" />
+        <Constraint
+            android:id="@+id/listview_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            motion:layout_constraintTop_toBottomOf="@id/friend_name"
+            android:layout_marginTop="10dp" />
+        <Constraint
+            android:id="@+id/button_layouts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="10dp"
+            motion:layout_constraintTop_toBottomOf="@id/listview_header"
+            android:layout_marginTop="10dp" />
+    </ConstraintSet>
+</MotionScene>
