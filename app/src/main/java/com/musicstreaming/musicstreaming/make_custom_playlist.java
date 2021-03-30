@@ -21,6 +21,7 @@ public class make_custom_playlist extends AppCompatActivity {
 
     public static Activity MAKE_NEW_PLAYLIST;
     public static String PLAYLIST_ID=""; //playlist id-> which we get after we make new playlist
+    boolean IS_CUSTOM_PLAYLIST=false,IS_QR_CODE=false;
     Intent intent;
 
     @Override
@@ -37,8 +38,9 @@ public class make_custom_playlist extends AppCompatActivity {
 
             getSupportFragmentManager().beginTransaction().replace(R.id.custom_frame_layout, new qr_code()).commit();
             toolbar.setTitle(sharedPreferences.getString(NAME,"Music Streaming"));
+            IS_QR_CODE=true;
         }else {
-
+            IS_CUSTOM_PLAYLIST=true;
             getSupportFragmentManager().beginTransaction().replace(R.id.custom_frame_layout, new select_songs_for_playlist()).commit();
 
             if(getIntent().getBooleanExtra("IS_MODIFYING",false)){
@@ -59,5 +61,15 @@ public class make_custom_playlist extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
 
+        if(IS_QR_CODE){
+            startActivity(new Intent(this,MainActivity.class).putExtra("fragment_id",3));
+        }else
+            if(IS_CUSTOM_PLAYLIST){
+                startActivity(new Intent(this,MainActivity.class).putExtra("fragment_id",6));
+            }
+    }
 }
