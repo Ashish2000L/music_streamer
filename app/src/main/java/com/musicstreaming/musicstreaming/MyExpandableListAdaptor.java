@@ -1,6 +1,9 @@
 package com.musicstreaming.musicstreaming;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -33,6 +36,7 @@ import java.util.Map;
 
 import static com.musicstreaming.musicstreaming.MainActivity.MAIN_ACTIVITY;
 import static com.musicstreaming.musicstreaming.MainActivity.MAIN_ACTIVITY_CONTEXT;
+import static com.musicstreaming.musicstreaming.login.SHARED_PREF;
 import static com.musicstreaming.musicstreaming.login.USERNAME;
 import static com.musicstreaming.musicstreaming.service.online_status_updater.CURRENT_ACTIVITY_CONTEXT;
 
@@ -114,6 +118,9 @@ public class MyExpandableListAdaptor extends BaseExpandableListAdapter {
 
             convertView = LayoutInflater.from(MAIN_ACTIVITY_CONTEXT).inflate(R.layout.child_items_expandable_listview, null, true);
 
+            final Context context = convertView.getContext();
+
+            final SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF,Context.MODE_PRIVATE);
 
             TextView name = convertView.findViewById(R.id.frd_name);
             ImageView profile_image = convertView.findViewById(R.id.profile_image_frd);
@@ -146,10 +153,34 @@ public class MyExpandableListAdaptor extends BaseExpandableListAdapter {
                 Log.d(TAG, "getChildView: ERR getting over sized grp pos : "+groupPosition+ "child pos: "+childPosition+" child size: "+getChildrenCount(groupPosition));
             }
 
+         final int grpos=groupPosition,chpos=childPosition;
+            unfriend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    new AlertDialog.Builder(context)
+                            .setMessage("Do you want to unfriend "+getChild(grpos,chpos).getName())
+                            .setCancelable(true)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    new qr_code.makeFriend(context,getChild(grpos,chpos).getUsername(),sharedPreferences.getString(USERNAME,""),"0");
+                                    List<child_item_expandable_listview> child= child_items.get(grpos);
+                                    child.remove(chpos);
+                                    notifyDataSetChanged();
+                                }
+                            })
+                            .setNegativeButton("No",null)
+                            .create()
+                            .show();
+
+
+                }
+            });
+
         }else{
             Log.d("checking_data ", "getChildView: child size is "+child_items.size());
         }
-
             return convertView;
     }
 
