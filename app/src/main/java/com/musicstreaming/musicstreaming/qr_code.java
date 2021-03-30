@@ -3,21 +3,26 @@ package com.musicstreaming.musicstreaming;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import android.os.Handler;
@@ -33,11 +38,19 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;
@@ -62,23 +75,26 @@ import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
+import com.musicstreaming.musicstreaming.service.online_status_updater;
 
-import java.io.FileInputStream;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.musicstreaming.musicstreaming.MainActivity.MAIN_ACTIVITY;
-import static com.musicstreaming.musicstreaming.MainActivity.MAIN_ACTIVITY_CONTEXT;
 import static com.musicstreaming.musicstreaming.qr_scanner.getUserDetails.IS_COMPLETED_LOADING;
-import static com.musicstreaming.musicstreaming.qr_scanner.getUserDetails.image;
-import static com.musicstreaming.musicstreaming.qr_scanner.getUserDetails.name;
+import static com.musicstreaming.musicstreaming.qr_scanner.getUserDetails.frd_status;
 import static com.musicstreaming.musicstreaming.qr_scanner.getUserDetails.playlist_names;
 import static com.musicstreaming.musicstreaming.qr_scanner.getUserDetails.plylst_count;
+import static com.musicstreaming.musicstreaming.qr_scanner.getUserDetails.username;
+import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.TAG;
 import static com.musicstreaming.musicstreaming.splash.SHARED_PREF;
 import static com.musicstreaming.musicstreaming.splash.USERNAME;
-import static java.lang.Thread.sleep;
 
 
 public class qr_code extends Fragment {
@@ -87,9 +103,10 @@ public class qr_code extends Fragment {
     ImageView qr_codeIV;
     SharedPreferences sharedPreferences;
     Context context;
-    String TAG="qr_code_generation",QRCodeScannedData;
+    String TAG = "qr_code_generation", QRCodeScannedData;
     Bitmap QRBitmap;
     Button getImageFromGallery;
+    ArrayAdapter<String> items;
 
     public qr_code() {
         // Required empty public constructor
@@ -98,35 +115,38 @@ public class qr_code extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view=inflater.inflate(R.layout.fragment_qr_code, container, false);
+        View view = inflater.inflate(R.layout.fragment_qr_code, container, false);
 
-        context=view.getContext();
+        context = view.getContext();
 
-        qr_codeIV=view.findViewById(R.id.qr_code_image);
-        getImageFromGallery=view.findViewById(R.id.getImageFromGallery);
+        qr_codeIV = view.findViewById(R.id.qr_code_image);
+        getImageFromGallery = view.findViewById(R.id.getImageFromGallery);
 
         setHasOptionsMenu(true);
 
-        sharedPreferences=context.getSharedPreferences(SHARED_PREF,Context.MODE_PRIVATE);
-        if(!sharedPreferences.getString(USERNAME,"").equals("")){
-            String username=sharedPreferences.getString(USERNAME,""),encripted;
-            encripted=new Encription().Encript(username);
+        sharedPreferences = context.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE);
+        if (!sharedPreferences.getString(USERNAME, "").equals("")) {
+            String username = sharedPreferences.getString(USERNAME, ""), encripted;
+            encripted = new Encription().Encript(username);
 
             Generate_QRCode(encripted);
 
-            Log.d(TAG, "onCreateView: "+encripted);
+            Log.d(TAG, "onCreateView: " + encripted);
         }
         Intent intent = getActivity().getIntent();
-        if(intent!=null){
+        if (intent != null) {
 
-            if(intent.getBooleanExtra("IS_SCANNING_DONE",false)){
+            if (intent.getBooleanExtra("IS_SCANNING_DONE", false)) {
 
                 String username = intent.getStringExtra("USERNAME_QR");
-                if(username!=null) {
+                if (username != null) {
                     qr_scanner.getUserDetails.username = username;
 
                     new qr_scanner.getUserDetails(context).execute();
 
+                    custom_dialod(context);
+                }else {
+                    Toast.makeText(context, "ERR_NUL_VAL_FND", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -135,7 +155,7 @@ public class qr_code extends Fragment {
         qr_codeIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(context,qr_scanner.class));
+                startActivity(new Intent(context, qr_scanner.class));
             }
         });
 
@@ -149,7 +169,7 @@ public class qr_code extends Fragment {
                             public void onPermissionGranted(PermissionGrantedResponse response) {
                                 Intent intents = new Intent(Intent.ACTION_PICK);
                                 intents.setType("image/*");
-                                startActivityForResult(Intent.createChooser(intents,"Select Image"),100);
+                                startActivityForResult(Intent.createChooser(intents, "Select Image"), 100);
                             }
 
                             @Override
@@ -172,53 +192,52 @@ public class qr_code extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode==100 && resultCode== Activity.RESULT_OK && data!=null && data.getData()!=null){
+        if (requestCode == 100 && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
 
             Uri uri = data.getData();
-            try{
+            try {
                 InputStream inputStream = context.getContentResolver().openInputStream(uri);
                 Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                if(bitmap==null){
+                if (bitmap == null) {
                     Toast.makeText(context, "ERR_IMG_SELECTION", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                int width = bitmap.getWidth(), height=bitmap.getHeight();
-                int[] pixels = new int[width*height];
-                bitmap.getPixels(pixels,0,width,0,0,width,height);
+                int width = bitmap.getWidth(), height = bitmap.getHeight();
+                int[] pixels = new int[width * height];
+                bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
                 bitmap.recycle();
-                bitmap=null;
-                RGBLuminanceSource source = new RGBLuminanceSource(width,height,pixels);
+                bitmap = null;
+                RGBLuminanceSource source = new RGBLuminanceSource(width, height, pixels);
                 BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
 
                 MultiFormatReader reader = new MultiFormatReader();
-                try{
+                try {
                     Result result = reader.decode(binaryBitmap);
 
-                    String value=result.getText();
-                    Log.d(TAG, "onActivityResult: "+value);
+                    String value = result.getText();
+                    Log.d(TAG, "onActivityResult: " + value);
 
-                    if(validateQRImage(value)){
+                    if (validateQRImage(value)) {
                         qr_scanner.getUserDetails.username = new Encription.Decription().Decript(value);
 
                         new qr_scanner.getUserDetails(context).execute();
 
                         custom_dialod(context);
-                    }else{
+                    } else {
                         Toast.makeText(context, "Failed to scan, Try Again!", Toast.LENGTH_SHORT).show();
                     }
-                }catch (NotFoundException ex){
+                } catch (NotFoundException ex) {
                     ex.printStackTrace();
-                    Log.d(TAG, "onActivityResult: "+ex.getMessage());
+                    Log.d(TAG, "onActivityResult: " + ex.getMessage());
                     Toast.makeText(context, "ERR_QR_NULL", Toast.LENGTH_SHORT).show();
                 }
-            }catch (FileNotFoundException e){
+            } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                Log.d(TAG, "onActivityResult: "+e.getMessage());
+                Log.d(TAG, "onActivityResult: " + e.getMessage());
                 Toast.makeText(context, "ERR_QR_PTH_NUL", Toast.LENGTH_SHORT).show();
             }
 
-        }else{
-            Toast.makeText(context, "Null Found", Toast.LENGTH_SHORT).show();
+        } else {
             Log.d(TAG, "onActivityResult: this is null");
         }
 
@@ -226,25 +245,25 @@ public class qr_code extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.qrimage_menu,menu);
+        inflater.inflate(R.menu.qrimage_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-        if(item.getItemId()==R.id.share_qr){
+        if (item.getItemId() == R.id.share_qr) {
 
-            if(QRBitmap!=null){
+            if (QRBitmap != null) {
 
-                String path = MediaStore.Images.Media.insertImage(context.getContentResolver(),QRBitmap,sharedPreferences.getString(USERNAME,""),null);
+                String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), QRBitmap, sharedPreferences.getString(USERNAME, ""), null);
                 Uri uri = Uri.parse(path);
 
                 Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.putExtra(Intent.EXTRA_STREAM,uri);
+                intent.putExtra(Intent.EXTRA_STREAM, uri);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setType("image/png");
-                startActivity(Intent.createChooser(intent,"Share with"));
+                startActivity(Intent.createChooser(intent, "Share with"));
 
             }
 
@@ -253,75 +272,86 @@ public class qr_code extends Fragment {
         return true;
     }
 
-    public  void  Generate_QRCode(String encripted_text){
+    public void Generate_QRCode(String encripted_text) {
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
 
-        try{
-            BitMatrix matrix = multiFormatWriter.encode(encripted_text, BarcodeFormat.QR_CODE,300,300);
+        try {
+            BitMatrix matrix = multiFormatWriter.encode(encripted_text, BarcodeFormat.QR_CODE, 300, 300);
 
             BarcodeEncoder encoder = new BarcodeEncoder();
 
             Bitmap bitmap = encoder.createBitmap(matrix);
 
-            QRBitmap=setIconToQRImage(bitmap);
+            QRBitmap = setIconToQRImage(bitmap);
 
             qr_codeIV.setImageBitmap(QRBitmap);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public Bitmap setIconToQRImage(Bitmap QRBitmap){
+    public Bitmap setIconToQRImage(Bitmap QRBitmap) {
 
-        Bitmap icon =BitmapFactory.decodeResource(context.getResources(),R.drawable.round_image);
+        Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.round_image);
 
-        Bitmap combine = Bitmap.createBitmap(QRBitmap.getWidth(),QRBitmap.getHeight(),QRBitmap.getConfig());
+        Bitmap combine = Bitmap.createBitmap(QRBitmap.getWidth(), QRBitmap.getHeight(), QRBitmap.getConfig());
         Canvas canvas = new Canvas(combine);
         int canvasWight = canvas.getWidth();
         int canvasHeight = canvas.getHeight();
-        canvas.drawBitmap(QRBitmap,new Matrix(),null);
+        canvas.drawBitmap(QRBitmap, new Matrix(), null);
 
-        Bitmap logoResize = Bitmap.createScaledBitmap(icon,canvasWight/5,canvasHeight/5,true);
-        int centerX = (canvasWight-logoResize.getWidth())/2;
-        int centerY = (canvasHeight-logoResize.getHeight())/2;
-        canvas.drawBitmap(logoResize,centerX,centerY,null);
+        Bitmap logoResize = Bitmap.createScaledBitmap(icon, canvasWight / 5, canvasHeight / 5, true);
+        int centerX = (canvasWight - logoResize.getWidth()) / 2;
+        int centerY = (canvasHeight - logoResize.getHeight()) / 2;
+        canvas.drawBitmap(logoResize, centerX, centerY, null);
 
         return combine;
     }
 
     //TODO: update this and work on custom dialogue for the making friend
-    public void custom_dialod(Context context){
+    public void custom_dialod(final Context context) {
         final TextView frd_name;
         final Button close, send_req;
         final ImageView frd_image;
         final ListView listView;
         final AlertDialog.Builder alert = new AlertDialog.Builder(context);
-        final View mview = getLayoutInflater().inflate(R.layout.custom_frd_details,null);
+        final View mview = getLayoutInflater().inflate(R.layout.custom_frd_details, null);
 
         close = mview.findViewById(R.id.btn_close);
         send_req = mview.findViewById(R.id.send_req);
         frd_name = mview.findViewById(R.id.friend_name);
         frd_image = mview.findViewById(R.id.frd_profile_img);
+        listView = mview.findViewById(R.id.playlist_items_public_frd);
 
         final Handler handler = new Handler();
-        
-        new Thread(new Runnable() {
+
+        Runnable runnable=new Runnable() {
             @Override
             public void run() {
-                if(IS_COMPLETED_LOADING){
+                if (IS_COMPLETED_LOADING) {
 
                     String name = qr_scanner.getUserDetails.name;
-                    String image = qr_scanner.getUserDetails.image;
-                    String playlist = qr_scanner.getUserDetails.plylst_count;
-                    ArrayAdapter<String> names_plyst= qr_scanner.getUserDetails.playlist_names;
+                    final String image = qr_scanner.getUserDetails.image;
+                    int playlist = Integer.parseInt(plylst_count);
+                    List<String> names_plyst = playlist_names;
+
+                    if (playlist > 0) {
+                        items = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, names_plyst);
+                    } else {
+                        names_plyst.add("No Public Playlist Found!");
+                        items = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, names_plyst);
+                    }
 
                     alert.setView(mview);
 
                     frd_name.setText(name);
-                    loadimage(image,frd_image);
 
-                    listView.setAdapter(names_plyst);
+                    loadimage(image, frd_image);
+
+
+                    listView.setAdapter(items);
+                    items.notifyDataSetChanged();
 
                     final AlertDialog alertDialog = alert.create();
                     alertDialog.setCanceledOnTouchOutside(false);
@@ -333,31 +363,64 @@ public class qr_code extends Fragment {
                         }
                     });
 
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+                    if (MainActivity.sharedPreferences.getString(USERNAME,"").equals(username)){
+                        send_req.setVisibility(View.GONE);
+                        close.setLayoutParams(params);
+                    }else {
+                        send_req.setVisibility(View.VISIBLE);
+                    }
+
+                    Log.d(TAG, "run: this is frd_status "+frd_status);
+
+                    if(frd_status.equals("1")){
+                        send_req.setBackgroundResource(R.drawable.buttonborder);
+                        send_req.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+                        send_req.setText("Unfriend");
+                    }
+
+                    send_req.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if(MainActivity.sharedPreferences.getString(USERNAME,"").equals(username)){
+                                Toast.makeText(context, "Cannot friend yourself", Toast.LENGTH_SHORT).show();
+                            }else{
+                                if(!MainActivity.sharedPreferences.getString(USERNAME,"").equals("")) {
+                                    new makeFriend(context,username, MainActivity.sharedPreferences.getString(USERNAME, ""),frd_status).execute();
+                                }else{
+                                    Toast.makeText(context, "ERR_NULL_USER_FRD", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                    });
+
                     alertDialog.show();
-                    Log.d(TAG, "run: executed this line");
-                }else{
-                   handler.postDelayed(this,500);
+                    IS_COMPLETED_LOADING=false;
+                } else {
+                    handler.postDelayed(this, 500);
                 }
             }
-        }).start();
+        };
 
+        runnable.run();
 
     }
 
-    public void loadimage(String url, ImageView profileimage){
-        final CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(context);
-        circularProgressDrawable.setStrokeWidth(5f);
-        circularProgressDrawable.setCenterRadius(40f);
-        circularProgressDrawable.start();
+    public void loadimage(String url, ImageView profileimage) {
+//        final CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(context);
+//        circularProgressDrawable.setStrokeWidth(5f);
+//        circularProgressDrawable.setCenterRadius(40f);
+//        circularProgressDrawable.start();
 
         final RequestOptions requestOptions = new RequestOptions();
-        requestOptions.placeholder(circularProgressDrawable);
+        requestOptions.placeholder(R.drawable.person_profile);
         requestOptions.skipMemoryCache(true);
         requestOptions.circleCrop();
         requestOptions.priority(Priority.HIGH);
         requestOptions.fitCenter();
 
-        Log.d(TAG, "loadimage: your requested url is "+url);
+        Log.d(TAG, "loadimage: your requested url is " + url);
 
         try {
             Glide.with(this)
@@ -370,7 +433,7 @@ public class qr_code extends Fragment {
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
 
                             Toast.makeText(context, "Fail to load Image ", Toast.LENGTH_SHORT).show();
-                            circularProgressDrawable.setVisible(false,false);
+//                            circularProgressDrawable.setVisible(false, false);
                             Log.d(TAG, "onLoadFailed: fail to load image " + e.getMessage());
                             String err = "Error in loading profile Image " + e.getMessage();
                             new internal_error_report(MAIN_ACTIVITY, err, MainActivity.sharedPreferences.getString(login.USERNAME, "")).execute();
@@ -386,17 +449,17 @@ public class qr_code extends Fragment {
                         }
                     })
                     .into(profileimage);
-        }catch (Exception e){
-            new internal_error_report(context,"Error in MainActivity loading profile image : "+e.getMessage(),sharedPreferences.getString(login.USERNAME,"")).execute();
+        } catch (Exception e) {
+            new internal_error_report(context, "Error in MainActivity loading profile image : " + e.getMessage(), sharedPreferences.getString(login.USERNAME, "")).execute();
         }
     }
 
-    public static boolean validateQRImage(String data){
+    public static boolean validateQRImage(String data) {
         try {
-            if (data.split("/")[1].equals("1") && data.length()==290) {
+            if (data.split("/")[1].equals("1") && data.length() == 290) {
                 return true;
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -404,21 +467,20 @@ public class qr_code extends Fragment {
         return false;
     }
 
-    public static void validateUerDataFromServer(){
+    public static void validateUerDataFromServer() {
 
-        String TAG="validating_info";
+        String TAG = "validating_info";
         String name = qr_scanner.getUserDetails.name;
         String image = qr_scanner.getUserDetails.image;
         String playlist = qr_scanner.getUserDetails.plylst_count;
-        List<String> names_plyst= qr_scanner.getUserDetails.playlist_names;
 
         try {
             Log.d(TAG, "validateUerDataFromServer: name " + name);
-            Log.d(TAG, "validateUerDataFromServer: image "+image);
-            Log.d(TAG, "validateUerDataFromServer: playlist "+playlist);
-            Log.d(TAG, "validateUerDataFromServer: count_list "+names_plyst.size());
-        }catch (Exception e){
-            Log.d(TAG, "validateUerDataFromServer: Got an error in "+e.getMessage());
+            Log.d(TAG, "validateUerDataFromServer: image " + image);
+            Log.d(TAG, "validateUerDataFromServer: playlist " + playlist);
+//            Log.d(TAG, "validateUerDataFromServer: count_list "+names_plyst.size());
+        } catch (Exception e) {
+            Log.d(TAG, "validateUerDataFromServer: Got an error in " + e.getMessage());
         }
 
     }
