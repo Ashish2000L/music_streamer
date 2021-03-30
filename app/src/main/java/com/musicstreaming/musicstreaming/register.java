@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
@@ -87,6 +89,68 @@ public class register extends AppCompatActivity {
        }
 
        //linearLayoutregister.startAnimation(appear);
+
+        editTextRuntimeChecker(et_username);
+
+    }
+
+    public void editTextRuntimeChecker(final EditText et_username){
+
+        et_username.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String original = s.toString();
+                int originalTextLength = original.length();
+                int currentSelection = et_username.getSelectionStart();
+
+                StringBuilder builder = new StringBuilder();
+                boolean hasChanged=false;
+                for(int i=0;i<originalTextLength;i++)
+                {
+                    char currentChar = original.charAt(i);
+
+                    if(isAllowed(currentChar)){
+                        if(!(currentChar>='A' && currentChar<='Z')){
+                            builder.append(currentChar);
+                        }else {
+                            hasChanged=true;
+                            currentChar=Character.toLowerCase(currentChar);
+                            builder.append(currentChar);
+                        }
+                    }else{
+                        hasChanged=true;
+                        if(currentSelection>=i){
+                            currentSelection--;
+                        }
+                    }
+                }
+
+                if(hasChanged){
+                    String newText = builder.toString().toLowerCase();
+                    et_username.setText(newText);
+                    et_username.setSelection(currentSelection);
+                }
+
+            }
+
+            public boolean isAllowed(char ch){
+
+                return (ch>='a' && ch<='z') || (ch>='A' && ch<='Z') || (ch>='0' && ch<='1');
+
+            }
+
+        });
 
     }
 

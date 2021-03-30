@@ -11,7 +11,9 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -90,6 +92,67 @@ public class login extends AppCompatActivity {
 
         mainlogin.startAnimation(appear);
 
+        editTextRuntimeChecker(et_username);
+    }
+
+    public void editTextRuntimeChecker(final EditText et_username){
+
+        et_username.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String original = s.toString();
+                int originalTextLength = original.length();
+                int currentSelection = et_username.getSelectionStart();
+
+                StringBuilder builder = new StringBuilder();
+                boolean hasChanged=false;
+                for(int i=0;i<originalTextLength;i++)
+                {
+                    char currentChar = original.charAt(i);
+
+                    if(isAllowed(currentChar)){
+                        if(!(currentChar>='A' && currentChar<='Z')){
+                                builder.append(currentChar);
+                            }else {
+                            hasChanged=true;
+                            currentChar=Character.toLowerCase(currentChar);
+                            builder.append(currentChar);
+                        }
+                    }else{
+                        hasChanged=true;
+                        if(currentSelection>=i){
+                            currentSelection--;
+                        }
+                    }
+                }
+
+                if(hasChanged){
+                    String newText = builder.toString().toLowerCase();
+                    et_username.setText(newText);
+                    et_username.setSelection(currentSelection);
+                }
+
+            }
+
+            public boolean isAllowed(char ch){
+
+                return (ch>='a' && ch<='z') || (ch>='A' && ch<='Z') || (ch>='0' && ch<='1');
+
+            }
+
+        });
+
     }
 
     public void singup(View view) {
@@ -100,7 +163,7 @@ public class login extends AppCompatActivity {
 
     public void loginaction(View view) {
         final String username, password,url,urlforuserdetail;
-        username = et_username.getText().toString().trim();
+        username = et_username.getText().toString().trim().toLowerCase();
         password = et_password.getText().toString().trim();
         urlforuserdetail="https://rentdetails.000webhostapp.com/musicplayer_files/getuserdata.php";
         url="https://rentdetails.000webhostapp.com/musicplayer_files/login.php";
