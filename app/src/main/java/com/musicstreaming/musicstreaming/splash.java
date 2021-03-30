@@ -194,13 +194,14 @@ public class splash extends AppCompatActivity {
 //        get_telephone_state_change_permission();
 
         File night_mode=new File(Environment.getExternalStorageDirectory()+"/"+DIR_NAME,NIGHT_MODE);
+        
+        if(sharedPreferences.getBoolean(NIGHT_MODE,false)) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        }else
         if(night_mode.exists()) {
             if(new make_file_in_directory(splash.this,getApplicationContext(),sharedPreferences.getString(USERNAME,"")).read_night_mode(night_mode)){
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             }
-        }else
-        if(sharedPreferences.getBoolean(NIGHT_MODE,false)) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         }
 
         runnable.run();
@@ -441,11 +442,11 @@ public class splash extends AppCompatActivity {
             }
 
         } else {
-            Log.d(TAG, "check_for_update: need to update ");
+            Log.d(TAG, "check_for_update: need to update this i the code"+firebaseRemoteConfig.getString(versioncode));
             if (!firebaseRemoteConfig.getBoolean(force_update) && (Integer.parseInt(firebaseRemoteConfig.getString(versioncode))-BuildConfig.VERSION_CODE)<3) {
                 displaywelcomemessagenotforce();
             } else  {
-                updatebyforce();
+                updatebyforce();  
             }
         }
     }
@@ -587,6 +588,7 @@ public class splash extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                                 get_telephone_state_change_permission();
+
                             }
                         })
                         .setNeutralButton("Privacy Policy", new DialogInterface.OnClickListener() {
@@ -605,6 +607,15 @@ public class splash extends AppCompatActivity {
             }
         }catch (Exception e){
             new internal_error_report(context,"Error in GPSTracker: "+e.getMessage(),sharedPreferences.getString(USERNAME,""));
+            stathandler.removeCallbacks(stat);
+            if(count<2) {
+                message = "Fail to connect!! ";
+                status.setText(message);
+                count++;
+            }else {
+                status.setText(strings);
+            }
+            btn_refresh.setVisibility(View.VISIBLE);
         }
     }
 
@@ -1012,6 +1023,16 @@ public class splash extends AppCompatActivity {
 
                 String err="Error in loginifexist in splash "+error.getMessage();
                 new internal_error_report(SPLASH_ACTIVITY,err,sharedPreferences.getString(USERNAME,"")).execute();
+
+                stathandler.removeCallbacks(stat);
+                if(count<2) {
+                    message = "Fail to connect!! ";
+                    status.setText(message);
+                    count++;
+                }else {
+                    status.setText(strings);
+                }
+                btn_refresh.setVisibility(View.VISIBLE);
             }
         }){
             @Override
@@ -1082,6 +1103,15 @@ public class splash extends AppCompatActivity {
                         message="failed ";
                         //new erroinfetch().execute(e.getMessage());
                         Log.d(TAG, "onResponse: error in json is "+e.getMessage());
+                        stathandler.removeCallbacks(stat);
+                        if(count<2) {
+                            message = "Fail to connect!! ";
+                            status.setText(message);
+                            count++;
+                        }else {
+                            status.setText("Failed, Try Again!");
+                        }
+                        btn_refresh.setVisibility(View.VISIBLE);
                     }
                     seekBar.setProgress(100);
 
