@@ -81,11 +81,14 @@ public class Encription {
 
     public static class Decription{
 
-        public static String[] parts = new String[16];
-        public static char[] txt = new char[16];
-        public static char[][] rand = new char[16][8];
+        public static String[] parts;
+        public static char[] txt;
+        public static char[][] rand;
 
         public Decription() {
+            parts = new String[16];
+            txt = new char[16];
+            rand = new char[16][8];
         }
 
         public String Decript(String enc_txt){

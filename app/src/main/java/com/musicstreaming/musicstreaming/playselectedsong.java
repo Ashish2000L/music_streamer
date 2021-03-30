@@ -78,6 +78,7 @@ import static com.musicstreaming.musicstreaming.service.onclearfrompercentservic
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.ontrackprevious;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.preparesong;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.unpluged_headset;
+import static com.musicstreaming.musicstreaming.songsfromplaylist.IS_CUSTOM_PLAYLIST;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.isfav;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.listofsongsArrayLisr;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.playlistnames;

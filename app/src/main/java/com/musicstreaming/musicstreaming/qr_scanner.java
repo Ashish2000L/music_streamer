@@ -57,7 +57,10 @@ import java.util.Random;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 import static com.musicstreaming.musicstreaming.MainActivity.MAIN_ACTIVITY;
+import static com.musicstreaming.musicstreaming.MainActivity.sharedPreferences;
 import static com.musicstreaming.musicstreaming.login.USERNAME;
+import static com.musicstreaming.musicstreaming.playselectedsong.SONG_ACTIVITY;
+import static com.musicstreaming.musicstreaming.playselectedsong.playlistid;
 import static com.musicstreaming.musicstreaming.qr_code.validateQRImage;
 import static com.musicstreaming.musicstreaming.qr_code.validateUerDataFromServer;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.TAG;
@@ -72,6 +75,9 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
 
         zXingScannerView=new ZXingScannerView(this);
         setContentView(zXingScannerView);
+
+
+        Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(this));
 
         Dexter.withActivity(this)
                 .withPermission(Manifest.permission.CAMERA)
@@ -99,7 +105,7 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
     @Override
     public void handleResult(Result rawResult) {
         if(rawResult.getText().split("/")[1].equals("1")) {
-            Decript_QRCode(rawResult.getText().split("/")[0]);
+            Decript_QRCode(rawResult.getText());
         }else {
             Toast.makeText(this, "Failed To Access!!", Toast.LENGTH_SHORT).show();
         }
@@ -113,6 +119,7 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
             startActivity(new Intent(this, make_custom_playlist.class).putExtra("IS_QR_CODE", true).putExtra("USERNAME_QR", username).putExtra("IS_SCANNING_DONE", true));
         }else {
             Toast.makeText(this, "Failed to scan, Try Again!", Toast.LENGTH_LONG).show();
+//            heading_tv.setText(encodedTxt);
             startActivity(new Intent(this, make_custom_playlist.class).putExtra("IS_QR_CODE", true));
         }
 
@@ -134,14 +141,14 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
     public static class getUserDetails extends AsyncTask<Void,Void,Void>{
 
         Context context;
-        public static String username,name,image,plylst_count;
-        public static ArrayAdapter<String> playlist_names;
+        public static String username,name,image,plylst_count,MainUserName,frd_status;
+        public static List<String> playlist_names;
         public static boolean IS_COMPLETED_LOADING=false;
         ProgressDialog progressDialog;
 
         public getUserDetails(Context context) {
             this.context = context;
-            playlist_names=new ArrayAdapter<String>(context,R.layout.custom_frd_details);
+            playlist_names=new ArrayList<String>();
         }
 
         @Override
@@ -151,6 +158,8 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
             progressDialog.setMessage("Getting User Info....");
             progressDialog.setCancelable(false);
             progressDialog.show();
+
+            MainUserName=sharedPreferences.getString(USERNAME,"");
         }
 
         @Override
@@ -162,6 +171,7 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
                 @Override
                 public void onResponse(String response) {
 
+                    playlist_names.clear();
                     try {
 
                         JSONObject jsonObject = new JSONObject(response);
@@ -170,6 +180,7 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
                             name =jsonObject.getString("name");
                             image = jsonObject.getString("image");
                             plylst_count= jsonObject.getString("playlist_count");
+                            frd_status=jsonObject.getString("frd");
 
                             if(Integer.parseInt(plylst_count)>0) {
                                 JSONArray jsonArray = jsonObject.getJSONArray("data");
@@ -189,7 +200,7 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
                                 progressDialog.dismiss();
                             }
 
-                            validateUerDataFromServer();
+//                            validateUerDataFromServer();
                         }else{
                             toastMessage(jsonObject.getString("error"));
                             IS_COMPLETED_LOADING=true;
@@ -231,6 +242,7 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
                     Map<String,String> params = new HashMap<String, String>();
 
                     params.put("username",username);
+                    params.put("mainuser",MainUserName);
 
                     return params;
                 }

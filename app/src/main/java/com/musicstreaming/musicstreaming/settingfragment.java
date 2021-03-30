@@ -81,7 +81,7 @@ public class settingfragment extends Fragment {
     RelativeLayout appear_anim;
     Animation appear;
     ProgressDialog progressDialog;
-    TextView advance_setting;
+    TextView advance_setting,scan_qr;
 
     public settingfragment() {
         // Required empty public constructor
@@ -106,6 +106,7 @@ public class settingfragment extends Fragment {
         profileimg=view.findViewById(R.id.profileimage);
         doneupdate=view.findViewById(R.id.submit);
         advance_setting = view.findViewById(R.id.advance_setting);
+        scan_qr=view.findViewById(R.id.scan_qr);
 
         names.setText(sharedPreferences.getString(login.NAME,""));
         email.setText(sharedPreferences.getString(EMAIL,""));
@@ -145,6 +146,13 @@ public class settingfragment extends Fragment {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(context,setting_advance.class));
+            }
+        });
+
+        scan_qr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(context,qr_scanner.class));
             }
         });
 

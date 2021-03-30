@@ -350,13 +350,11 @@ public class online_status_updater extends Service {
 //                                expandableListAdapter = new MyExpandableListAdaptor(SPLASH_ACTIVITY,child_items,group_item);
 //                            }
 
+                            if(expandableListView!=null && drawerLayout!=null)
+                                if(!drawerLayout.isDrawerOpen(GravityCompat.END))
+                                    expandableListView.setAdapter(expandableListAdapter);
+
                             expandableListAdapter.notifyDataSetChanged();
-
-                            if(expandableListView!=null && CURRENT_ACTIVITY_CONTEXT==MAIN_ACTIVITY_CONTEXT)
-                                if(drawerLayout!=null)
-                                    if(!drawerLayout.isDrawerOpen(GravityCompat.END))
-                                        expandableListView.setAdapter(expandableListAdapter);
-
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
