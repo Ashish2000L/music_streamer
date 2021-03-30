@@ -65,29 +65,33 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name"
+            android:hint=" Name"
             android:shadowColor="#fff"
             android:shadowRadius="2"
             android:textColor="#E0E0E3"
             android:textColorHint="#E0E0E3"
             android:inputType="textPersonName"
             android:id="@+id/et_name"
+            android:drawableStart="@drawable/name_image_drawable"
+            android:drawableTint="@color/text_colour"
             />
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
+            android:hint=" Email"
+            android:drawableTint="@color/text_colour"
             android:shadowColor="#fff"
             android:shadowRadius="2"
             android:textColor="#E0E0E3"
             android:textColorHint="#E0E0E3"
             android:inputType="textEmailAddress"
             android:id="@+id/et_email"
+            android:drawableStart="@drawable/email_drawable"
             />
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username"
+            android:hint=" Username"
             android:shadowColor="#fff"
             android:shadowRadius="2"
             android:textColor="#E0E0E3"
@@ -95,6 +99,8 @@
             android:inputType="text"
             android:singleLine="true"
             android:id="@+id/et_username"
+            android:drawableStart="@drawable/person_profile"
+            android:drawableTint="@color/text_colour"
             />
         <LinearLayout
             android:layout_width="match_parent"
@@ -105,7 +111,7 @@
             android:layout_width="0dp"
             android:layout_weight="9"
             android:layout_height="wrap_content"
-            android:hint="Password"
+            android:hint=" Password"
             android:textColor="#E0E0E3"
             android:textColorHint="#E0E0E3"
             android:inputType="textPassword"
@@ -114,6 +120,8 @@
             android:shadowColor="#fff"
             android:textStyle="bold"
             android:id="@+id/et_password"
+            android:drawableStart="@drawable/password_image"
+            android:drawableTint="@color/text_colour"
             />
             <ImageView
                 android:layout_width="0dp"

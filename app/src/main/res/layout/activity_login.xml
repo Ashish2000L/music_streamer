@@ -102,7 +102,7 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username"
+            android:hint=" Username"
             android:shadowColor="#fff"
             android:shadowRadius="5"
             android:textColor="#3D5AFE"
@@ -110,6 +110,9 @@
             android:singleLine="true"
             android:id="@+id/username_login"
             android:textStyle="bold"
+            android:drawableStart="@drawable/person_profile"
+            android:drawableTint="#2979FF"
+            android:maxLength="16"
             android:inputType="text"/>
         <LinearLayout
             android:layout_width="match_parent"
@@ -120,7 +123,7 @@
             android:layout_width="0dp"
             android:layout_weight="9"
             android:layout_height="wrap_content"
-            android:hint="Password"
+            android:hint=" Password"
             android:textColor="#3D5AFE"
             android:textColorHint="#2979FF"
             android:shadowRadius="5"
@@ -130,6 +133,8 @@
             android:maxLength="10"
             android:id="@+id/password_login"
             android:shadowColor="#fff"
+            android:drawableStart="@drawable/password_image"
+            android:drawableTint="#2979FF"
             />
             <ImageView
                 android:layout_width="0dp"

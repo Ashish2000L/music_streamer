@@ -37,13 +37,15 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name"
+            android:hint=" Name"
             android:inputType="textPersonName"
             android:textSize="20sp"
             android:id="@+id/name"
             android:textColor="#536DFE"
             android:textColorHint="#536DFE"
             android:textStyle="bold"
+            android:drawableStart="@drawable/name_image_drawable"
+            android:drawableTint="#2979FF"
             />
 
             <EditText
@@ -54,7 +56,9 @@
                 android:enabled="false"
                 android:textColor="#536DFE"
                 android:textColorHint="#536DFE"
-                android:hint="Email"
+                android:hint=" Email"
+                android:drawableStart="@drawable/email_drawable"
+                android:drawableTint="#2979FF"
                 />
             <EditText
                 android:layout_width="match_parent"
@@ -63,16 +67,34 @@
                 android:id="@+id/usernames"
                 android:textColor="#536DFE"
                 android:textColorHint="#536DFE"
-                android:hint="Username"/>
+                android:hint=" Username"
+                android:drawableStart="@drawable/person_profile"
+                android:drawableTint="#2979FF"/>
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Password"
+                android:hint=" Password"
                 android:id="@+id/password"
                 android:textColor="#536DFE"
                 android:textColorHint="#536DFE"
                 android:textStyle="bold"
+                android:drawableStart="@drawable/password_image"
+                android:drawableTint="#2979FF"
                 android:inputType="textVisiblePassword"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Scan QR"
+                android:textColor="#536DFE"
+                android:drawableEnd="@drawable/arrow_right"
+                android:drawableTint="#536DFE"
+                android:paddingVertical="5dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"
+                android:id="@+id/scan_qr"
+                />
 
             <TextView
                 android:layout_width="match_parent"
@@ -81,10 +103,10 @@
                 android:textColor="#536DFE"
                 android:drawableEnd="@drawable/arrow_right"
                 android:drawableTint="#536DFE"
-                android:padding="5dp"
-                android:textSize="18sp"
+                android:paddingVertical="5dp"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="10dp"
                 android:id="@+id/advance_setting"
                 />
 

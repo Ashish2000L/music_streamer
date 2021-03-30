@@ -19,8 +19,8 @@
             app:layout_constraintBottom_toTopOf="@id/qr_code_image"
             android:text="Tap on QR to scan your Friend's QR Image"
             android:textColor="@color/text_colour"
-            android:textSize="20sp"
-            android:fontFamily="@font/cambo"/>
+            android:textSize="15sp"
+            android:fontFamily="@font/cambo" />
 
         <ImageView
             android:layout_width="300dp"
