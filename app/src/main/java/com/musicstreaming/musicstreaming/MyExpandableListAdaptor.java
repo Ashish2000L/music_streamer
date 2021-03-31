@@ -38,6 +38,7 @@ import static com.musicstreaming.musicstreaming.MainActivity.MAIN_ACTIVITY;
 import static com.musicstreaming.musicstreaming.MainActivity.MAIN_ACTIVITY_CONTEXT;
 import static com.musicstreaming.musicstreaming.login.SHARED_PREF;
 import static com.musicstreaming.musicstreaming.login.USERNAME;
+import static com.musicstreaming.musicstreaming.make_custom_playlist.MAKE_NEW_PLAYLIST;
 import static com.musicstreaming.musicstreaming.service.online_status_updater.CURRENT_ACTIVITY_CONTEXT;
 
 public class MyExpandableListAdaptor extends BaseExpandableListAdapter {
@@ -52,6 +53,8 @@ public class MyExpandableListAdaptor extends BaseExpandableListAdapter {
         this.child_items=child_items;
         this.group_item = group_item;
         notifyDataSetChanged();
+
+//        Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(MAIN_ACTIVITY));
     }
 
     @Override
@@ -65,7 +68,7 @@ public class MyExpandableListAdaptor extends BaseExpandableListAdapter {
     }
 
     @Override
-    public Object getGroup(int groupPosition) {
+    public Integer getGroup(int groupPosition) {
         return group_item.get(groupPosition);
     }
 
@@ -164,9 +167,10 @@ public class MyExpandableListAdaptor extends BaseExpandableListAdapter {
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    new qr_code.makeFriend(context,getChild(grpos,chpos).getUsername(),sharedPreferences.getString(USERNAME,""),"0");
+                                    new qr_code.makeFriend(context,getChild(grpos,chpos).getUsername(),sharedPreferences.getString(USERNAME,""),"1",MAIN_ACTIVITY_CONTEXT).execute();
                                     List<child_item_expandable_listview> child= child_items.get(grpos);
                                     child.remove(chpos);
+                                    group_item.set(grpos,getGroup(grpos)-1);
                                     notifyDataSetChanged();
                                 }
                             })
