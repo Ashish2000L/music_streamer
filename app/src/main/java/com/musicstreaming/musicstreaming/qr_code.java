@@ -87,6 +87,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.musicstreaming.musicstreaming.MainActivity.MAIN_ACTIVITY;
+import static com.musicstreaming.musicstreaming.MainActivity.MAIN_ACTIVITY_CONTEXT;
+import static com.musicstreaming.musicstreaming.make_custom_playlist.MAKE_NEW_PLAYLIST;
 import static com.musicstreaming.musicstreaming.qr_scanner.getUserDetails.IS_COMPLETED_LOADING;
 import static com.musicstreaming.musicstreaming.qr_scanner.getUserDetails.frd_status;
 import static com.musicstreaming.musicstreaming.qr_scanner.getUserDetails.playlist_names;
@@ -116,6 +118,8 @@ public class qr_code extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_qr_code, container, false);
+
+        Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(MAKE_NEW_PLAYLIST));
 
         context = view.getContext();
 
@@ -387,7 +391,7 @@ public class qr_code extends Fragment {
                                 Toast.makeText(context, "Cannot friend yourself", Toast.LENGTH_SHORT).show();
                             }else{
                                 if(!MainActivity.sharedPreferences.getString(USERNAME,"").equals("")) {
-                                    new makeFriend(context,username, MainActivity.sharedPreferences.getString(USERNAME, ""),frd_status).execute();
+                                    new makeFriend(context,username, MainActivity.sharedPreferences.getString(USERNAME, ""),frd_status,context ).execute();
                                 }else{
                                     Toast.makeText(context, "ERR_NULL_USER_FRD", Toast.LENGTH_SHORT).show();
                                 }
@@ -489,12 +493,13 @@ public class qr_code extends Fragment {
 
         ProgressDialog progressDialog;
         String username,mainUsername,status,TAG="make_friend";
-        Context context;
-        public makeFriend(Context context,String username,String mainUsername,String status) {
+        Context context,from_activity;
+        public makeFriend(Context context,String username,String mainUsername,String status,Context from_activity) {
             this.username=username;
             this.mainUsername=mainUsername;
             this.status=status;
             this.context=context;
+            this.from_activity=from_activity;
         }
 
         @Override
@@ -525,7 +530,7 @@ public class qr_code extends Fragment {
                     progressDialog.dismiss();
                     if(!response.equals("success")){
                         Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-                    }else{
+                    }else if(from_activity!=MAIN_ACTIVITY_CONTEXT){
                         context.startActivity(new Intent(context,MainActivity.class));
                     }
 
