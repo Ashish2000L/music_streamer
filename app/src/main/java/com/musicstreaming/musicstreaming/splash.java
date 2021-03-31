@@ -121,7 +121,7 @@ public class splash extends AppCompatActivity {
             EMAIL="email",TELEPHONE_STATE_CHANGE_PERMISSION="tell_state_change",DIR_NAME="Music_Streaming",NIGHT_MODE="night_mode",SHARED_PREF="sharedpref",
             LOCATION_ACCESS_PERMISSION="location_access_permission";
     FirebaseRemoteConfig firebaseRemoteConfig;
-    private static final String VersionCode = "versioncodes";
+    private static final String VersionCode = "versioncode";
     private static final String force_update = "force_update";
     private static final String maintain="maintain";
     private static final String Url = "url";
@@ -331,7 +331,7 @@ public class splash extends AppCompatActivity {
             @Override
             public void run() {
 
-                firebaseRemoteConfig.fetch(0).addOnCompleteListener(splash.this, new OnCompleteListener<Void>() {
+                firebaseRemoteConfig.fetch(60).addOnCompleteListener(splash.this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull com.google.android.gms.tasks.Task<Void> task) {
 
@@ -442,8 +442,7 @@ public class splash extends AppCompatActivity {
             }
 
         } else {
-            Log.d(TAG, "check_for_update: need to update this i the code"+firebaseRemoteConfig.getString(versioncode));
-            if (!firebaseRemoteConfig.getBoolean(force_update) && (Integer.parseInt(firebaseRemoteConfig.getString(versioncode))-BuildConfig.VERSION_CODE)<3) {
+            if (!firebaseRemoteConfig.getBoolean(force_update) && (ver-BuildConfig.VERSION_CODE)<3) {
                 displaywelcomemessagenotforce();
             } else  {
                 updatebyforce();  
