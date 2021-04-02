@@ -44,7 +44,7 @@
             android:id="@+id/toplinearheader"
             android:layout_width="match_parent"
             android:layout_height="230dp"
-            android:background="@drawable/normal_gradient"
+            android:background="@color/background_colour"
             android:padding="5dp"
             app:layout_constraintBottom_toTopOf="@id/setbackround"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -61,6 +61,17 @@
             app:layout_constraintLeft_toLeftOf="@id/toplinearheader"
             app:layout_constraintRight_toRightOf="@id/toplinearheader"
             app:layout_constraintTop_toTopOf="@id/toplinearheader" />
+
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/back"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:id="@+id/back_to_main"
+            android:elevation="10dp"
+            app:tint="#000"
+            />
 
         <ImageView
             android:id="@+id/fav_playlist"
