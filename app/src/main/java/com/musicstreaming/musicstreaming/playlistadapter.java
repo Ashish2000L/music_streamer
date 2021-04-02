@@ -80,6 +80,7 @@ public class playlistadapter extends ArrayAdapter<listofplaylist> {
                 .load(url)
                 .apply(requestOptions)
                 .transform(new RoundedCorners(20))
+                .dontAnimate()
                 .placeholder(R.drawable.playlist_1)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .listener(new RequestListener<Drawable>() {
