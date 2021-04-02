@@ -40,6 +40,14 @@
                motion:motionTarget="@+id/setbackround"
                motion:framePosition="100"
                android:elevation="0dp" />
+           <KeyAttribute
+               motion:motionTarget="@+id/back_to_main"
+               motion:framePosition="80"
+               android:alpha="0" />
+           <KeyAttribute
+               motion:motionTarget="@+id/back_to_main"
+               motion:framePosition="100"
+               android:alpha="0" />
        </KeyFrameSet>
 
         <OnSwipe motion:touchAnchorId="@+id/listvieforsongs"
