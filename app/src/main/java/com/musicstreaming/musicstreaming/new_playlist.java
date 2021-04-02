@@ -149,7 +149,7 @@ public class new_playlist extends AppCompatActivity implements View.OnClickListe
             Log.d("hello", "selected image uri "+filepath);
             CropImage.activity(filepath)
                     .setCropMenuCropButtonTitle("Crop Image")
-                    .setCropShape(CropImageView.CropShape.OVAL)
+                    .setCropShape(CropImageView.CropShape.RECTANGLE)
                     .setFixAspectRatio(true)
                     .setGuidelines(CropImageView.Guidelines.ON)
                     .start(this);
