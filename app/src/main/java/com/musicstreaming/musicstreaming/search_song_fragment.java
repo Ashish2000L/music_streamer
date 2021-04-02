@@ -232,7 +232,7 @@ public class search_song_fragment extends Fragment {
             int k=0;
             for ( int i=0;i<arrayList.size();i++){
                 Log.d("ellos", "filter: "+arrayList.get(i).getName().toLowerCase(Locale.getDefault()));
-                if(arrayList.get(i).getName().toLowerCase(Locale.getDefault()).contains(text)){
+                if(arrayList.get(i).getName().toLowerCase(Locale.getDefault()).contains(text) || arrayList.get(i).getSinger().toLowerCase(Locale.getDefault()).contains(text)){
                     Log.d("ellos", "filter: "+arrayList.get(i).getName());
                     songadapter1.add(arrayList.get(i));
                     names_playlist[k]=arrayList.get(i).getName();
