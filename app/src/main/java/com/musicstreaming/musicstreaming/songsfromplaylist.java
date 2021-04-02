@@ -88,7 +88,6 @@ public class songsfromplaylist extends AppCompatActivity {
      */
 
     int playlist_position,lastFirstVisibleItem=0;
-    ImageView playlistimage;
     TextView playlistnmae,followers,scrolltesting;
     String TAG="showingsongs",playlist_id,message="",playlistname,urls="https://rentdetails.000webhostapp.com/musicplayer_files/showsongs.php",
             imageurl="",url_for_search_song="https://rentdetails.000webhostapp.com/musicplayer_files/search_song.php";
@@ -105,7 +104,7 @@ public class songsfromplaylist extends AppCompatActivity {
     LottieAnimationView animationView;
     Animation frombottom,fromtop;
     RelativeLayout loading;
-    ImageView fav_playlist;
+    ImageView fav_playlist,playlistimage,back_to_main;
     ConstraintLayout topheader,relativeLayout;
     FloatingActionButton floatingActionButton;
     MotionLayout main;
@@ -148,7 +147,7 @@ public class songsfromplaylist extends AppCompatActivity {
         followers=findViewById(R.id.followers);
         floatingActionButton=findViewById(R.id.floatbuttom);
         listViewforsongs = findViewById(R.id.listvieforsongs);
-//        scrolltesting=findViewById(R.id.scrolltesting);
+        back_to_main=findViewById(R.id.back_to_main);
         songname.setSelected(true);
 
 
@@ -210,6 +209,13 @@ public class songsfromplaylist extends AppCompatActivity {
                         .putExtra("playlistname", playlistname)
                         .putExtra("playlistid", playlist_id).putExtra("playlist_img_url", imageurl)
                 );
+            }
+        });
+
+        back_to_main.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
             }
         });
 
@@ -599,8 +605,15 @@ public class songsfromplaylist extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         listofsongsArrayLisr.clear();
-        //homefragment.listofplaylistArrayList.clear();
-        startActivity(new Intent(songsfromplaylist.this,MainActivity.class));
+        if(isfav){
+            startActivity(new Intent(songsfromplaylist.this, MainActivity.class).putExtra("fragment_id",2));
+        }else
+            if(IS_CUSTOM_PLAYLIST){
+                startActivity(new Intent(songsfromplaylist.this, MainActivity.class).putExtra("fragment_id",6));
+            }
+        else {
+            startActivity(new Intent(songsfromplaylist.this, MainActivity.class));
+        }
     }
 
     public static void showdetail(boolean isplaying){
@@ -1155,12 +1168,8 @@ public class songsfromplaylist extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            progressDialog = new ProgressDialog(songsfromplaylist.this);
-            progressDialog.setMessage("Getting Your Song ...");
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-            super.onPreExecute();
+            loading.setVisibility(View.VISIBLE);
+            main.setVisibility(View.GONE);
             super.onPreExecute();
         }
 
@@ -1169,14 +1178,11 @@ public class songsfromplaylist extends AppCompatActivity {
 
             String url=strings[0];
             final String song_url=strings[1];
-            Log.d(TAG, "doInBackground: url is "+url);
 
             StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     listofsongsArrayLisr.clear();
-                    message="Done progress";
-                    progressDialog.dismiss();
                     try {
 
                         JSONObject jsonObject = new JSONObject(response);
@@ -1219,7 +1225,6 @@ public class songsfromplaylist extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    message="error in fetching playlist";
                     progressDialog.dismiss();
                     if(error.getMessage()!=null){
 
