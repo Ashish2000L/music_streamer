@@ -1,7 +1,10 @@
 package com.musicstreaming.musicstreaming;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.motion.widget.MotionLayout;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import android.annotation.SuppressLint;
@@ -25,8 +28,11 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +55,8 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.musicstreaming.musicstreaming.service.onclearfrompercentservice;
 import com.musicstreaming.musicstreaming.service.online_status_updater;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -78,6 +86,7 @@ import static com.musicstreaming.musicstreaming.service.onclearfrompercentservic
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.ontrackprevious;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.preparesong;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.unpluged_headset;
+import static com.musicstreaming.musicstreaming.service.online_status_updater.allFriends;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.IS_CUSTOM_PLAYLIST;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.isfav;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.listofsongsArrayLisr;
@@ -97,22 +106,25 @@ public class playselectedsong extends AppCompatActivity{
     public static ImageView playsong,play_next,play_previous,song_image,loop,like;
     public static NotificationManager notificationManager;
     public static List<track> tracks;
-    int position=0,PLAYLIST_POS;
-    public static TextView songname,strt_duration,total_duration;
+    public static TextView songname,strt_duration,total_duration,playlistnameontop,singername;
     public static SeekBar seekBar;
-    String TAG="playselectedsong";
     public static Handler updateseek=new Handler();
     public static Runnable updaterunnable;
     public static Context context1;
     public static boolean isplaylistcomplete=false, is_from_search=false;
-    public static String playlistname,playlistid,playlistimg;
+    public static String playlistname,playlistid,playlistimg,CURRENT_PLAYLIST_NAME="currentplaylistname";
     public static int dontusethis;
-    public static LinearLayout backgroung_for_music;
+    public static MotionLayout backgroung_for_music;
     public static SharedPreferences sharedPreferences;
     public static Activity SONG_ACTIVITY;
-    ImageView down;
-    public static TextView playlistnameontop,singername;
-    public static String CURRENT_PLAYLIST_NAME="currentplaylistname";
+
+    int position=0,PLAYLIST_POS;
+    ImageView down,menu_image;
+    String TAG="playselectedsong";
+    ConstraintLayout blur,menu_items,frd_container;
+    TextView share,report,back_to_list;
+    ListView frd_list;
+    Context SONG_CONTEXT;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -121,6 +133,7 @@ public class playselectedsong extends AppCompatActivity{
         setContentView(R.layout.activity_playselectedsong);
 
         SONG_ACTIVITY=this;
+        SONG_CONTEXT=this;
 
         Thread.setDefaultUncaughtExceptionHandler(new Exceptionhandler(SONG_ACTIVITY));
 
@@ -138,6 +151,14 @@ public class playselectedsong extends AppCompatActivity{
         down=findViewById(R.id.down);
         playlistnameontop=findViewById(R.id.playlistname);
         singername=findViewById(R.id.singername);
+        blur=findViewById(R.id.blur);
+        menu_items=findViewById(R.id.menu_items);
+        frd_container=findViewById(R.id.frd_container);
+        menu_image=findViewById(R.id.menu_image);
+        share=findViewById(R.id.share_song);
+        report=findViewById(R.id.report);
+        frd_list=findViewById(R.id.list_of_friends);
+        back_to_list=findViewById(R.id.back_to_list);
         seekBar.setMax(100);
         context1=this;
 
@@ -190,11 +211,66 @@ public class playselectedsong extends AppCompatActivity{
             }
         }
 
+        //managing frd list in the custom menu
+        ArrayAdapter<String> all_friends = new ArrayAdapter<String>(playselectedsong.this,android.R.layout.simple_list_item_1,allFriends){
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view=super.getView(position, convertView, parent);
+
+                TextView textView = view.findViewById(android.R.id.text1);
+                textView.setTextColor(Color.WHITE);
+                textView.setTextSize(22);
+
+                return view;
+            }
+        };
+        frd_list.setAdapter(all_friends);
+        all_friends.notifyDataSetChanged();
+
+        //managing custom menu view
+        menu_items.setVisibility(View.VISIBLE);
+        frd_container.setVisibility(View.GONE);
+
+        //onclick handlers
+
         down.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listofsongsArrayLisr.clear();
                 startActivity(new Intent(playselectedsong.this,MainActivity.class));
+            }
+        });
+
+        blur.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                menu_image.performClick();
+            }
+        });
+
+        menu_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                menu_items.setVisibility(View.VISIBLE);
+                frd_container.setVisibility(View.GONE);
+            }
+        });
+
+        share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                menu_items.setVisibility(View.GONE);
+                frd_container.setVisibility(View.VISIBLE);
+            }
+        });
+
+        back_to_list.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                menu_items.setVisibility(View.VISIBLE);
+                frd_container.setVisibility(View.GONE);
             }
         });
 
