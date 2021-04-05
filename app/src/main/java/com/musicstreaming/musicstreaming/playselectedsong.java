@@ -7,6 +7,8 @@ import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -29,6 +31,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,6 +41,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -87,6 +92,7 @@ import static com.musicstreaming.musicstreaming.service.onclearfrompercentservic
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.preparesong;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.unpluged_headset;
 import static com.musicstreaming.musicstreaming.service.online_status_updater.allFriends;
+import static com.musicstreaming.musicstreaming.service.online_status_updater.frd_usernames;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.IS_CUSTOM_PLAYLIST;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.isfav;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.listofsongsArrayLisr;
@@ -94,6 +100,8 @@ import static com.musicstreaming.musicstreaming.songsfromplaylist.playlistnames;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.setprogressforsong;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.showdetail;
 import static com.musicstreaming.musicstreaming.splash.DIR_NAME;
+import static com.musicstreaming.musicstreaming.splash.SPLASH_ACTIVITY;
+import static com.musicstreaming.musicstreaming.splash.sharedPreferences;
 
 public class playselectedsong extends AppCompatActivity{
     /**
@@ -125,6 +133,8 @@ public class playselectedsong extends AppCompatActivity{
     TextView share,report,back_to_list;
     ListView frd_list;
     Context SONG_CONTEXT;
+    LottieAnimationView lottieAnimationView;
+    Animation animation1;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -159,6 +169,7 @@ public class playselectedsong extends AppCompatActivity{
         report=findViewById(R.id.report);
         frd_list=findViewById(R.id.list_of_friends);
         back_to_list=findViewById(R.id.back_to_list);
+        lottieAnimationView=findViewById(R.id.anim_parcel_pack);
         seekBar.setMax(100);
         context1=this;
 
@@ -271,6 +282,58 @@ public class playselectedsong extends AppCompatActivity{
             public void onClick(View v) {
                 menu_items.setVisibility(View.VISIBLE);
                 frd_container.setVisibility(View.GONE);
+            }
+        });
+
+        lottieAnimationView.setAnimation("pack_parcel.json");
+//        lottieAnimationView.loop(false);
+
+        lottieAnimationView.addAnimatorListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                blur.setVisibility(View.VISIBLE);
+                lottieAnimationView.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                blur.setVisibility(View.GONE);
+                lottieAnimationView.setVisibility(View.GONE);
+                animation.setDuration(0);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+        lottieAnimationView.addAnimatorUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                if(((float)animation.getAnimatedValue()*100)==100){
+                    lottieAnimationView.setVisibility(View.GONE);
+                    blur.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        frd_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
+
+                String frd_user = frd_usernames.get(pos), mainUsername = sharedPreferences.getString(USERNAME,""),
+                songId=tracks.get(onclearfrompercentservice.position).getId(),playlistId=playlistid,
+                url="https://rentdetails.000webhostapp.com/musicplayer_files/friends_folder/send_song_to_frd.php";
+
+                menu_image.performClick();
+
+                new shareSongToFriend(url,mainUsername,frd_user,songId,playlistId,pos).execute();
             }
         });
 
@@ -454,6 +517,70 @@ public class playselectedsong extends AppCompatActivity{
         songname.setText(tracks.get(onclearfrompercentservice.position).getTitle());
         singername.setText(tracks.get(onclearfrompercentservice.position).getAlbum());
 
+    }
+
+    public class  shareSongToFriend extends AsyncTask<Void,Void,Void>{
+
+        String mainUsername, frdUsername,songId,playlistId,url;
+        int pos;
+        public shareSongToFriend(String url,String mainUsername, String frdUsername, String songId, String playlistId,int pos) {
+            this.frdUsername=frdUsername;
+            this.mainUsername = mainUsername;
+            this.songId=songId;
+            this.playlistId=playlistId;
+            this.url=url;
+            this.pos=pos;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            Toast.makeText(playselectedsong.this, "Preparing your package...", Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+
+                    if(!response.equals("successful")){
+
+                        Toast.makeText(playselectedsong.this, response, Toast.LENGTH_LONG).show();
+
+                    }else{
+                        Toast.makeText(playselectedsong.this, "Song "+tracks.get(onclearfrompercentservice.position).getTitle()+ " Successfully Shared with "+allFriends.get(pos), Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    String err="Error in getdata in playlistfragment "+error.getMessage();
+                    new internal_error_report(playselectedsong.this,err, sharedPreferences.getString(login.USERNAME,"")).execute();
+                }
+            }){
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+
+                    HashMap<String,String> params = new HashMap<String, String>();
+
+                    params.put("frdUsername",frdUsername);
+                    params.put("mainUsername",mainUsername);
+                    params.put("songId",songId);
+                    params.put("playlistId",playlistId);
+
+                    return params;
+                }
+            };
+
+            RequestQueue requestQueue = Volley.newRequestQueue(playselectedsong.this);
+            requestQueue.add(stringRequest);
+
+            return null;
+        }
     }
 
     //TODO: need to look for the id of song on server side

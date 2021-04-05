@@ -75,6 +75,7 @@ public class online_status_updater extends Service {
     public static Map<Integer,List<child_item_expandable_listview>> child_items=new HashMap<Integer, List<child_item_expandable_listview>>();
     public static MyExpandableListAdaptor expandableListAdapter;
     public static ArrayList<String> allFriends = new ArrayList<>();
+    public static List<String> frd_usernames = new ArrayList<>();
 
     public online_status_updater() {
     }
@@ -331,6 +332,7 @@ public class online_status_updater extends Service {
                                     String image = object.getString("image");
 
                                     allFriends.add(name);
+                                    frd_usernames.add(username);
 
                                     if(status.equals("0")) {
                                         child_item0.add(new child_item_expandable_listview(id, username, name, current_playlist, status, image));
