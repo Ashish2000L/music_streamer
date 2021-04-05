@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:background="@drawable/song_gradle_1"
     app:layoutDescription="@xml/activity_playselectedsong_scene"
-    app:showPaths="true"
     tools:context=".playselectedsong">
 
 
@@ -82,7 +81,7 @@
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:background="@drawable/background_for_playselectedsong"
-        android:elevation="5dp"
+        android:elevation="7dp"
         android:padding="10dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="parent">
@@ -91,6 +90,9 @@
             android:id="@+id/menu_items"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginTop="35dp"
+            android:elevation="10dp"
+            android:clickable="true"
             app:layout_constraintBottom_toBottomOf="@id/menu_item_container"
             app:layout_constraintLeft_toLeftOf="@id/menu_item_container"
             app:layout_constraintRight_toRightOf="@id/menu_item_container"
@@ -100,13 +102,12 @@
                 android:id="@+id/share_song"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_marginTop="35dp"
                 android:drawableEnd="@drawable/arrow_right"
                 android:drawableStart="@drawable/share"
                 android:gravity="center_vertical"
                 android:padding="5dp"
-
-
+                android:clickable="true"
+                android:focusable="true"
                 android:text="   Share "
                 android:textColor="#fff"
                 android:textSize="22sp"
@@ -120,6 +121,8 @@
                 android:drawableStart="@drawable/report"
                 android:gravity="center_vertical"
                 android:padding="5dp"
+                android:clickable="true"
+                android:focusable="true"
                 android:text="   Report "
                 android:textColor="#fff"
                 android:textSize="22sp"
@@ -127,13 +130,41 @@
                 app:layout_constraintTop_toBottomOf="@id/share_song" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <ListView
-            android:id="@+id/list_of_friends"
-            android:layout_width="match_parent"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="35dp"
+            android:id="@+id/frd_container"
+            android:visibility="gone"
+            android:elevation="10dp"
+            android:focusable="true"
+            android:clickable="true"
             app:layout_constraintBottom_toBottomOf="@id/menu_item_container"
-            app:layout_constraintTop_toTopOf="@id/menu_item_container" />
+            app:layout_constraintLeft_toLeftOf="@id/menu_item_container"
+            app:layout_constraintRight_toRightOf="@id/menu_item_container"
+            app:layout_constraintTop_toTopOf="@id/menu_item_container"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/back"
+                android:textColor="#fff"
+                android:gravity="center_vertical"
+                android:id="@+id/back_to_list"
+                android:clickable="true"
+                app:layout_constraintTop_toTopOf="@id/frd_container"/>
+            <ListView
+                android:id="@+id/list_of_friends"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:divider="@null"
+                android:layout_marginTop="5dp"
+                android:scrollbars="none"
+                tools:listitem="@layout/custom_songs"
+                app:layout_constraintBottom_toBottomOf="@id/frd_container"
+                app:layout_constraintTop_toBottomOf="@id/back_to_list"
+                />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -143,7 +174,7 @@
         android:layout_width="50dp"
         android:layout_height="7dp"
         android:layout_marginTop="10dp"
-        android:elevation="5dp"
+        android:elevation="7dp"
         android:src="@drawable/buttonborder"
         app:layout_constraintLeft_toLeftOf="@id/menu_item_container"
         app:layout_constraintRight_toRightOf="@id/menu_item_container"
@@ -157,7 +188,7 @@
         android:layout_marginHorizontal="10dp"
         android:background="@drawable/line"
         android:backgroundTint="#fff"
-        android:elevation="5dp"
+        android:elevation="7dp"
         app:layout_constraintLeft_toLeftOf="@id/menu_item_container"
         app:layout_constraintRight_toRightOf="@id/menu_item_container"
         app:layout_constraintTop_toBottomOf="@id/top_show1" />
