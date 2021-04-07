@@ -7,8 +7,6 @@ import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -35,7 +33,6 @@ import android.view.animation.Animation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -60,8 +57,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.musicstreaming.musicstreaming.service.onclearfrompercentservice;
 import com.musicstreaming.musicstreaming.service.online_status_updater;
-
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -93,15 +88,12 @@ import static com.musicstreaming.musicstreaming.service.onclearfrompercentservic
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.unpluged_headset;
 import static com.musicstreaming.musicstreaming.service.online_status_updater.allFriends;
 import static com.musicstreaming.musicstreaming.service.online_status_updater.frd_usernames;
-import static com.musicstreaming.musicstreaming.songsfromplaylist.IS_CUSTOM_PLAYLIST;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.isfav;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.listofsongsArrayLisr;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.playlistnames;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.setprogressforsong;
 import static com.musicstreaming.musicstreaming.songsfromplaylist.showdetail;
 import static com.musicstreaming.musicstreaming.splash.DIR_NAME;
-import static com.musicstreaming.musicstreaming.splash.SPLASH_ACTIVITY;
-import static com.musicstreaming.musicstreaming.splash.sharedPreferences;
 
 public class playselectedsong extends AppCompatActivity{
     /**
@@ -285,43 +277,43 @@ public class playselectedsong extends AppCompatActivity{
             }
         });
 
-        lottieAnimationView.setAnimation("pack_parcel.json");
+//        lottieAnimationView.setAnimation("pack_parcel.json");
 //        lottieAnimationView.loop(false);
 
-        lottieAnimationView.addAnimatorListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                blur.setVisibility(View.VISIBLE);
-                lottieAnimationView.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                blur.setVisibility(View.GONE);
-                lottieAnimationView.setVisibility(View.GONE);
-                animation.setDuration(0);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-
-        lottieAnimationView.addAnimatorUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                if(((float)animation.getAnimatedValue()*100)==100){
-                    lottieAnimationView.setVisibility(View.GONE);
-                    blur.setVisibility(View.GONE);
-                }
-            }
-        });
+//        lottieAnimationView.addAnimatorListener(new Animator.AnimatorListener() {
+//            @Override
+//            public void onAnimationStart(Animator animation) {
+//                blur.setVisibility(View.VISIBLE);
+//                lottieAnimationView.setVisibility(View.VISIBLE);
+//            }
+//
+//            @Override
+//            public void onAnimationEnd(Animator animation) {
+//                blur.setVisibility(View.GONE);
+//                lottieAnimationView.setVisibility(View.GONE);
+//                animation.setDuration(0);
+//            }
+//
+//            @Override
+//            public void onAnimationCancel(Animator animation) {
+//
+//            }
+//
+//            @Override
+//            public void onAnimationRepeat(Animator animation) {
+//
+//            }
+//        });
+//
+//        lottieAnimationView.addAnimatorUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//            @Override
+//            public void onAnimationUpdate(ValueAnimator animation) {
+//                if(((float)animation.getAnimatedValue()*100)==100){
+//                    lottieAnimationView.setVisibility(View.GONE);
+//                    blur.setVisibility(View.GONE);
+//                }
+//            }
+//        });
 
         frd_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
