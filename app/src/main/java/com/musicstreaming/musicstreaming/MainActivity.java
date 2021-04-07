@@ -303,6 +303,11 @@ public class MainActivity extends AppCompatActivity {
                             toolbar.setTitle("Search Song");
                             break;
 
+                        case R.id.shareSong:
+                            fragment=new shared_songs_list();
+                            navigationView.setCheckedItem(R.id.shareSong);
+                            toolbar.setTitle("Shared Songs");
+
                     }
                     if (fragment != null) {
                         getSupportFragmentManager().beginTransaction().replace(R.id.framelayout, fragment).commit();
@@ -475,6 +480,12 @@ public class MainActivity extends AppCompatActivity {
                 fragment = new search_song_fragment();
                 navigationView.setCheckedItem(R.id.search);
                 toolbar.setTitle("Search Song");
+                break;
+
+            case 9:
+                fragment=new shared_songs_list();
+                navigationView.setCheckedItem(R.id.shareSong);
+                toolbar.setTitle("Shared Songs");
                 break;
         }
 
