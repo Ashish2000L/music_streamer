@@ -29,6 +29,13 @@
         android:icon="@drawable/now_playing"
         android:title="Now Playing"
         />
+
+    <item
+        android:id="@+id/shareSong"
+        android:icon="@drawable/share"
+        android:title="Shared Songs"
+        />
+
     <item
         android:id="@+id/error_log"
         android:icon="@drawable/error_log_icon"

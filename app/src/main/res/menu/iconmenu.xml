@@ -31,6 +31,12 @@
         />
 
     <item
+        android:id="@+id/shareSong"
+        android:icon="@drawable/share"
+        android:title="Shared Songs"
+        />
+
+    <item
         android:title="Settings"
         android:icon="@drawable/settings"
         android:id="@+id/settings"

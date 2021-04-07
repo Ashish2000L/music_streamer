@@ -10,6 +10,8 @@
     <color name="night_mode">#4F5254</color>
     <color name="background_colour">#EEF0F1</color>
     <color name="text_colour">#58595A</color>
+    <color name="rect_stroke_color">#2C2C2C</color>
+    <color name="background_share">#787777</color>
 
 <!--  008577  -->
 </resources>

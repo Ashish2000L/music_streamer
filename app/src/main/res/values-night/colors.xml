@@ -7,8 +7,10 @@
     <color name="background_playlist">#00FFFEFE</color>
     <color name="background_profile_image">#ABC2BFBF</color>
 
-    <color name="night_mode">#F5201F1F</color>
+    <color name="night_mode">#F5333333</color>
     <color name="background_colour">#575859</color>
     <color name="text_colour">#F7F8F8</color>
+    <color name="rect_stroke_color">#F6EFEF</color>
+    <color name="background_share">#3E3E3E</color>
 <!--  008577  -->
 </resources>
