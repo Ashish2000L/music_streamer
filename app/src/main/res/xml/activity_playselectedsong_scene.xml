@@ -16,6 +16,18 @@
                motion:motionTarget="@+id/blur"
                motion:framePosition="0"
                android:alpha="0" />
+           <KeyAttribute
+               motion:motionTarget="@+id/blur"
+               motion:framePosition="0"
+               android:elevation="-100dp" />
+           <KeyAttribute
+               motion:motionTarget="@+id/blur"
+               motion:framePosition="50"
+               android:elevation="4dp" />
+           <KeyAttribute
+               motion:motionTarget="@+id/blur"
+               motion:framePosition="100"
+               android:elevation="4dp" />
        </KeyFrameSet>
         <OnClick motion:targetId="@+id/menu_image" />
         <OnSwipe motion:touchAnchorId="@+id/menu_item_container"
