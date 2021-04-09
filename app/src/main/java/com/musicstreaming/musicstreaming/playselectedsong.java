@@ -231,6 +231,56 @@ public class playselectedsong extends AppCompatActivity{
         frd_list.setAdapter(all_friends);
         all_friends.notifyDataSetChanged();
 
+        //testing for the checking transition listner of motion layout
+        backgroung_for_music.setTransitionListener(new MotionLayout.TransitionListener() {
+
+            int val1,val2;
+
+            @Override
+            public void onTransitionStarted(MotionLayout motionLayout, int i, int i1) {
+                val1=i;
+                val2=i1;
+
+                if(motionLayout.getProgress()>0.85){
+                    Log.d(TAG, "onTransitionStarted: it is moving down");
+                }else{
+                    blur.setVisibility(View.VISIBLE);
+                    Log.d(TAG, "onTransitionStarted: it is moving up");
+                }
+                
+//                Log.d(TAG, "onTransitionStarted: --------------------------motion started be aware---------------------------i="+i+" i1= "+i1+" get_prog "+motionLayout.getProgress());
+            }
+
+            @Override
+            public void onTransitionChange(MotionLayout motionLayout, int i, int i1, float v) {
+
+//                Log.d(TAG, "onTransitionChange: --------------------------motion state changing be aware---------------------------i="+i+" i1= "+i1+" v= "+v);
+
+            }
+
+            @Override
+            public void onTransitionCompleted(MotionLayout motionLayout, int i) {
+
+//                Log.d(TAG, "onTransitionCompleted: --------------------------motion completed be aware---------------------------i="+i);
+
+                if(i==val1){
+                    Log.d(TAG, "onTransitionCompleted: moving down");
+                    blur.setVisibility(View.GONE);
+                }else
+                    if(i==val2){
+                        Log.d(TAG, "onTransitionCompleted: moving up");
+                }
+
+            }
+
+            @Override
+            public void onTransitionTrigger(MotionLayout motionLayout, int i, boolean b, float v) {
+
+//                Log.d(TAG, "onTransitionTrigger: --------------------------motion trigerred be aware---------------------------i="+i+" b= "+b+" v= "+v);
+
+            }
+        });
+
         //managing custom menu view
         menu_items.setVisibility(View.VISIBLE);
         frd_container.setVisibility(View.GONE);
@@ -249,6 +299,14 @@ public class playselectedsong extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 menu_image.performClick();
+            }
+        });
+        
+        report.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                menu_image.performClick();
+                Toast.makeText(playselectedsong.this, "We are working on it, will be available in next update!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -277,43 +335,6 @@ public class playselectedsong extends AppCompatActivity{
             }
         });
 
-//        lottieAnimationView.setAnimation("pack_parcel.json");
-//        lottieAnimationView.loop(false);
-
-//        lottieAnimationView.addAnimatorListener(new Animator.AnimatorListener() {
-//            @Override
-//            public void onAnimationStart(Animator animation) {
-//                blur.setVisibility(View.VISIBLE);
-//                lottieAnimationView.setVisibility(View.VISIBLE);
-//            }
-//
-//            @Override
-//            public void onAnimationEnd(Animator animation) {
-//                blur.setVisibility(View.GONE);
-//                lottieAnimationView.setVisibility(View.GONE);
-//                animation.setDuration(0);
-//            }
-//
-//            @Override
-//            public void onAnimationCancel(Animator animation) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat(Animator animation) {
-//
-//            }
-//        });
-//
-//        lottieAnimationView.addAnimatorUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//            @Override
-//            public void onAnimationUpdate(ValueAnimator animation) {
-//                if(((float)animation.getAnimatedValue()*100)==100){
-//                    lottieAnimationView.setVisibility(View.GONE);
-//                    blur.setVisibility(View.GONE);
-//                }
-//            }
-//        });
 
         frd_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
