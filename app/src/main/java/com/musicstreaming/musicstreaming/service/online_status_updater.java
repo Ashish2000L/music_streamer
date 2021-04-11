@@ -2,6 +2,7 @@ package com.musicstreaming.musicstreaming.service;
 
 import android.Manifest;
 import android.app.ActivityManager;
+import android.app.ProgressDialog;
 import android.app.Service;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -18,6 +19,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ExpandableListAdapter;
 import android.widget.Toast;
 
@@ -39,6 +42,7 @@ import com.musicstreaming.musicstreaming.child_item_expandable_listview;
 import com.musicstreaming.musicstreaming.internal_error_report;
 import com.musicstreaming.musicstreaming.login;
 import com.musicstreaming.musicstreaming.make_file_in_directory;
+import com.musicstreaming.musicstreaming.share_song_items;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -53,8 +57,12 @@ import java.util.Map;
 import static com.musicstreaming.musicstreaming.MainActivity.MAIN_ACTIVITY_CONTEXT;
 import static com.musicstreaming.musicstreaming.MainActivity.drawerLayout;
 import static com.musicstreaming.musicstreaming.MainActivity.expandableListView;
+import static com.musicstreaming.musicstreaming.MainActivity.fragment;
+import static com.musicstreaming.musicstreaming.MainActivity.setSongCounter;
 import static com.musicstreaming.musicstreaming.service.GPSTracker.IS_JOB_SERVICE_RUNNING;
 import static com.musicstreaming.musicstreaming.service.GPSTracker.addr_location;
+import static com.musicstreaming.musicstreaming.shared_songs_list.shareSongList;
+import static com.musicstreaming.musicstreaming.shared_songs_list.showText;
 import static com.musicstreaming.musicstreaming.splash.DIR_NAME;
 import static com.musicstreaming.musicstreaming.splash.LOCATION_ACCESS_PERMISSION;
 import static com.musicstreaming.musicstreaming.splash.SHARED_PREF;
@@ -77,6 +85,12 @@ public class online_status_updater extends Service {
     public static ArrayList<String> allFriends = new ArrayList<>();
     public static List<String> frd_usernames = new ArrayList<>();
 
+    public static share_song_items shareSongItems;
+    public static ArrayList<share_song_items> shareSongItemsArrayList = new ArrayList<>();
+    public static ArrayAdapter<share_song_items> share_song_itemsArrayAdapter;
+    public static int counter=0;
+    public static String MAX_SHARE_SONG_ID="max_share_song_id";
+
     public online_status_updater() {
     }
 
@@ -91,8 +105,9 @@ public class online_status_updater extends Service {
         public void run() {
             if(checkConnections()) {
                 new change_status().execute();
+                new getSharedSongs().execute();
             }
-            handler.postDelayed(this,60000);
+            handler.postDelayed(this,30000);
         }
     };
 
@@ -399,5 +414,125 @@ public class online_status_updater extends Service {
         group_item.clear();
         for(String j : i)
             group_item.add(Integer.parseInt(j));
+    }
+
+    public static class getSharedSongs extends AsyncTask<Void,Void,Void>{
+
+        String message="";
+        boolean DATA_CHANGED=false;
+        public static int counts=0;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            counter=0;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            final String username=sharedPreferences.getString(login.USERNAME,""),url="https://rentdetails.000webhostapp.com/musicplayer_files/share_song/show_shared_song.php";
+
+            StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    shareSongItemsArrayList.clear();
+                    message="progress done";
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject(response);
+                        String success = jsonObject.getString("success");
+                        counts=Integer.parseInt(jsonObject.getString("count"));
+                        if(counts>0) {
+
+                            JSONArray jsonArray = jsonObject.getJSONArray("data");
+                            if (success.equals("1")) {
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject object = jsonArray.getJSONObject(i);
+
+                                    String id = object.getString("id");
+                                    String frduser = object.getString("frduser");
+                                    String songid = object.getString("songid");
+                                    String status = object.getString("status");
+                                    String sendtime = object.getString("sendtime");
+                                    String songname = object.getString("songname");
+                                    String singer = object.getString("singer");
+                                    String url = object.getString("url");
+                                    String name = object.getString("name");
+
+                                    shareSongItems = new share_song_items(id,name,sendtime,songname,singer,frduser,songid,url,status);
+                                    shareSongItemsArrayList.add(shareSongItems);
+
+                                    if(Integer.parseInt(status)==0) {
+                                        counter++;
+                                    }
+
+                                }
+
+                            }
+
+                            if(sharedPreferences.getInt(MAX_SHARE_SONG_ID,0)<Integer.parseInt(shareSongItemsArrayList.get(0).getId())){
+
+                                if(share_song_itemsArrayAdapter!=null)
+                                    share_song_itemsArrayAdapter.notifyDataSetChanged();
+
+                                if(shareSongList!=null && showText!=null){
+                                    shareSongList.setVisibility(View.VISIBLE);
+                                    showText.setVisibility(View.INVISIBLE);
+                                }
+
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putInt(MAX_SHARE_SONG_ID,Integer.parseInt(shareSongItemsArrayList.get(0).getId()));
+                                editor.apply();
+
+                                Log.d("counter_values", "onResponse: updated the list"+sharedPreferences.getInt(MAX_SHARE_SONG_ID,0)+" "+Integer.parseInt(shareSongItemsArrayList.get(0).getId()));
+
+                            }else
+                                if(shareSongItemsArrayList.size()==0){
+                                    if(shareSongList!=null && showText!=null){
+                                        shareSongList.setVisibility(View.INVISIBLE);
+                                        showText.setVisibility(View.VISIBLE);
+                                    }
+                            }
+
+                        }
+
+                        setSongCounter(counter);
+
+                        Log.d("counter_values ", "onResponse: counter_value"+counter);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        message="failed ";
+                        Log.d("getData", "onResponse: error in json is "+e.getMessage());
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    message="error in fetching playlist";
+
+                    String err="Error in getdata in playlistfragment "+error.getMessage();
+                    new internal_error_report(SPLASH_ACTIVITY,err,sharedPreferences.getString(login.USERNAME,"")).execute();
+
+                }
+            }){
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String,String> params=new HashMap<String, String>();
+
+                    params.put("username", username);
+
+                    return params;
+                }
+            };
+
+            RequestQueue queue = Volley.newRequestQueue(SPLASH_ACTIVITY);
+            queue.add(request);
+
+            return null;
+        }
     }
 }
