@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -24,7 +25,9 @@ import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListAdapter;
@@ -65,6 +68,7 @@ import static com.musicstreaming.musicstreaming.service.onclearfrompercentservic
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.ontrackplay;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.position;
 import static com.musicstreaming.musicstreaming.service.online_status_updater.child_items;
+import static com.musicstreaming.musicstreaming.service.online_status_updater.counter;
 import static com.musicstreaming.musicstreaming.service.online_status_updater.expandableListAdapter;
 import static com.musicstreaming.musicstreaming.service.online_status_updater.group_item;
 import static com.musicstreaming.musicstreaming.splash.DIR_NAME;
@@ -79,23 +83,25 @@ public class MainActivity extends AppCompatActivity {
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
     NavigationView navigationView;
-    public static DrawerLayout drawerLayout;
     ActionBarDrawerToggle toggle;
-    Fragment fragment;
     ImageView profileimage;
     TextView name,version;
-    int k=0,fragment_id=0,lastExpandedGroup=-1;;
+    int k=0,fragment_id=0,lastExpandedGroup=-1;
     String TAG="thisisprofileimage";
     boolean IS_FRAGMENT_SET=false;
+    Toolbar toolbar;
+
+    public static Fragment fragment;
+    public static DrawerLayout drawerLayout;
     public static LinearLayout showdetailses,thisisit;
-    public static TextView songname;
+    public static TextView songname,share_song_counter;
     public static ImageView playpause;
     public static ProgressBar progressBar;
     public static Activity MAIN_ACTIVITY;
     public static SharedPreferences sharedPreferences;
-    Toolbar toolbar;
     public static Context MAIN_ACTIVITY_CONTEXT;
     public static ExpandableListView expandableListView;
+    public static CardView cardView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         //initilizations
         navigationView = findViewById(R.id.navmenu);
         drawerLayout = findViewById(R.id.drawair);
-         toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         showdetailses=findViewById(R.id.showdetailofsonginplaylist);
         songname=findViewById(R.id.songnameinplaylist);
         playpause=findViewById(R.id.playpausinplaylist);
@@ -163,6 +169,12 @@ public class MainActivity extends AppCompatActivity {
                 version = findViewById(R.id.version);
                 names = sharedPreferences.getString(NAME, "");
                 name.setText(names);
+
+                View view = LayoutInflater.from(this).inflate(R.layout.share_sng_counter,null);
+                share_song_counter=view.findViewById(R.id.tv_share_counter);
+                cardView=view.findViewById(R.id.counter_container);
+                navigationView.getMenu().findItem(R.id.shareSong).setActionView(view);
+                setSongCounter(counter);
 
                 String vers = BuildConfig.VERSION_NAME;
                 version.setText(vers);
@@ -320,6 +332,32 @@ public class MainActivity extends AppCompatActivity {
             File file = new File(Environment.getExternalStorageDirectory() + "/" + DIR_NAME, "file.json");
 
             new make_file_in_directory(this, this, sharedPreferences.getString(USERNAME, "")).write_credential_file(sharedPreferences.getString(USERNAME, ""), sharedPreferences.getString(PASSWORD, ""), file);
+
+    }
+
+    public static void setSongCounter(final int counter){
+
+        final Handler handler = new Handler();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (counter > 0) {
+                        cardView.setVisibility(View.VISIBLE);
+                        share_song_counter.setVisibility(View.VISIBLE);
+                        share_song_counter.setText(counter + "");
+                    } else {
+                        cardView.setVisibility(View.INVISIBLE);
+                        share_song_counter.setVisibility(View.INVISIBLE);
+                        share_song_counter.setText("");
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                    Log.d("counter_values", "run: running to set counter");
+                    handler.postDelayed(this,500);
+                }
+            }
+        }).start();
 
     }
 
