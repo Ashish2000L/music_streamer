@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -129,7 +130,7 @@ public class MyExpandableListAdaptor extends BaseExpandableListAdapter {
             ImageView profile_image = convertView.findViewById(R.id.profile_image_frd);
             TextView status_viewer = convertView.findViewById(R.id.status_shower);
             TextView frd_playlist = convertView.findViewById(R.id.frd_playlist);
-            Button unfriend = convertView.findViewById(R.id.unfrd);
+            ImageButton unfriend = convertView.findViewById(R.id.unfrd);
 
 
 
