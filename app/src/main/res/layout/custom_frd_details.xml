@@ -93,7 +93,6 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
-            android:background="@drawable/buttonborder"
             android:backgroundTint="#7CB342"
             android:fontFamily="@font/cambo"
             android:text="Close" />
@@ -104,7 +103,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_weight="1"
-            android:background="@drawable/buttonborder"
             android:backgroundTint="#7CB342"
             android:fontFamily="@font/cambo"
             android:text="Make Friend" />
