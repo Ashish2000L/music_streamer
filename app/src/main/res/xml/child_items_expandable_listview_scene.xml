@@ -12,12 +12,16 @@
                motion:motionTarget="@+id/unfrd"
                motion:framePosition="78"
                android:alpha="0" />
+           <KeyAttribute
+               motion:motionTarget="@+id/unfrd"
+               motion:framePosition="0"
+               android:alpha="0" />
        </KeyFrameSet>
         <OnSwipe
             motion:touchAnchorId="@+id/drag_left_to_uf"
             motion:dragDirection="dragLeft"
             motion:touchAnchorSide="left" />
-        <OnClick motion:targetId="@+id/drag_left_to_uf" />
+<!--        <OnClick motion:targetId="@+id/drag_left_to_uf" />-->
     </Transition>
 
     <ConstraintSet android:id="@+id/start">

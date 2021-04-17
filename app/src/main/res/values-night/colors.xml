@@ -12,5 +12,7 @@
     <color name="text_colour">#F7F8F8</color>
     <color name="rect_stroke_color">#F6EFEF</color>
     <color name="background_share">#3E3E3E</color>
+
+    <color name="mtrl_textinput_default_box_stroke_color">#BDBDBD</color>
 <!--  008577  -->
 </resources>
