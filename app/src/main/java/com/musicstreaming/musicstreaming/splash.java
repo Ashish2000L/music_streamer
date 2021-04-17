@@ -400,11 +400,9 @@ public class splash extends AppCompatActivity {
         message="Checking for update ";
         String versioncode = firebaseRemoteConfig.getString(VersionCode);
         int ver = Integer.parseInt(versioncode);
-        Log.d(TAG, "check_for_update: version is "+ver);
-        Log.d(TAG, "check_for_update: fetched version is "+versioncode);
 
         int version = BuildConfig.VERSION_CODE;
-        if (ver == version) {
+        if (ver <= version) {
             String username,password;
             SharedPreferences sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
             username=sharedPreferences.getString(USERNAME,"");
