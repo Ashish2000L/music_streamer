@@ -21,7 +21,7 @@
             motion:touchAnchorId="@+id/drag_left_to_uf"
             motion:dragDirection="dragLeft"
             motion:touchAnchorSide="left" />
-<!--        <OnClick motion:targetId="@+id/drag_left_to_uf" />-->
+        <OnClick motion:targetId="@+id/drag_left_to_uf" />
     </Transition>
 
     <ConstraintSet android:id="@+id/start">

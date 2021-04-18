@@ -73,7 +73,7 @@
         android:elevation="7dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:lottie_fileName="pack _parcel.json"
+        app:lottie_fileName="pack_parcel.json"
         android:visibility="gone"
         app:lottie_loop="false" />
 
