@@ -263,16 +263,6 @@ public class online_status_updater extends Service {
         }
     }
 
-    public boolean isservicerunning(Class<?> serviceclass){
-        ActivityManager manager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
-        for(ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer.MAX_VALUE)){
-            if(serviceclass.getName().equals(serviceInfo.service.getClassName())){
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
@@ -281,22 +271,6 @@ public class online_status_updater extends Service {
         handler.removeCallbacks(runnable);
         new change_status().execute();
         stopSelf();
-    }
-    public void start_job_schedular_for_location_access(){
-        ComponentName componentName = new ComponentName(this, GPSTracker.class);
-        JobInfo info = new JobInfo.Builder(1,componentName)
-                .setPersisted(true)
-                .setPeriodic(1000*60*15)
-                .build();
-
-        JobScheduler jobScheduler = (JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
-        int result=jobScheduler.schedule(info);
-
-        if(result==JobScheduler.RESULT_SUCCESS){
-            Log.d(TAG, "start_job_schedular_for_location_access: successfully completed job ");
-        }else{
-            Log.d(TAG, "start_job_schedular_for_location_access: Job failed and scheduled ");
-        }
     }
 
     public class get_friends_details extends AsyncTask<String,Void,Void>{
@@ -364,12 +338,6 @@ public class online_status_updater extends Service {
                             child_items.put(1,child_item1);
 
                             populate_group(status_values);
-
-//                            try {
-//                                expandableListAdapter = new MyExpandableListAdaptor(MainActivity.MAIN_ACTIVITY_CONTEXT,child_items,group_item);
-//                            }catch (Exception e){
-//                                expandableListAdapter = new MyExpandableListAdaptor(SPLASH_ACTIVITY,child_items,group_item);
-//                            }
 
                             if(expandableListView!=null && drawerLayout!=null)
                                 if(!drawerLayout.isDrawerOpen(GravityCompat.END))
