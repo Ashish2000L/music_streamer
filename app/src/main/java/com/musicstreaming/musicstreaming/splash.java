@@ -243,12 +243,15 @@ public class splash extends AppCompatActivity {
                                 message="Connection Established ";
                                 seekBar.setProgress(50);
 
-                                Check_Location_Enabled();
+                                if(check_location_access()) {
+                                    Check_Location_Enabled();
+                                }else{
+                                    get_telephone_state_change_permission();
+                                }
 
                                 Log.d(TAG, "run: connection successful ");
                             }else{
                                 stathandler.removeCallbacks(stat);
-//                                seekBar.setVisibility(View.INVISIBLE);
                                 if(count<2) {
                                     message = "Fail to connect!! ";
                                     status.setText(message);
@@ -273,6 +276,11 @@ public class splash extends AppCompatActivity {
             }
         }
     };
+
+    public boolean check_location_access(){
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
 
     public void make_dir()
     {
@@ -559,19 +567,11 @@ public class splash extends AppCompatActivity {
         try {
             LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             boolean gpsenabled = false;
-            boolean networkenabled = false;
-
 
             try {
                 gpsenabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             } catch (Exception e) {
                 Log.d(TAG, "Check_Location_Enabled: gpslocation " + e.getMessage());
-            }
-
-            try {
-                networkenabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-            } catch (Exception e) {
-                Log.d(TAG, "Check_Location_Enabled: networkenable " + e.getMessage());
             }
 
             if (!gpsenabled) {
@@ -593,7 +593,6 @@ public class splash extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 Intent browser = new Intent(Intent.ACTION_VIEW,Uri.parse("http://free4all.ezyro.com/Music_streaming/privacy_policy.html"));
                                 startActivity(browser);
-                                finish();
                             }
                         })
                         .create()
