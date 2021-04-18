@@ -96,9 +96,7 @@ public class MyExpandableListAdaptor extends BaseExpandableListAdapter {
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
 
-        if(CURRENT_ACTIVITY_CONTEXT==MAIN_ACTIVITY_CONTEXT && group_item.size()>0) {
-
-            convertView = LayoutInflater.from(MAIN_ACTIVITY_CONTEXT).inflate(R.layout.group_item_expandable_listview, null, true);
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.group_item_expandable_listview, null, true);
 
 
             TextView tvstatus = convertView.findViewById(R.id.tvStatus);
@@ -110,7 +108,6 @@ public class MyExpandableListAdaptor extends BaseExpandableListAdapter {
                 tvstatus.setText("Offline");
             }
             noOfOnline.setText(""+group_item.get(groupPosition));
-        }
 
         return convertView;
     }
@@ -118,9 +115,7 @@ public class MyExpandableListAdaptor extends BaseExpandableListAdapter {
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
 
-        if(CURRENT_ACTIVITY_CONTEXT==MAIN_ACTIVITY_CONTEXT && child_items.size()>0) {
-
-            convertView = LayoutInflater.from(MAIN_ACTIVITY_CONTEXT).inflate(R.layout.child_items_expandable_listview, null, true);
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.child_items_expandable_listview, null, true);
 
             final Context context = convertView.getContext();
 
@@ -183,9 +178,6 @@ public class MyExpandableListAdaptor extends BaseExpandableListAdapter {
                 }
             });
 
-        }else{
-            Log.d("checking_data ", "getChildView: child size is "+child_items.size());
-        }
             return convertView;
     }
 
