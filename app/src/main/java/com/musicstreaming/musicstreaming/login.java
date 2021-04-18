@@ -32,6 +32,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -52,14 +54,15 @@ public class login extends AppCompatActivity {
 
     MediaPlayer mediaPlayer;
     String userAgent,TAG="checkforerrorinlogin";
-    EditText et_username, et_password,forgot_username;
+    TextInputEditText et_username, et_password;
+    TextInputLayout usernameTextInputLayout, passwordTextInputLayout;
+    EditText forgot_username;
     public static String SHARED_PREF="sharedpref";
     public static String USERNAME="username";
     public static String PASSWORD="password";
     public static String NAME="name";
     public static String IMAGE="image";
     public static String EMAIL="email";
-    ImageView changevis;
     LinearLayout mainlogin;
     RelativeLayout forgot,helpwanted;
     boolean isvisible=false;
@@ -80,22 +83,40 @@ public class login extends AppCompatActivity {
 
         et_username = findViewById(R.id.username_login);
         et_password = findViewById(R.id.password_login);
-        changevis=findViewById(R.id.changevis);
         forgot_username=findViewById(R.id.forgot_username);
         mainlogin=findViewById(R.id.mainlogin);
         forgot=findViewById(R.id.forgotpassword);
         helpwanted=findViewById(R.id.wanthelp);
+        usernameTextInputLayout=findViewById(R.id.username_textinputlayout);
+        passwordTextInputLayout=findViewById(R.id.password_textinputlayout);
 
         appear= AnimationUtils.loadAnimation(this,R.anim.appear);
 
         sharedPreferences=getSharedPreferences(SHARED_PREF,MODE_PRIVATE);
+
+        et_password.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                passwordTextInputLayout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         mainlogin.startAnimation(appear);
 
         editTextRuntimeChecker(et_username);
     }
 
-    public void editTextRuntimeChecker(final EditText et_username){
+    public void editTextRuntimeChecker(final TextInputEditText et_username){
 
         et_username.addTextChangedListener(new TextWatcher() {
 
@@ -106,7 +127,7 @@ public class login extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                usernameTextInputLayout.setError(null);
             }
 
             @Override
@@ -147,7 +168,7 @@ public class login extends AppCompatActivity {
 
             public boolean isAllowed(char ch){
 
-                return (ch>='a' && ch<='z') || (ch>='A' && ch<='Z') || (ch>='0' && ch<='1');
+                return (ch>='a' && ch<='z') || (ch>='A' && ch<='Z') || (ch>='0' && ch<='9') || ch=='_';
 
             }
 
@@ -168,13 +189,19 @@ public class login extends AppCompatActivity {
         urlforuserdetail="https://rentdetails.000webhostapp.com/musicplayer_files/getuserdata.php";
         url="https://rentdetails.000webhostapp.com/musicplayer_files/login.php";
 
+        usernameTextInputLayout.setError(null);
+        passwordTextInputLayout.setError(null);
+
         if (username.isEmpty()) {
-            Toast.makeText(this, "Username required!", Toast.LENGTH_SHORT).show();
+            usernameTextInputLayout.setError("Username Required!");
+//            Toast.makeText(this, "Username required!", Toast.LENGTH_SHORT).show();
         } else if (password.isEmpty()) {
-            Toast.makeText(this, "Password required!", Toast.LENGTH_SHORT).show();
+            passwordTextInputLayout.setError("Password Required!");
+//            Toast.makeText(this, "Password required!", Toast.LENGTH_SHORT).show();
         } else
             if(password.length()<6){
-                Toast.makeText(this, "Incorrect Password", Toast.LENGTH_SHORT).show();
+                passwordTextInputLayout.setError("Invalid Password!");
+//                Toast.makeText(this, "Incorrect Password", Toast.LENGTH_SHORT).show();
             }else{
 
                 SharedPreferences.Editor editor =sharedPreferences.edit();
@@ -239,19 +266,6 @@ public class login extends AppCompatActivity {
         forgot.setVisibility(View.VISIBLE);
         mainlogin.setVisibility(View.GONE);
         forgot.startAnimation(appear);
-
-    }
-
-    public void changevisibility(View view) {
-        if(!isvisible) {
-            et_password.setInputType(InputType.TYPE_CLASS_TEXT |InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-            isvisible=true;
-            changevis.setImageResource(R.drawable.not_visible);
-        }else {
-            isvisible=false;
-            changevis.setImageResource(R.drawable.visible);
-            et_password.setInputType(InputType.TYPE_CLASS_TEXT |InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD);
-        }
 
     }
 

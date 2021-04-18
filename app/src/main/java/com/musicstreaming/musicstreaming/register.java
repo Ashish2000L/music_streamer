@@ -29,6 +29,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +48,9 @@ public class register extends AppCompatActivity {
      * Engineering ,2ndyear Student</p>
      * <p>Finished First version 1.0 on 17-Aug-2020</p>
      */
-    EditText et_name,et_password,et_email,et_username,et_otp;
+    EditText et_otp;
+    TextInputEditText et_name,et_password,et_email,et_username;
+    TextInputLayout nameTextInputLayout, emailTextInputLayout, usernameTextInputLayout, passwordTextInputLayout;
     String TAG="checkingmusicfile";
     String username_otp;
     LinearLayout linearLayoutotp, linearLayoutregister;
@@ -75,6 +79,10 @@ public class register extends AppCompatActivity {
         et_otp = findViewById(R.id.otp);
         linearLayoutotp = findViewById(R.id.linearotp);
         linearLayoutregister = findViewById(R.id.register);
+        nameTextInputLayout=findViewById(R.id.name_textinputlayout);
+        emailTextInputLayout=findViewById(R.id.email_textinputlayout);
+        usernameTextInputLayout=findViewById(R.id.user_textinputlayout);
+        passwordTextInputLayout=findViewById(R.id.pass_textinputlayout);
 
         appear= AnimationUtils.loadAnimation(this,R.anim.appear);
 
@@ -89,12 +97,78 @@ public class register extends AppCompatActivity {
        }
 
        //linearLayoutregister.startAnimation(appear);
+        addWatcherToEditText();
 
         editTextRuntimeChecker(et_username);
 
     }
+    public  void addWatcherToEditText(){
 
-    public void editTextRuntimeChecker(final EditText et_username){
+        et_email.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String email = s.toString();
+                if(!Patterns.EMAIL_ADDRESS.matcher(email).matches() && email.length()>0){
+                    emailTextInputLayout.setError("Invalid Email!");
+                }else{
+                    emailTextInputLayout.setError(null);
+                }
+            }
+        });
+
+        et_password.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(s.toString().length()<6 && s.toString().length()>0){
+                    passwordTextInputLayout.setError("Too Short Password!");
+                }else
+                {
+                    passwordTextInputLayout.setError(null);
+                }
+
+            }
+        });
+
+        et_name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                nameTextInputLayout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+    }
+
+    public void editTextRuntimeChecker(final TextInputEditText et_username){
 
         et_username.addTextChangedListener(new TextWatcher() {
 
@@ -105,7 +179,7 @@ public class register extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                usernameTextInputLayout.setError(null);
             }
 
             @Override
@@ -146,7 +220,7 @@ public class register extends AppCompatActivity {
 
             public boolean isAllowed(char ch){
 
-                return (ch>='a' && ch<='z') || (ch>='A' && ch<='Z') || (ch>='0' && ch<='1');
+                return (ch>='a' && ch<='z') || (ch>='A' && ch<='Z') || (ch>='0' && ch<='9' || ch=='_');
 
             }
 
@@ -170,17 +244,23 @@ public class register extends AppCompatActivity {
         String url="https://rentdetails.000webhostapp.com/musicplayer_files/register.php";
 
         if(name.isEmpty()){
-            Toast.makeText(this, "Name Required", Toast.LENGTH_SHORT).show();
+            nameTextInputLayout.setError("Name Required!");
+//            Toast.makeText(this, "Name Required", Toast.LENGTH_SHORT).show();
         }else if(email.isEmpty()){
-            Toast.makeText(this, "Email Required", Toast.LENGTH_SHORT).show();
+            emailTextInputLayout.setError("Email Required!");
+//            Toast.makeText(this, "Email Required", Toast.LENGTH_SHORT).show();
         }else if(username.isEmpty()){
-            Toast.makeText(this, "Username Required", Toast.LENGTH_SHORT).show();
+            usernameTextInputLayout.setError("Username Required!");
+//            Toast.makeText(this, "Username Required", Toast.LENGTH_SHORT).show();
         }else if(password.isEmpty()){
-            Toast.makeText(this, "Password Required", Toast.LENGTH_SHORT).show();
+            passwordTextInputLayout.setError("Password Required!");
+//            Toast.makeText(this, "Password Required", Toast.LENGTH_SHORT).show();
         }else if(password.length()<6){
-            Toast.makeText(this, "Password length is too short", Toast.LENGTH_SHORT).show();
+            passwordTextInputLayout.setError("Password Too Short!");
+//            Toast.makeText(this, "Password length is too short", Toast.LENGTH_SHORT).show();
         }else if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
-            Toast.makeText(this, "Enter Vaild Email", Toast.LENGTH_SHORT).show();
+            emailTextInputLayout.setError("Enter Valid Email!");
+//            Toast.makeText(this, "Enter Vaild Email", Toast.LENGTH_SHORT).show();
         }else {
 
             SharedPreferences.Editor editor =sharedPreferences.edit();
@@ -308,60 +388,11 @@ public class register extends AppCompatActivity {
 
     }
 
-    public void changeviss(View view) {
-        ImageView chage=findViewById(R.id.chngvis);
-        if(!isvis){
-            chage.setImageResource(R.drawable.not_visible);
-            et_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-            isvis=true;
-        }else{
-            chage.setImageResource(R.drawable.visible);
-            et_password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            isvis=false;
-        }
-    }
-
     public void backtoregister(View view) {
         linearLayoutotp.setVisibility(View.GONE);
         linearLayoutregister.setVisibility(View.VISIBLE);
         linearLayoutregister.startAnimation(appear);
     }
-
-//    public class errorlistner extends AsyncTask<String,Void,Void>{
-//
-//        @Override
-//        protected Void doInBackground(String... strings) {
-//            String url = "https://free4all.ezyro.com/music_streaming/error.php";
-//            final String error=strings[0];
-//            StringRequest request = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-//                @Override
-//                public void onResponse(String response) {
-//
-//                    Log.d(TAG, "onResponse: error response "+response);
-//
-//                }
-//            }, new Response.ErrorListener() {
-//                @Override
-//                public void onErrorResponse(VolleyError error) {
-//
-//                    ///parseVolleyError(error);
-//
-//                    Log.d(TAG, "onErrorResponse:error message "+error.getMessage());
-//
-//                }
-//            }){
-//                @Override
-//                protected Map<String, String> getParams() throws AuthFailureError {
-//                    Map<String,String> params = new HashMap<String, String>();
-//                    params.put("error",error);
-//                    params.put("username","register");
-//                    return params;
-//                }
-//            };
-//
-//            return null;
-//        }
-//    }
 
     @Override
     public void onBackPressed() {
