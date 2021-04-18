@@ -15,6 +15,8 @@ import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import android.os.Environment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -46,7 +48,11 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.musicstreaming.musicstreaming.service.online_status_updater;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.HashMap;
@@ -74,7 +80,9 @@ public class settingfragment extends Fragment {
      */
 
     ImageView profileimg;
-    EditText names,email,username,password;
+    TextView email,username;
+    TextInputEditText names,password;
+    TextInputLayout usernameTextInputLayout, passwordTextInputLayout,nameTextInputLayout, emailTextInputLayout;
     Context context;
     SharedPreferences sharedPreferences;
     Button doneupdate;
@@ -107,6 +115,9 @@ public class settingfragment extends Fragment {
         doneupdate=view.findViewById(R.id.submit);
         advance_setting = view.findViewById(R.id.advance_setting);
         scan_qr=view.findViewById(R.id.scan_qr);
+
+        nameTextInputLayout=view.findViewById(R.id.name_textinputlayout);
+        passwordTextInputLayout=view.findViewById(R.id.pass_textinputlayout);
 
         names.setText(sharedPreferences.getString(login.NAME,""));
         email.setText(sharedPreferences.getString(EMAIL,""));
@@ -156,8 +167,42 @@ public class settingfragment extends Fragment {
             }
         });
 
+        names.addTextChangedListener(setTextWatcherToEditText());
+        password.addTextChangedListener(setTextWatcherToEditText());
+
         return view;
     }
+
+    public TextWatcher setTextWatcherToEditText(){
+
+        final String name=sharedPreferences.getString(NAME,""),
+                pass=sharedPreferences.getString(PASSWORD,"");
+
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                if(!s.toString().equals(name) && !s.toString().equals(pass)){
+                    doneupdate.setVisibility(View.VISIBLE);
+                }else {
+                    doneupdate.setVisibility(View.GONE);
+                }
+
+                Log.d(TAG, "afterTextChanged: text : "+s.toString()+" name: +"+name+" check: "+!s.toString().equals(name)+" pass: "+pass+" check: "+!s.toString().equals(pass));
+            }
+        };
+    }
+
     public void loadimage(String url){
         final CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(context);
         circularProgressDrawable.setStrokeWidth(5f);
@@ -170,8 +215,6 @@ public class settingfragment extends Fragment {
         requestOptions.circleCrop();
         requestOptions.priority(Priority.HIGH);
         requestOptions.fitCenter();
-
-        Log.d(TAG, "loadimage: your requested url is "+url);
 
         Glide.with(this)
                 .load(url)
@@ -261,15 +304,25 @@ public class settingfragment extends Fragment {
         emails=email.getText().toString().trim();
         passwords=password.getText().toString().trim();
 
+        nameTextInputLayout.setError(null);
+        passwordTextInputLayout.setError(null);
+
         if(name.isEmpty()){
-            Toast.makeText(context, "Name Required", Toast.LENGTH_SHORT).show();
+            nameTextInputLayout.setError("Name Required!");
+//            Toast.makeText(context, "Name Required", Toast.LENGTH_SHORT).show();
         }else if(usernames.isEmpty()){
             Toast.makeText(context, "Username Required", Toast.LENGTH_SHORT).show();
         }else if(emails.isEmpty()){
             Toast.makeText(context, "Email Required", Toast.LENGTH_SHORT).show();
         }else if(passwords.isEmpty()){
-            Toast.makeText(context, "Password Required", Toast.LENGTH_SHORT).show();
-        }else if(name.equalsIgnoreCase(sharedPreferences.getString(NAME,"").trim()) && passwords.equalsIgnoreCase(sharedPreferences.getString(PASSWORD,"").trim())){
+            passwordTextInputLayout.setError("Password Required!");
+//            Toast.makeText(context, "Password Required", Toast.LENGTH_SHORT).show();
+        }else
+            if(passwords.length()<6){
+                passwordTextInputLayout.setError("Password Too Short!");
+            }else
+
+            if(name.equalsIgnoreCase(sharedPreferences.getString(NAME,"").trim()) && passwords.equalsIgnoreCase(sharedPreferences.getString(PASSWORD,"").trim())){
             Toast.makeText(context, "No Change Found!!", Toast.LENGTH_SHORT).show();
         }else{
 
