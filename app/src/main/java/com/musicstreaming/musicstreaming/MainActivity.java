@@ -335,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // set the counter button to the menu item
     public static void setSongCounter(final int counter){
 
         final Handler handler = new Handler();
@@ -353,8 +354,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }catch (Exception e){
                     e.printStackTrace();
-                    Log.d("counter_values", "run: running to set counter");
-                    handler.postDelayed(this,500);
+                    handler.postDelayed(this,1000);
                 }
             }
         }).start();
@@ -364,7 +364,6 @@ public class MainActivity extends AppCompatActivity {
     //backpress handler
     @Override
     public void onBackPressed() {
-        //Fragment check=new homefragment();
         if(k==0) {
             startActivity(new Intent(this,MainActivity.class).putExtra("k",1));
             toolbar.setTitle("Music Streaming");
@@ -455,16 +454,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // to set counter progress
     public static void setsongprogress(int progress){
         progressBar.setProgress(progress);
     }
 
+    // to add the credit fragment to the top of of the frame layout
     public static void get_credits(Activity activity){
 
         ((FragmentActivity)activity).getSupportFragmentManager().beginTransaction().replace(R.id.framelayout,new credits()).commit();
 
     }
 
+    // to replace the fragment on the backpress
     public void replaceFrameLayout(int fragment_id){
 
         switch (fragment_id) {
