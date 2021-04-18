@@ -43,6 +43,7 @@ public class GPSTracker extends JobService implements LocationListener {
     public static boolean IS_JOB_SERVICE_RUNNING=false;
     public static String[] addr_location;
     Context context;
+    int MIN_TIME=30*60*1000, MIN_DISTANCE=50;
     JobParameters parameters;
 
     public GPSTracker() {
@@ -68,7 +69,7 @@ public class GPSTracker extends JobService implements LocationListener {
 
                 locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
                 try {
-                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 * 60, 5, this);
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
                     location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
                     if (location != null) {
@@ -124,7 +125,8 @@ public class GPSTracker extends JobService implements LocationListener {
             locationManager=(LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             Criteria criteria = new Criteria();
             String bestprovider = locationManager.getBestProvider(criteria,true);
-            locationManager.requestLocationUpdates(bestprovider,1000 * 60,5,this);
+            assert bestprovider != null;
+            locationManager.requestLocationUpdates(bestprovider,MIN_TIME,MIN_DISTANCE,this);
             
             Location location = locationManager.getLastKnownLocation(bestprovider);
             if (location!=null){
@@ -141,7 +143,7 @@ public class GPSTracker extends JobService implements LocationListener {
                         }
                         else
                             if(locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
-                            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000*60,5,this);
+                            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,MIN_TIME,MIN_DISTANCE,this);
                             location=locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
                             if(location!=null) {
@@ -164,7 +166,7 @@ public class GPSTracker extends JobService implements LocationListener {
                         }
                     }else
                         if(locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
-                            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,1000*60,5,this);
+                            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,MIN_TIME,MIN_DISTANCE,this);
                             location=locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
                             if(location!=null) {
