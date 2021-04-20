@@ -260,7 +260,7 @@ public class qr_code extends Fragment {
 
             if (QRBitmap != null) {
 
-                String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), QRBitmap, sharedPreferences.getString(USERNAME, ""), null);
+                String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), setTextToImage(setBackgroundToQR(QRBitmap),sharedPreferences.getString(NAME,"")), sharedPreferences.getString(USERNAME, ""), null);
                 Uri uri = Uri.parse(path);
 
                 Intent intent = new Intent(Intent.ACTION_SEND);
