@@ -313,7 +313,98 @@ public class qr_code extends Fragment {
         return combine;
     }
 
-    //TODO: update this and work on custom dialogue for the making friend
+    //added background image to the QR
+    public Bitmap setBackgroundToQR(Bitmap combine){
+        Bitmap background = BitmapFactory.decodeResource(context.getResources(),R.drawable.qr_code_background);
+
+        Bitmap combine1=Bitmap.createBitmap(background.getWidth(),background.getHeight(),background.getConfig());
+        Canvas canvas1 = new Canvas(combine1);
+        int canvasWidth=canvas1.getWidth();
+        int canvasHeight=canvas1.getHeight();
+        canvas1.drawBitmap(background,new Matrix(),null);
+
+        Bitmap qr_resize=Bitmap.createScaledBitmap(combine,(int)(canvasWidth/1.5),(int)(canvasHeight/1.5),true);
+        int ypos=(canvasHeight-qr_resize.getHeight())/2;
+        int xpos=(canvasWidth-qr_resize.getWidth())/2;
+
+        canvas1.drawBitmap(qr_resize,xpos,ypos,null);
+
+        return combine1;
+    }
+
+    //added users name and date of sharing on the image
+    public Bitmap setTextToImage(Bitmap bitmap, String text){
+
+        Bitmap combine = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), bitmap.getConfig());
+        Canvas canvas = new Canvas(combine);
+        canvas.drawBitmap(bitmap, new Matrix(), null);
+
+        Typeface tf = Typeface.create("cambo", Typeface.BOLD);
+
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.WHITE);
+        paint.setTypeface(tf);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextSize(convertToPixels(context, 70));
+
+        int yPos = (int) (190) ;
+        if(text.length()>15 && text.length()<=20){
+            paint.setTextSize(convertToPixels(context, 55));
+            yPos = (int) (185) ;
+        }else if(text.length()>20 && text.length()<=25){
+            paint.setTextSize(convertToPixels(context, 40));
+            yPos = (int) (180) ;
+        }else if(text.length()>25){
+            paint.setTextSize(convertToPixels(context, 25));
+            yPos = (int) (175) ;
+            if (text.length()>35)
+                text=text.substring(0,35);
+        }
+
+        Rect textRect = new Rect();
+        paint.getTextBounds(text, 0, text.length(), textRect);
+
+        //If the text is bigger than the canvas , reduce the font size
+        if(textRect.width() >= (canvas.getWidth() - 4))     //the padding on either sides is considered as 4, so as to appropriately fit in the text
+            paint.setTextSize(convertToPixels(context, 7));        //Scaling needs to be used for different dpi's
+
+        //Calculate the positions
+        int xPos = (canvas.getWidth()/2);
+
+        canvas.drawText(text, xPos, yPos, paint);
+
+        Calendar c = Calendar.getInstance();
+
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = df.format(c.getTime());
+
+        paint = new Paint();
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.BLACK);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextSize(convertToPixels(context, 15));
+
+        paint.getTextBounds(formattedDate,0,formattedDate.length(),textRect);
+
+        xPos=(canvas.getWidth())-120;
+        yPos=canvas.getHeight()-10;
+
+        canvas.drawText(formattedDate, xPos, yPos, paint);
+
+        return combine;
+
+    }
+
+    public static int convertToPixels(Context context, int nDP)
+    {
+        final float conversionScale = context.getResources().getDisplayMetrics().density;
+
+        return (int) ((nDP * conversionScale) + 0.5f) ;
+
+    }
+
     public void custom_dialod(final Context context) {
         final TextView frd_name;
         final Button close, send_req;
