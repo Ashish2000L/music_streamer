@@ -1,6 +1,7 @@
 package com.musicstreaming.musicstreaming;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -14,6 +15,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -79,9 +83,12 @@ import com.musicstreaming.musicstreaming.service.online_status_updater;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,6 +102,7 @@ import static com.musicstreaming.musicstreaming.qr_scanner.getUserDetails.playli
 import static com.musicstreaming.musicstreaming.qr_scanner.getUserDetails.plylst_count;
 import static com.musicstreaming.musicstreaming.qr_scanner.getUserDetails.username;
 import static com.musicstreaming.musicstreaming.service.onclearfrompercentservice.TAG;
+import static com.musicstreaming.musicstreaming.splash.NAME;
 import static com.musicstreaming.musicstreaming.splash.SHARED_PREF;
 import static com.musicstreaming.musicstreaming.splash.USERNAME;
 
@@ -503,11 +511,6 @@ public class qr_code extends Fragment {
     }
 
     public void loadimage(String url, ImageView profileimage) {
-//        final CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(context);
-//        circularProgressDrawable.setStrokeWidth(5f);
-//        circularProgressDrawable.setCenterRadius(40f);
-//        circularProgressDrawable.start();
-
         final RequestOptions requestOptions = new RequestOptions();
         requestOptions.placeholder(R.drawable.person_profile);
         requestOptions.skipMemoryCache(true);
