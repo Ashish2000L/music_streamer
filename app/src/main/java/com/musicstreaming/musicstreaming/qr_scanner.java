@@ -104,10 +104,15 @@ public class qr_scanner extends AppCompatActivity implements ZXingScannerView.Re
 
     @Override
     public void handleResult(Result rawResult) {
-        if(rawResult.getText().split("/")[1].equals("1")) {
-            Decript_QRCode(rawResult.getText());
-        }else {
-            Toast.makeText(this, "Failed To Access!!", Toast.LENGTH_SHORT).show();
+        try {
+            if (rawResult.getText().split("/")[1].equals("1")) {
+                Decript_QRCode(rawResult.getText());
+            } else {
+                Toast.makeText(this, "Failed To Access!!", Toast.LENGTH_SHORT).show();
+            }
+        }catch (Exception e){
+            Toast.makeText(this, "Error: SCN_FAL_IDX_NUL", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, MainActivity.class).putExtra("fragment_id",3));
         }
     }
 
