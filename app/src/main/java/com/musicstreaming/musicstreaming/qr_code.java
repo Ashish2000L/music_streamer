@@ -117,6 +117,7 @@ public class qr_code extends Fragment {
     Bitmap QRBitmap;
     Button getImageFromGallery;
     ArrayAdapter<String> items;
+    int ht=0;
 
     public qr_code() {
         // Required empty public constructor
@@ -271,10 +272,12 @@ public class qr_code extends Fragment {
                 String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), setTextToImage(setBackgroundToQR(QRBitmap),sharedPreferences.getString(NAME,"")), sharedPreferences.getString(USERNAME, ""), null);
                 Uri uri = Uri.parse(path);
 
+                String msg="Scan and join me on Music Streaming. Not having Application?  Get it now from https://musicstreamingfora.wixsite.com/musicstreaming and enjoy thousands of latest songs for free.";
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.putExtra(Intent.EXTRA_STREAM, uri);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setType("image/png");
+                intent.putExtra(Intent.EXTRA_TEXT,msg);
                 startActivity(Intent.createChooser(intent, "Share with"));
 
             }
@@ -335,6 +338,8 @@ public class qr_code extends Fragment {
         int ypos=(canvasHeight-qr_resize.getHeight())/2;
         int xpos=(canvasWidth-qr_resize.getWidth())/2;
 
+        ht=qr_resize.getHeight();
+
         canvas1.drawBitmap(qr_resize,xpos,ypos,null);
 
         return combine1;
@@ -356,22 +361,18 @@ public class qr_code extends Fragment {
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setTextSize(convertToPixels(context, 70));
 
-        int yPos = (int) (190) ;
-        if(text.length()>15 && text.length()<=20){
-            paint.setTextSize(convertToPixels(context, 55));
-            yPos = (int) (185) ;
-        }else if(text.length()>20 && text.length()<=25){
-            paint.setTextSize(convertToPixels(context, 40));
-            yPos = (int) (180) ;
-        }else if(text.length()>25){
-            paint.setTextSize(convertToPixels(context, 25));
-            yPos = (int) (175) ;
-            if (text.length()>35)
-                text=text.substring(0,35);
-        }
-
         Rect textRect = new Rect();
         paint.getTextBounds(text, 0, text.length(), textRect);
+
+        int yPos = (int)(((combine.getHeight()-ht)/2)-textRect.height());
+        Log.d(TAG, "setTextToImage: value for the ypos is "+textRect.height()+" "+combine.getHeight()+" "+ht+" ypos: "+yPos);
+        if(text.length()>15 && text.length()<=20){
+            paint.setTextSize(convertToPixels(context, 55));
+        }else if(text.length()>20 && text.length()<=25){
+            paint.setTextSize(convertToPixels(context, 40));
+        }else if(text.length()>25){
+            paint.setTextSize(convertToPixels(context, 25));
+        }
 
         //If the text is bigger than the canvas , reduce the font size
         if(textRect.width() >= (canvas.getWidth() - 4))     //the padding on either sides is considered as 4, so as to appropriately fit in the text
@@ -396,7 +397,7 @@ public class qr_code extends Fragment {
 
         paint.getTextBounds(formattedDate,0,formattedDate.length(),textRect);
 
-        xPos=(canvas.getWidth())-120;
+        xPos=(int)((canvas.getWidth())-textRect.width()/2)-20;
         yPos=canvas.getHeight()-10;
 
         canvas.drawText(formattedDate, xPos, yPos, paint);
